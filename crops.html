@@ -352,7 +352,7 @@
 
         <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; pt-3; border-top: 1px solid var(--color-border);">
           <button type="button" onclick="document.getElementById('add-crop-modal').classList.remove('active')" class="btn btn-secondary btn-sm">Cancel</button>
-          <button type="submit" class="btn btn-primary btn-sm">Initialize Cycle</button>
+          <button type="submit" id="btn-init-crop-cycle" class="btn btn-primary btn-sm">Initialize Cycle</button>
         </div>
       </form>
     </div>
@@ -603,23 +603,55 @@
       };
 
       // 7. Modal Form Submit for Launching New Cycle
-      document.getElementById('add-crop-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const payload = {
-          crop_name: document.getElementById('cycle-crop').value.trim(),
-          variety: document.getElementById('cycle-variety').value.trim(),
-          season: document.getElementById('cycle-season').value,
-          target_yield: parseFloat(document.getElementById('cycle-yield').value) || 4.2,
-          selling_price_per_unit: parseFloat(document.getElementById('cycle-price').value) || 29000,
-          planned_budget: parseFloat(document.getElementById('cycle-budget').value) || 50000
-        };
+      const addCropForm = document.getElementById('add-crop-form');
+      if (addCropForm) {
+        addCropForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const submitBtn = document.getElementById('btn-init-crop-cycle') || addCropForm.querySelector('button[type="submit"]');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>Initializing...</span>';
+          }
 
-        const created = await window.FarmPilotDB.createCropCycle(payload);
-        currentCycle = created;
-        document.getElementById('add-crop-modal').classList.remove('active');
-        window.FarmPilotApp.showToast('Crop life cycle saved with 6 biological stages! 🎉');
-        setTimeout(() => window.location.reload(), 500);
-      });
+          try {
+            const payload = {
+              crop_name: document.getElementById('cycle-crop').value.trim() || 'Paddy (Rice)',
+              variety: document.getElementById('cycle-variety').value.trim() || 'BPT-5204',
+              season: document.getElementById('cycle-season').value,
+              target_yield: parseFloat(document.getElementById('cycle-yield').value) || 4.2,
+              selling_price_per_unit: parseFloat(document.getElementById('cycle-price').value) || 29000,
+              planned_budget: parseFloat(document.getElementById('cycle-budget').value) || 50000
+            };
+
+            const created = await window.FarmPilotDB.createCropCycle(payload);
+            currentCycle = created;
+
+            // Reflect on UI immediately
+            const heroCard = document.getElementById('crop-cycle-hero-card');
+            if (heroCard) heroCard.style.display = 'block';
+            const nameEl = document.getElementById('hero-crop-name');
+            if (nameEl) nameEl.textContent = created.crop_name;
+            const varEl = document.getElementById('hero-crop-variety');
+            if (varEl) varEl.textContent = created.variety;
+            const seasonEl = document.getElementById('hero-crop-season');
+            if (seasonEl) seasonEl.textContent = `Active ${created.season} 2026`;
+            const budgetEl = document.getElementById('crop-budget-val');
+            if (budgetEl) budgetEl.textContent = `₹${Number(created.planned_budget).toLocaleString('en-IN')}`;
+
+            document.getElementById('add-crop-modal').classList.remove('active');
+            window.FarmPilotApp.showToast(`Crop cycle '${created.crop_name} (${created.variety})' initialized successfully! 🎉`, 'success');
+
+            setTimeout(() => window.location.reload(), 600);
+          } catch (err) {
+            console.error('Crop cycle launch error:', err);
+            window.FarmPilotApp.showToast('Failed to launch crop cycle: ' + err.message, 'danger');
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = 'Initialize Cycle';
+            }
+          }
+        });
+      }
     });
   </script>
 </body>

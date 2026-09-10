@@ -61,12 +61,12 @@ window.FARMPILOT_CONFIG = {
     CONSULTANT: {
       id: 'usr-con-04',
       email: 'consultant@greenvalley.in',
-      full_name: 'Dr. M. S. Swaminathan',
+      full_name: 'Dr. Anita Rao',
       role: 'CONSULTANT',
-      roleLabel: 'Principal Agronomic Advisor',
+      roleLabel: 'Principal Agronomist & Advisor',
       badge: 'Consultant',
       badgeClass: 'badge-neutral',
-      avatar: 'D',
+      avatar: 'A',
       permissions: ['farm_health', 'crop_analytics', 'advisory', 'recommendations', 'read_reports']
     }
   },

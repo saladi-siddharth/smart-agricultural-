@@ -70,15 +70,101 @@ window.FarmPilotAuth = {
     }
   },
 
+  updateProfileImage(dataUrl) {
+    const user = this.getUser();
+    if (!user) return;
+    user.avatar_image = dataUrl;
+    if (user.email) {
+      try {
+        localStorage.setItem('fp_user_avatar_' + user.email, dataUrl);
+      } catch (e) {
+        console.warn('Could not cache avatar locally:', e);
+      }
+    }
+    this.setUser(user);
+  },
+
+  resetPassword(email, newPassword) {
+    try {
+      localStorage.setItem('fp_custom_pwd_' + email.toLowerCase().trim(), newPassword);
+      return true;
+    } catch (e) {
+      console.error('Error saving new password:', e);
+      return false;
+    }
+  },
+
+  loginWithGoogle(googleUser) {
+    const email = googleUser.email || 'siddharth.saladi@gmail.com';
+    const fullName = googleUser.name || 'Siddharth Saladi';
+    const picture = googleUser.picture || null;
+
+    const userSession = {
+      id: 'goog-' + (googleUser.sub || Date.now()),
+      email: email,
+      full_name: fullName,
+      role: 'OWNER',
+      roleLabel: 'Farm Owner & Executive',
+      badge: 'Owner (Google Verified)',
+      badgeClass: 'badge-success',
+      avatar: fullName.charAt(0).toUpperCase(),
+      avatar_image: picture,
+      permissions: ['financials', 'org_settings', 'all_farms', 'reports', 'alerts', 'manage_members']
+    };
+
+    if (picture) {
+      try {
+        localStorage.setItem('fp_user_avatar_' + email, picture);
+      } catch (e) {}
+    }
+
+    this.setUser(userSession);
+    return { success: true, user: userSession };
+  },
+
   async login(email, password) {
-    // 1. Try Supabase Auth first
+    const normalizedEmail = (email || '').toLowerCase().trim();
+
+    // Check custom reset password first
+    const customPwd = localStorage.getItem('fp_custom_pwd_' + normalizedEmail);
+    if (customPwd && password === customPwd) {
+      // User reset their password previously
+      for (const roleKey of Object.keys(window.FARMPILOT_CONFIG.PERSONAS)) {
+        const p = window.FARMPILOT_CONFIG.PERSONAS[roleKey];
+        if (p.email.toLowerCase() === normalizedEmail) {
+          const userSession = { ...p };
+          const savedAvatar = localStorage.getItem('fp_user_avatar_' + normalizedEmail);
+          if (savedAvatar) userSession.avatar_image = savedAvatar;
+          this.setUser(userSession);
+          return { success: true, user: userSession };
+        }
+      }
+      // Custom user
+      const userSession = {
+        id: 'usr-' + Date.now(),
+        email: normalizedEmail,
+        full_name: normalizedEmail.split('@')[0],
+        role: 'OWNER',
+        roleLabel: 'Farm Owner & Executive',
+        badge: 'Owner',
+        badgeClass: 'badge-success',
+        avatar: normalizedEmail.charAt(0).toUpperCase(),
+        permissions: ['financials', 'org_settings', 'all_farms', 'reports', 'alerts', 'manage_members']
+      };
+      const savedAvatar = localStorage.getItem('fp_user_avatar_' + normalizedEmail);
+      if (savedAvatar) userSession.avatar_image = savedAvatar;
+      this.setUser(userSession);
+      return { success: true, user: userSession };
+    }
+
+    // 1. Try Supabase Auth
     if (window.supabase && window.FARMPILOT_CONFIG) {
       try {
         const client = window.supabase.createClient(
           window.FARMPILOT_CONFIG.SUPABASE_URL,
           window.FARMPILOT_CONFIG.SUPABASE_ANON_KEY
         );
-        const { data, error } = await client.auth.signInWithPassword({ email, password });
+        const { data, error } = await client.auth.signInWithPassword({ email: normalizedEmail, password });
         if (!error && data?.user) {
           const userSession = {
             id: data.user.id,
@@ -91,6 +177,8 @@ window.FarmPilotAuth = {
             avatar: (data.user.user_metadata?.full_name || 'U').charAt(0).toUpperCase(),
             permissions: ['financials', 'org_settings', 'all_farms', 'reports', 'alerts', 'manage_members']
           };
+          const savedAvatar = localStorage.getItem('fp_user_avatar_' + userSession.email);
+          if (savedAvatar) userSession.avatar_image = savedAvatar;
           this.setUser(userSession);
           return { success: true, user: userSession };
         }
@@ -102,30 +190,35 @@ window.FarmPilotAuth = {
     // 2. Persona Matches
     for (const roleKey of Object.keys(window.FARMPILOT_CONFIG.PERSONAS)) {
       const p = window.FARMPILOT_CONFIG.PERSONAS[roleKey];
-      if (email === p.email) {
-        this.setUser(p);
-        return { success: true, user: p };
+      if (normalizedEmail === p.email.toLowerCase()) {
+        const userSession = { ...p };
+        const savedAvatar = localStorage.getItem('fp_user_avatar_' + normalizedEmail);
+        if (savedAvatar) userSession.avatar_image = savedAvatar;
+        this.setUser(userSession);
+        return { success: true, user: userSession };
       }
     }
 
     // 3. Fallback lenient acceptance for judges
-    if (email && email.includes('@') && password && password.length >= 6) {
+    if (normalizedEmail && normalizedEmail.includes('@') && password && password.length >= 6) {
       const userSession = {
         id: 'usr-' + Date.now(),
-        email: email,
-        full_name: email.split('@')[0],
+        email: normalizedEmail,
+        full_name: normalizedEmail.split('@')[0],
         role: 'OWNER',
         roleLabel: 'Farm Owner & Executive',
         badge: 'Owner',
         badgeClass: 'badge-success',
-        avatar: email.charAt(0).toUpperCase(),
+        avatar: normalizedEmail.charAt(0).toUpperCase(),
         permissions: ['financials', 'org_settings', 'all_farms', 'reports', 'alerts', 'manage_members']
       };
+      const savedAvatar = localStorage.getItem('fp_user_avatar_' + normalizedEmail);
+      if (savedAvatar) userSession.avatar_image = savedAvatar;
       this.setUser(userSession);
       return { success: true, user: userSession };
     }
 
-    return { success: false, error: 'Invalid credentials. Use demo button for instant access.' };
+    return { success: false, error: 'Invalid credentials. Use 1-Click demo button or reset password.' };
   },
 
   logout() {

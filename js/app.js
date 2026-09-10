@@ -104,7 +104,7 @@ window.FarmPilotApp = {
     const role = user.role || 'OWNER';
 
     // Role-based route guard
-    if (role === 'WORKER' && ['expenses', 'farms', 'reports'].includes(this.activePage)) {
+    if (role === 'WORKER' && ['expenses', 'farms', 'reports', 'dashboard', 'crops', 'inputs'].includes(this.activePage)) {
       window.location.href = 'worker.html';
       return;
     }
@@ -112,10 +112,15 @@ window.FarmPilotApp = {
       window.location.href = 'crops.html';
       return;
     }
+    if (role === 'MANAGER' && ['reports'].includes(this.activePage)) {
+      window.location.href = 'dashboard.html';
+      return;
+    }
 
     let navItems = [];
 
     if (role === 'WORKER') {
+      // 3 Links Total
       navItems = [
         {
           group: 'Field Worker Shift',
@@ -132,6 +137,7 @@ window.FarmPilotApp = {
         }
       ];
     } else if (role === 'CONSULTANT') {
+      // 7 Links Total
       navItems = [
         {
           group: 'Agronomic Overview',
@@ -157,6 +163,7 @@ window.FarmPilotApp = {
         }
       ];
     } else if (role === 'MANAGER') {
+      // 9 Links Total
       navItems = [
         {
           group: 'Operations Command',
@@ -189,7 +196,7 @@ window.FarmPilotApp = {
         }
       ];
     } else {
-      // OWNER (Full enterprise oversight)
+      // OWNER (10 Links Total - Full enterprise oversight)
       navItems = [
         {
           group: 'Executive Overview',
@@ -223,6 +230,23 @@ window.FarmPilotApp = {
         }
       ];
     }
+
+    // Role badge color scheme
+    const roleBadges = {
+      OWNER: { bg: '#ECFDF5', text: '#047857', border: '#A7F3D0', dot: '#10B981', label: '👑 OWNER' },
+      MANAGER: { bg: '#EFF6FF', text: '#1D4ED8', border: '#BFDBFE', dot: '#3B82F6', label: '👔 MANAGER' },
+      WORKER: { bg: '#FFFBEB', text: '#B45309', border: '#FDE68A', dot: '#F59E0B', label: '🚜 WORKER' },
+      CONSULTANT: { bg: '#FAF5FF', text: '#7E22CE', border: '#E9D5FF', dot: '#A855F7', label: '🔬 CONSULTANT' }
+    };
+    const badgeStyle = roleBadges[role] || roleBadges.OWNER;
+
+    const avatarHtml = user.avatar_image ? `
+      <img src="${user.avatar_image}" alt="${user.full_name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+    ` : `
+      <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--color-forest); color: #FFFFFF; font-weight: 800; font-size: 0.8125rem;">
+        ${user.avatar || (user.full_name ? user.full_name.charAt(0).toUpperCase() : 'F')}
+      </div>
+    `;
 
     sidebarEl.innerHTML = `
       <!-- Brand Header -->
@@ -281,7 +305,7 @@ window.FarmPilotApp = {
         </div>
       </nav>
 
-      <!-- Sidebar Footer -->
+      <!-- Sidebar Footer with Persona Profile & Prominent Sign Out Button -->
       <div class="sidebar-footer">
         <!-- Farm Health Index -->
         <div class="mini-health-indicator">
@@ -293,23 +317,29 @@ window.FarmPilotApp = {
           </span>
         </div>
 
-        <!-- User Profile & Sign Out -->
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem; border-radius: var(--radius-md); background-color: var(--color-surface-secondary); border: 1px solid var(--color-border);">
-          <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 0;">
-            <div style="width: 28px; height: 28px; border-radius: var(--radius-sm); background-color: var(--color-forest); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; flex-shrink: 0;">
-              ${user.avatar || (user.full_name ? user.full_name.charAt(0).toUpperCase() : 'F')}
+        <!-- User Profile Card -->
+        <div style="padding: 0.625rem; border-radius: var(--radius-md); background-color: var(--color-surface-secondary); border: 1px solid var(--color-border); margin-top: 0.35rem;">
+          <div style="display: flex; align-items: center; gap: 0.6rem; min-width: 0;">
+            <div style="width: 34px; height: 34px; border-radius: 50%; overflow: hidden; border: 1.5px solid var(--color-border); flex-shrink: 0; position: relative;">
+              ${avatarHtml}
             </div>
-            <div style="min-width: 0;">
-              <p style="font-size: 0.75rem; font-weight: 800; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1;">
+            <div style="min-width: 0; flex: 1;">
+              <p style="font-size: 0.8125rem; font-weight: 800; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;">
                 ${user.full_name || 'Farm Operator'}
               </p>
-              <p style="font-size: 0.625rem; color: var(--color-emerald-dark); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                ${user.roleLabel || user.role}
+              <p style="font-size: 0.6875rem; color: var(--color-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1; margin-bottom: 0.25rem;">
+                ${user.email || 'user@farmpilot.in'}
               </p>
+              <span style="display: inline-block; font-size: 0.625rem; font-weight: 800; padding: 0.1rem 0.45rem; border-radius: 4px; background: ${badgeStyle.bg}; color: ${badgeStyle.text}; border: 1px solid ${badgeStyle.border};">
+                ${badgeStyle.label}
+              </span>
             </div>
           </div>
-          <button onclick="window.FarmPilotAuth.logout()" title="Sign out" style="color: #94A3B8; hover:color: #EF4444; font-size: 0.75rem; background:none; border:none; cursor:pointer;">
-            🚪
+
+          <!-- PROMINENT SIGN OUT BUTTON -->
+          <button onclick="window.FarmPilotAuth.logout()" class="btn" style="width: 100%; margin-top: 0.65rem; display: flex; align-items: center; justify-content: center; gap: 0.45rem; background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; padding: 0.45rem 0.75rem; border-radius: var(--radius-md); font-size: 0.75rem; font-weight: 800; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#FEE2E2'; this.style.borderColor='#F87171';" onmouseout="this.style.background='#FEF2F2'; this.style.borderColor='#FECACA';">
+            <span style="font-size: 0.875rem;">🚪</span>
+            <span>Sign Out</span>
           </button>
         </div>
       </div>
@@ -335,8 +365,25 @@ window.FarmPilotApp = {
 
     const currentTitle = pageTitles[this.activePage] || 'Command Center';
     const user = window.FarmPilotAuth.getUser() || window.FARMPILOT_CONFIG.PERSONAS.OWNER;
+    const role = user.role || 'OWNER';
     const activeFarm = window.FarmPilotDB ? await window.FarmPilotDB.getActiveFarm() : window.FARMPILOT_CONFIG.DEFAULT_FARMS[0];
     const farms = window.FarmPilotDB ? await window.FarmPilotDB.getFarms() : window.FARMPILOT_CONFIG.DEFAULT_FARMS;
+
+    const roleBadges = {
+      OWNER: { bg: '#ECFDF5', text: '#047857', border: '#A7F3D0', label: '👑 OWNER' },
+      MANAGER: { bg: '#EFF6FF', text: '#1D4ED8', border: '#BFDBFE', label: '👔 MANAGER' },
+      WORKER: { bg: '#FFFBEB', text: '#B45309', border: '#FDE68A', label: '🚜 WORKER' },
+      CONSULTANT: { bg: '#FAF5FF', text: '#7E22CE', border: '#E9D5FF', label: '🔬 CONSULTANT' }
+    };
+    const badgeStyle = roleBadges[role] || roleBadges.OWNER;
+
+    const headerAvatar = user.avatar_image ? `
+      <img src="${user.avatar_image}" alt="${user.full_name}" style="width: 100%; height: 100%; object-fit: cover;">
+    ` : `
+      <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--color-forest); color: #FFFFFF; font-weight: 800; font-size: 0.75rem;">
+        ${user.avatar || (user.full_name ? user.full_name.charAt(0).toUpperCase() : 'F')}
+      </div>
+    `;
 
     headerEl.innerHTML = `
       <!-- Left: Breadcrumb & Title -->
@@ -363,24 +410,95 @@ window.FarmPilotApp = {
         </div>
       </div>
 
-      <!-- Right: Demo Persona Switcher & Search -->
+      <!-- Right: Role Switcher & Profile Button (Replaces Search Bar) -->
       <div style="display: flex; align-items: center; gap: 0.65rem;">
-        <!-- Demo Persona Switcher Dropdown -->
+        <!-- Demo Role Switcher Dropdown -->
         <div style="display: flex; align-items: center; gap: 0.35rem; background: #FEF3C7; border: 1px solid #FCD34D; padding: 0.2rem 0.6rem; border-radius: var(--radius-md);" title="Switch Role Persona for Live Demo">
           <span style="font-size: 0.6875rem; font-weight: 800; color: #92400E;">ROLE:</span>
           <select id="role-persona-select" style="background: transparent; border: none; font-size: 0.75rem; font-weight: 800; color: #78350F; cursor: pointer; outline: none;" onchange="window.FarmPilotAuth.switchPersona(this.value)">
-            <option value="OWNER" ${user.role === 'OWNER' ? 'selected' : ''}>👑 Owner (Siddharth)</option>
-            <option value="MANAGER" ${user.role === 'MANAGER' ? 'selected' : ''}>🛠️ Manager (Rajesh)</option>
-            <option value="WORKER" ${user.role === 'WORKER' ? 'selected' : ''}>🚜 Worker (Ravi)</option>
-            <option value="CONSULTANT" ${user.role === 'CONSULTANT' ? 'selected' : ''}>🔬 Consultant (Swaminathan)</option>
+            <option value="OWNER" ${role === 'OWNER' ? 'selected' : ''}>👑 Owner (Siddharth)</option>
+            <option value="MANAGER" ${role === 'MANAGER' ? 'selected' : ''}>👔 Manager (Rajesh)</option>
+            <option value="CONSULTANT" ${role === 'CONSULTANT' ? 'selected' : ''}>🔬 Consultant (Dr. Anita)</option>
+            <option value="WORKER" ${role === 'WORKER' ? 'selected' : ''}>🚜 Worker (Ravi)</option>
           </select>
         </div>
 
-        <button onclick="FarmPilotApp.openCommandPalette()" class="btn btn-secondary btn-sm" style="display: flex; align-items: center; gap: 0.35rem; color: var(--color-text-secondary);">
-          <span>🔍</span>
-          <span>Search</span>
-          <kbd class="font-mono" style="background: #FFFFFF; border: 1px solid #CBD5E1; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.625rem;">⌘K</kbd>
-        </button>
+        <!-- PROFILE BUTTON & COMPREHENSIVE USER MENU (Replaces Search Bar) -->
+        <div style="position: relative;" id="header-profile-wrapper">
+          <button id="header-profile-btn" onclick="FarmPilotApp.toggleProfileMenu(event)" style="display: flex; align-items: center; gap: 0.5rem; background: var(--color-surface); border: 1.5px solid var(--color-border); padding: 0.25rem 0.6rem 0.25rem 0.35rem; border-radius: var(--radius-full); cursor: pointer; box-shadow: var(--shadow-sm); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--color-emerald-light)'" onmouseout="this.style.borderColor='var(--color-border)'">
+            <div style="width: 28px; height: 28px; border-radius: 50%; overflow: hidden; border: 1px solid var(--color-border); flex-shrink: 0;">
+              ${headerAvatar}
+            </div>
+            <span style="font-size: 0.8125rem; font-weight: 800; color: var(--color-text-primary); max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              ${user.full_name ? user.full_name.split(' ')[0] : 'Profile'}
+            </span>
+            <span style="font-size: 0.625rem; color: var(--color-text-tertiary);">▾</span>
+          </button>
+
+          <!-- Floating Comprehensive Profile Dropdown -->
+          <div id="header-profile-dropdown" style="display: none; position: absolute; right: 0; top: calc(100% + 8px); width: 285px; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: 0 12px 28px -5px rgba(0,0,0,0.18), 0 8px 10px -6px rgba(0,0,0,0.1); z-index: 9999; padding: 1rem; animation: fadeIn 0.15s ease-out;">
+            
+            <!-- User Photo, Name & Image Upload Trigger -->
+            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; padding-bottom: 0.875rem; border-bottom: 1px solid var(--color-border);">
+              <div style="position: relative; width: 68px; height: 68px; margin-bottom: 0.5rem;">
+                <div style="width: 68px; height: 68px; border-radius: 50%; overflow: hidden; border: 2.5px solid #10B981; box-shadow: var(--shadow-sm); background: #F1F5F9;">
+                  ${user.avatar_image ? `
+                    <img src="${user.avatar_image}" alt="Profile Photo" style="width: 100%; height: 100%; object-fit: cover;">
+                  ` : `
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--color-forest); color: #FFFFFF; font-size: 1.5rem; font-weight: 800;">
+                      ${user.avatar || (user.full_name ? user.full_name.charAt(0).toUpperCase() : 'F')}
+                    </div>
+                  `}
+                </div>
+                <!-- Camera icon trigger for instant image upload -->
+                <label for="header-avatar-input" title="Upload Custom Profile Picture" style="position: absolute; bottom: 0; right: 0; background: #059669; color: #FFFFFF; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer; border: 2px solid #FFFFFF; box-shadow: 0 2px 5px rgba(0,0,0,0.25);">
+                  📷
+                </label>
+                <input type="file" id="header-avatar-input" accept="image/*" style="display: none;" onchange="FarmPilotApp.handleProfileImageUpload(event)">
+              </div>
+
+              <h4 style="margin: 0; font-size: 0.9375rem; font-weight: 800; color: var(--color-text-primary); line-height: 1.2;">
+                ${user.full_name || 'Farm Executive'}
+              </h4>
+              <p style="margin: 2px 0 6px; font-size: 0.75rem; color: var(--color-text-secondary); word-break: break-all;">
+                ${user.email || 'farmer@greenvalley.in'}
+              </p>
+              
+              <span style="font-size: 0.6875rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; background: ${badgeStyle.bg}; color: ${badgeStyle.text}; border: 1px solid ${badgeStyle.border}; margin-bottom: 0.5rem;">
+                ${badgeStyle.label}
+              </span>
+
+              <label for="header-avatar-input" class="btn btn-outline btn-sm" style="font-size: 0.6875rem; padding: 0.25rem 0.65rem; border-radius: 20px; color: #059669; border-color: #A7F3D0; cursor: pointer; display: flex; align-items: center; gap: 0.35rem;">
+                <span>📷</span>
+                <span>Upload Profile Photo</span>
+              </label>
+            </div>
+
+            <!-- Features & Profile Capabilities List -->
+            <div style="padding: 0.75rem 0; border-bottom: 1px solid var(--color-border); font-size: 0.8125rem;">
+              <a href="dashboard.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; border-radius: 4px; color: var(--color-text-primary); text-decoration: none; font-weight: 600; font-size: 0.75rem;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='transparent'">
+                <span>📊</span>
+                <span>Dashboard Overview</span>
+              </a>
+              <a href="alerts.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; border-radius: 4px; color: var(--color-text-primary); text-decoration: none; font-weight: 600; font-size: 0.75rem;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='transparent'">
+                <span>🔔</span>
+                <span>Notification Settings</span>
+              </a>
+              <a href="intelligence.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; border-radius: 4px; color: var(--color-text-primary); text-decoration: none; font-weight: 600; font-size: 0.75rem;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='transparent'">
+                <span>🛡️</span>
+                <span>Security & Telemetry</span>
+              </a>
+            </div>
+
+            <!-- PROMINENT HEADER SIGN OUT BUTTON -->
+            <div style="padding-top: 0.75rem;">
+              <button onclick="window.FarmPilotAuth.logout()" class="btn" style="width: 100%; background: #DC2626; color: #FFFFFF; font-weight: 800; font-size: 0.8125rem; padding: 0.55rem; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: none; cursor: pointer; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25); transition: background 0.2s;" onmouseover="this.style.background='#B91C1C'" onmouseout="this.style.background='#DC2626'">
+                <span>🚪</span>
+                <span>Sign Out of FarmPilot</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     `;
 
@@ -392,6 +510,49 @@ window.FarmPilotApp = {
         window.location.reload();
       });
     }
+
+    // Close profile dropdown on outside click
+    document.addEventListener('click', (e) => {
+      const wrapper = document.getElementById('header-profile-wrapper');
+      const dropdown = document.getElementById('header-profile-dropdown');
+      if (dropdown && wrapper && !wrapper.contains(e.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+  },
+
+  toggleProfileMenu(e) {
+    if (e) e.stopPropagation();
+    const dropdown = document.getElementById('header-profile-dropdown');
+    if (dropdown) {
+      const isVisible = dropdown.style.display === 'block';
+      dropdown.style.display = isVisible ? 'none' : 'block';
+    }
+  },
+
+  handleProfileImageUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.showToast('Please select a valid image file.', 'danger');
+      return;
+    }
+
+    if (file.size > 3 * 1024 * 1024) {
+      this.showToast('Image file size must be under 3MB.', 'warning');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      window.FarmPilotAuth.updateProfileImage(dataUrl);
+      this.showToast('Profile photo successfully updated! 📸', 'success');
+      this.renderHeader();
+      this.renderSidebar();
+    };
+    reader.readAsDataURL(file);
   },
 
   setupShortcuts() {
@@ -448,5 +609,7 @@ window.FarmPilotApp = {
 
   closeAllModals() {
     document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+    const profileDropdown = document.getElementById('header-profile-dropdown');
+    if (profileDropdown) profileDropdown.style.display = 'none';
   }
 };

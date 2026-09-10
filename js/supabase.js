@@ -427,8 +427,14 @@
 
     async createCropCycle(cycleData) {
       const activeFarm = await this.getActiveFarm();
-      const newCycle = {
-        farm_id: cycleData.farm_id || activeFarm.id,
+      const farmId = cycleData.farm_id || activeFarm?.id || '43666b6c-8208-4148-be22-df38d21b1836';
+      const fields = await this.getFields(farmId);
+      const fieldId = cycleData.field_id || (fields && fields[0]?.id) || '43666b6c-8208-4148-be22-df38d21b1836';
+
+      const enrichedCycle = {
+        id: 'cycle-' + Date.now(),
+        farm_id: farmId,
+        field_id: fieldId,
         crop_name: cycleData.crop_name || 'Paddy (Rice)',
         variety: cycleData.variety || 'BPT-5204',
         season: cycleData.season || 'Kharif',
@@ -437,30 +443,52 @@
         selling_price_per_unit: parseFloat(cycleData.selling_price_per_unit) || 29000,
         planned_budget: parseFloat(cycleData.planned_budget) || 50000,
         status: cycleData.status || 'ACTIVE',
-        current_stage: cycleData.current_stage || 'Fertilization',
-        current_stage_progress: cycleData.current_stage_progress || 58,
+        current_stage: cycleData.current_stage || 'Land Preparation',
+        current_stage_progress: cycleData.current_stage_progress || 15,
         stages: window.FARMPILOT_CONFIG.DEFAULT_CROP_CYCLE.stages
       };
 
       const client = this.getClient();
       if (client) {
         try {
-          const { data, error } = await client.from('crop_cycles').insert(newCycle).select().single();
+          // Send strictly valid Supabase table columns
+          const dbRow = {
+            farm_id: farmId,
+            field_id: fieldId,
+            crop_name: enrichedCycle.crop_name,
+            variety: enrichedCycle.variety,
+            season: enrichedCycle.season,
+            start_date: enrichedCycle.start_date,
+            status: 'ACTIVE',
+            target_yield: enrichedCycle.target_yield,
+            selling_price_per_unit: enrichedCycle.selling_price_per_unit,
+            planned_budget: enrichedCycle.planned_budget
+          };
+          const { data, error } = await client.from('crop_cycles').insert(dbRow).select().single();
           if (!error && data) {
-            setLocal('crop_cycle', data);
-            return data;
+            const merged = { ...enrichedCycle, ...data };
+            setLocal('crop_cycle', merged);
+            let list = getLocal('crop_cycles', []);
+            list.unshift(merged);
+            setLocal('crop_cycles', list);
+            if (typeof window !== 'undefined' && window.dispatchEvent) {
+              window.dispatchEvent(new CustomEvent('farmpilot:cycle-updated', { detail: merged }));
+            }
+            return merged;
           }
         } catch (e) {
           console.warn('Supabase createCropCycle error:', e);
         }
       }
 
-      newCycle.id = 'cycle-' + Date.now();
-      setLocal('crop_cycle', newCycle);
+      setLocal('crop_cycle', enrichedCycle);
       let list = getLocal('crop_cycles', []);
-      list.unshift(newCycle);
+      list.unshift(enrichedCycle);
       setLocal('crop_cycles', list);
-      return newCycle;
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        window.dispatchEvent(new CustomEvent('farmpilot:cycle-updated', { detail: enrichedCycle }));
+      }
+      return enrichedCycle;
     },
 
     async updateCropCycle(cycleId, updates) {

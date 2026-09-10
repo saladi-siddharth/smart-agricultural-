@@ -187,6 +187,54 @@ async function sendSmtpEmail({ to, subject, html }) {
   });
 }
 
+function buildOtpEmailHtml({ otp, email }) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>FarmPilot Security Verification Code</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F1F5F9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #1E293B;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #F1F5F9; padding: 32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width: 540px; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); border: 1px solid #E2E8F0;" cellspacing="0" cellpadding="0" border="0">
+          <tr>
+            <td style="background: linear-gradient(135deg, #0D2820 0%, #164E3D 100%); padding: 32px 36px; text-align: left;">
+              <h1 style="margin: 0; font-size: 20px; font-weight: 800; color: #FFFFFF;">FarmPilot <span style="font-size: 11px; font-weight: 700; color: #34D399; text-transform: uppercase; background: rgba(52,211,153,0.15); padding: 2px 8px; border-radius: 4px; margin-left: 4px;">Security</span></h1>
+              <p style="margin: 4px 0 0; font-size: 12px; color: #A7F3D0;">Precision Agronomic Operating System</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 32px 36px;">
+              <h2 style="margin: 0 0 10px; font-size: 18px; font-weight: 800; color: #0F172A;">Account Recovery Verification Code</h2>
+              <p style="margin: 0 0 20px; font-size: 14px; color: #64748B; line-height: 1.5;">
+                We received a request to reset the password for <strong>${email}</strong>. Use the 6-digit verification code below to authorize your password change. This code is valid for 10 minutes.
+              </p>
+              
+              <div style="background: #F0FDF4; border: 2px dashed #059669; border-radius: 12px; padding: 24px; text-align: center; margin: 24px 0;">
+                <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #065F46; letter-spacing: 0.05em; display: block; margin-bottom: 8px;">6-Digit OTP Verification Code</span>
+                <span style="font-family: 'Courier New', Courier, monospace; font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #047857; display: inline-block;">${otp}</span>
+              </div>
+
+              <p style="margin: 0; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                If you did not initiate this request, please disregard this email. Your FarmPilot account credentials remain secure.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background: #F8FAFC; padding: 16px 36px; border-top: 1px solid #E2E8F0; text-align: center; font-size: 11px; color: #94A3B8;">
+              © 2026 FarmPilot Precision Agronomy Systems Ltd. • Automated Security Telemetry
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -202,20 +250,29 @@ export default async function handler(req, res) {
 
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-    const to = body.to || 'manager@greenvalley.ag';
-    const subject = body.subject || `[FarmPilot Alert] ${body.priority || 'OPERATIONAL'}: ${body.activityName || 'Field Activity'}`;
-    const html = buildAgronomicAlertEmailHtml({
-      title: body.activityName,
-      priority: body.priority,
-      category: body.category,
-      farmName: body.farmName,
-      parcel: body.parcel,
-      cropCycle: body.cropCycle,
-      dueDate: body.plannedDate,
-      assignedWorker: body.assignedTo,
-      estimatedCost: body.estimatedCost,
-      notes: body.description
-    });
+    const to = body.to || body.recipient || 'manager@greenvalley.ag';
+    
+    let subject;
+    let html;
+
+    if (body.type === 'OTP' || body.otp) {
+      subject = body.subject || `[FarmPilot Security] 6-Digit Password Reset Code: ${body.otp}`;
+      html = buildOtpEmailHtml({ otp: body.otp, email: to });
+    } else {
+      subject = body.subject || `[FarmPilot Alert] ${body.priority || 'OPERATIONAL'}: ${body.activityName || 'Field Activity'}`;
+      html = buildAgronomicAlertEmailHtml({
+        title: body.activityName,
+        priority: body.priority,
+        category: body.category,
+        farmName: body.farmName,
+        parcel: body.parcel,
+        cropCycle: body.cropCycle,
+        dueDate: body.plannedDate,
+        assignedWorker: body.assignedTo,
+        estimatedCost: body.estimatedCost,
+        notes: body.description
+      });
+    }
 
     const result = await sendSmtpEmail({ to, subject, html });
     return res.status(200).json(result);
