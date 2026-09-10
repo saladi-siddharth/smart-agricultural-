@@ -222,7 +222,7 @@
 
         <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; pt-3; border-top: 1px solid var(--color-border);">
           <button type="button" onclick="document.getElementById('add-activity-modal').classList.remove('active')" class="btn btn-secondary btn-sm">Cancel</button>
-          <button type="submit" class="btn btn-primary btn-sm">Schedule Task</button>
+          <button type="submit" id="btn-submit-activity" class="btn btn-primary btn-sm btn-submit-animated">Schedule Task</button>
         </div>
       </form>
     </div>
@@ -436,8 +436,12 @@
         updateBanner(e.detail);
       });
 
-      // Form Submit Handler
-      document.getElementById('add-activity-form').addEventListener('submit', async (e) => {
+      // Form Submit Handler with in-button animation and holographic card materialization
+      const form = document.getElementById('add-activity-form');
+      const submitBtn = document.getElementById('btn-submit-activity');
+      const modal = document.getElementById('add-activity-modal');
+
+      form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const payload = {
           title: document.getElementById('act-title').value,
@@ -450,12 +454,13 @@
           status: 'PENDING'
         };
 
-        await window.FarmPilotDB.createActivity(payload);
-        activities = await window.FarmPilotDB.getActivities();
-        renderList();
-        document.getElementById('add-activity-modal').classList.remove('active');
-        document.getElementById('add-activity-form').reset();
-        window.FarmPilotApp.showToast('New activity scheduled successfully! Health updated.');
+        await window.SubmitAnimationEngine.handleFormSubmit(submitBtn, modal, async () => {
+          await window.FarmPilotDB.createActivity(payload);
+          activities = await window.FarmPilotDB.getActivities();
+          renderList();
+          form.reset();
+          window.FarmPilotApp.showToast('⚡ Activity scheduled & materialized into field queue! 🎉');
+        });
       });
     });
   </script>

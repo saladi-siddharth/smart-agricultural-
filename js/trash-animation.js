@@ -25,12 +25,11 @@ window.TrashAnimationEngine = {
     dock.id = 'farmpilot-dustbin-dock';
     dock.className = 'farmpilot-red-dustbin-dock animate-fade-in';
     dock.innerHTML = `
-      <div class="dustbin-badge-tag" id="dustbin-badge">
-        <span>🗑️ Dustbin</span>
-        <span class="dustbin-counter-pill" id="dustbin-count">0</span>
+      <div style="display: flex; justify-content: center; width: 100%; margin-bottom: 2px;">
+        <span class="dustbin-counter-pill" id="dustbin-count" title="Items Disposed">0</span>
       </div>
 
-      <div class="dustbin-container" id="dustbin-container" title="Operations Disposal Hub — Items folded and recycled here">
+      <div class="dustbin-container" id="dustbin-container" title="Disposal Hub">
         <!-- SVG Red Dustbin with Separated Hinged Lid (Compact) -->
         <svg width="32" height="40" viewBox="0 0 54 68" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -103,10 +102,6 @@ window.TrashAnimationEngine = {
           </g>
         </svg>
       </div>
-
-      <span style="font-size: 0.5625rem; font-weight: 700; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.05em;">
-        Eco-Recycle
-      </span>
     `;
 
     document.body.appendChild(dock);
@@ -323,3 +318,105 @@ window.TrashAnimationEngine = {
     };
   }
 };
+
+/**
+ * Activity & Operation Submission Engine
+ * Provides interactive in-button submitting state, success morphing,
+ * celebratory micro-burst, and card holographic materialization.
+ */
+window.SubmitAnimationEngine = {
+  async handleFormSubmit(buttonEl, modalEl, submitCallback) {
+    if (!buttonEl) {
+      if (submitCallback) return await submitCallback();
+      return;
+    }
+
+    const originalText = buttonEl.innerHTML;
+    const originalWidth = buttonEl.offsetWidth;
+    buttonEl.style.width = `${Math.max(originalWidth, 130)}px`;
+    buttonEl.classList.add('submitting', 'btn-submit-animated');
+    buttonEl.innerHTML = `<span class="btn-spinner"></span> <span>Scheduling...</span>`;
+
+    try {
+      // Execute the actual database creation
+      let result = null;
+      if (submitCallback) {
+        result = await submitCallback();
+      }
+
+      // Small natural pause for delightful visual feedback
+      await new Promise(r => setTimeout(r, 260));
+
+      // State 2: Success state with animated checkmark
+      buttonEl.classList.remove('submitting');
+      buttonEl.classList.add('success');
+      buttonEl.innerHTML = `<span class="btn-checkmark-icon">✓</span> <span>Scheduled!</span>`;
+
+      // Trigger celebratory micro-particles from button
+      const rect = buttonEl.getBoundingClientRect();
+      if (window.triggerConfetti) {
+        window.triggerConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      }
+
+      // Smoothly close modal after brief visual delight (380ms)
+      setTimeout(() => {
+        if (modalEl) {
+          modalEl.classList.remove('active');
+        }
+        // Reset button state
+        buttonEl.classList.remove('success', 'btn-submit-animated');
+        buttonEl.innerHTML = originalText;
+        buttonEl.style.width = '';
+
+        // Trigger materialization animation on the newly added top item
+        this.animateNewItemMaterialization();
+      }, 380);
+
+      return result;
+    } catch (err) {
+      console.error('Submit animation error:', err);
+      buttonEl.classList.remove('submitting', 'success');
+      buttonEl.innerHTML = originalText;
+      buttonEl.style.width = '';
+      if (window.FarmPilotApp && window.FarmPilotApp.showToast) {
+        window.FarmPilotApp.showToast('Submission error: ' + (err.message || err), 'error');
+      }
+    }
+  },
+
+  animateNewItemMaterialization() {
+    // 1. Check for activities container
+    const actContainer = document.getElementById('activities-container');
+    if (actContainer) {
+      const topCard = actContainer.querySelector('.task-card');
+      if (topCard) {
+        topCard.classList.add('card-materializing');
+        const cardRect = topCard.getBoundingClientRect();
+        if (window.triggerConfetti) {
+          window.triggerConfetti(cardRect.left + cardRect.width / 2, cardRect.top + 25);
+        }
+        setTimeout(() => {
+          topCard.classList.remove('card-materializing');
+        }, 1200);
+      }
+      return;
+    }
+
+    // 2. Check for inputs or expenses table
+    const tbody = document.querySelector('.data-table tbody');
+    if (tbody) {
+      const topRow = tbody.querySelector('tr');
+      if (topRow) {
+        topRow.classList.add('card-materializing');
+        const rowRect = topRow.getBoundingClientRect();
+        if (window.triggerConfetti) {
+          window.triggerConfetti(rowRect.left + rowRect.width / 2, rowRect.top + 15);
+        }
+        setTimeout(() => {
+          topRow.classList.remove('card-materializing');
+        }, 1200);
+      }
+    }
+  }
+};
+

@@ -169,7 +169,7 @@
 
         <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; pt-3; border-top: 1px solid var(--color-border);">
           <button type="button" onclick="document.getElementById('add-expense-modal').classList.remove('active')" class="btn btn-secondary btn-sm">Cancel</button>
-          <button type="submit" class="btn btn-primary btn-sm">Record Outlay</button>
+          <button type="submit" id="btn-submit-expense" class="btn btn-primary btn-sm btn-submit-animated">Record Outlay</button>
         </div>
       </form>
     </div>
@@ -243,7 +243,11 @@
 
       render();
 
-      document.getElementById('add-expense-form').addEventListener('submit', async (e) => {
+      const form = document.getElementById('add-expense-form');
+      const submitBtn = document.getElementById('btn-submit-expense');
+      const modal = document.getElementById('add-expense-modal');
+
+      form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const payload = {
           description: document.getElementById('exp-desc').value,
@@ -252,11 +256,13 @@
           date: document.getElementById('exp-date').value
         };
 
-        await window.FarmPilotDB.createExpense(payload);
-        expenses = await window.FarmPilotDB.getExpenses();
-        render();
-        document.getElementById('add-expense-modal').classList.remove('active');
-        window.FarmPilotApp.showToast('Expense recorded successfully in ledger!');
+        await window.SubmitAnimationEngine.handleFormSubmit(submitBtn, modal, async () => {
+          await window.FarmPilotDB.createExpense(payload);
+          expenses = await window.FarmPilotDB.getExpenses();
+          render();
+          form.reset();
+          window.FarmPilotApp.showToast('⚡ Expense outlay recorded & materialized in ledger! 🎉');
+        });
       });
     });
   </script>

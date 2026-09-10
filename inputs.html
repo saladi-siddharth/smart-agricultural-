@@ -155,7 +155,7 @@
 
         <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; pt-3; border-top: 1px solid var(--color-border);">
           <button type="button" onclick="document.getElementById('add-input-modal').classList.remove('active')" class="btn btn-secondary btn-sm">Cancel</button>
-          <button type="submit" class="btn btn-primary btn-sm">Log Purchase</button>
+          <button type="submit" id="btn-submit-input" class="btn btn-primary btn-sm btn-submit-animated">Log Purchase</button>
         </div>
       </form>
     </div>
@@ -229,7 +229,11 @@
 
       render();
 
-      document.getElementById('add-input-form').addEventListener('submit', async (e) => {
+      const form = document.getElementById('add-input-form');
+      const submitBtn = document.getElementById('btn-submit-input');
+      const modal = document.getElementById('add-input-modal');
+
+      form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const payload = {
           name: document.getElementById('inp-name').value,
@@ -241,11 +245,13 @@
           date: new Date().toISOString().split('T')[0]
         };
 
-        await window.FarmPilotDB.createInput(payload);
-        inputs = await window.FarmPilotDB.getInputs();
-        render();
-        document.getElementById('add-input-modal').classList.remove('active');
-        window.FarmPilotApp.showToast('Input purchase recorded in ledger!');
+        await window.SubmitAnimationEngine.handleFormSubmit(submitBtn, modal, async () => {
+          await window.FarmPilotDB.createInput(payload);
+          inputs = await window.FarmPilotDB.getInputs();
+          render();
+          form.reset();
+          window.FarmPilotApp.showToast('⚡ Input stock logged and materialized in ledger! 🎉');
+        });
       });
     });
   </script>
