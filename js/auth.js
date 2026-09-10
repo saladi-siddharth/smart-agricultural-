@@ -60,9 +60,10 @@ window.FarmPilotAuth = {
     console.log(`✓ FarmPilot RBAC: Switched persona to ${roleName} (${persona.full_name})`);
 
     // Adaptive redirection based on role responsibilities
-    if (roleName === 'WORKER' && !window.location.pathname.includes('worker.html')) {
+    const isWorkerPage = window.location.pathname.includes('worker');
+    if (roleName === 'WORKER' && !isWorkerPage) {
       window.location.href = 'worker.html';
-    } else if (roleName !== 'WORKER' && window.location.pathname.includes('worker.html')) {
+    } else if (roleName !== 'WORKER' && isWorkerPage) {
       window.location.href = 'dashboard.html';
     } else {
       window.location.reload();
