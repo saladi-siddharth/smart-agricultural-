@@ -106,45 +106,47 @@
     <div class="modal-content">
       <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <h3 style="font-size: 1.125rem; font-weight: 800;">Log Input Procurement</h3>
-          <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Record fertilizer, seed, or chemical purchase</p>
+          <h3 style="font-size: 1.125rem; font-weight: 800;">Log Inventory / Input Stock</h3>
+          <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Record purchase of fertilizer, seed batches, or chemicals</p>
         </div>
         <button onclick="document.getElementById('add-input-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8; background: none; border: none; cursor: pointer;">✕</button>
       </div>
 
       <form id="add-input-form" style="padding: 1.5rem;">
         <div class="form-group">
-          <label class="form-label">Input Name *</label>
-          <input type="text" id="inp-name" class="form-input" required placeholder="e.g. Muriate of Potash (MOP 0-0-60)">
+          <label class="form-label">Material / Input Name *</label>
+          <input type="text" id="inp-name" class="form-input" required placeholder="e.g. Zinc Sulfate Monohydrate (33% Zn)">
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
           <div class="form-group">
             <label class="form-label">Category</label>
             <select id="inp-category" class="form-select">
-              <option value="FERTILIZER">Fertilizer</option>
-              <option value="SEED">Seed Stock</option>
-              <option value="CHEMICAL">Chemical / Pesticide</option>
-              <option value="BIO_ORGANIC">Bio-Organic Manure</option>
+              <option value="FERTILIZER">Fertilizer (NPK / Urea / Potash)</option>
+              <option value="PESTICIDE">Crop Protection / Bio-agent</option>
+              <option value="SEED">Certified Seed Stock</option>
+              <option value="FUEL">Diesel / Machinery Energy</option>
+              <option value="OTHER">Farm Equipment & Consumables</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Supplier</label>
-            <input type="text" id="inp-supplier" class="form-input" placeholder="e.g. IFFCO Krishi Kendra">
+            <label class="form-label">Supplier / Kendra</label>
+            <input type="text" id="inp-supplier" class="form-input" placeholder="e.g. IFFCO Farmers Service Center">
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
           <div class="form-group">
             <label class="form-label">Quantity *</label>
-            <input type="number" id="inp-qty" class="form-input" required step="0.5" placeholder="50">
+            <input type="number" id="inp-qty" class="form-input" required step="0.1" placeholder="25">
           </div>
           <div class="form-group">
             <label class="form-label">Unit</label>
             <select id="inp-unit" class="form-select">
-              <option value="kg">kg</option>
-              <option value="liters">liters</option>
-              <option value="bags">bags</option>
+              <option value="kg">Kilograms (kg)</option>
+              <option value="L">Liters (L)</option>
+              <option value="bags">Bags (50kg)</option>
+              <option value="packets">Packets</option>
             </select>
           </div>
           <div class="form-group">
@@ -156,6 +158,76 @@
         <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; pt-3; border-top: 1px solid var(--color-border);">
           <button type="button" onclick="document.getElementById('add-input-modal').classList.remove('active')" class="btn btn-secondary btn-sm">Cancel</button>
           <button type="submit" id="btn-submit-input" class="btn btn-primary btn-sm btn-submit-animated">Log Purchase</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Input Stock Modal (Edit Doodle) -->
+  <div class="modal-overlay" id="edit-input-modal">
+    <div class="modal-content">
+      <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="font-size: 1.125rem; font-weight: 800; color: var(--color-forest); display: flex; align-items: center; gap: 0.5rem;">
+            <span>✏️</span> Edit Inventory Stock Item
+          </h3>
+          <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Modify stock quantity, pricing, vendor or category</p>
+        </div>
+        <button onclick="document.getElementById('edit-input-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8; background: none; border: none; cursor: pointer;">✕</button>
+      </div>
+
+      <form id="edit-input-form" style="padding: 1.5rem;">
+        <input type="hidden" id="edit-inp-id">
+        <div class="form-group">
+          <label class="form-label">Material / Input Name *</label>
+          <input type="text" id="edit-inp-name" class="form-input" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="edit-inp-category" class="form-select">
+              <option value="FERTILIZER">Fertilizer (NPK / Urea / Potash)</option>
+              <option value="PESTICIDE">Crop Protection / Bio-agent</option>
+              <option value="SEED">Certified Seed Stock</option>
+              <option value="FUEL">Diesel / Machinery Energy</option>
+              <option value="OTHER">Farm Equipment & Consumables</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Supplier / Kendra</label>
+            <input type="text" id="edit-inp-supplier" class="form-input">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label">Quantity *</label>
+            <input type="number" id="edit-inp-qty" class="form-input" required step="0.1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unit</label>
+            <select id="edit-inp-unit" class="form-select">
+              <option value="kg">Kilograms (kg)</option>
+              <option value="L">Liters (L)</option>
+              <option value="bags">Bags (50kg)</option>
+              <option value="packets">Packets</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cost/Unit (₹) *</label>
+            <input type="number" id="edit-inp-cost" class="form-input" required step="0.5">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Date Disbursed / Received</label>
+          <input type="date" id="edit-inp-date" class="form-input">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; pt-3; border-top: 1px solid var(--color-border);">
+          <button type="button" onclick="document.getElementById('edit-input-modal').classList.remove('active')" class="btn btn-secondary btn-sm">Cancel</button>
+          <button type="submit" id="btn-save-edit-input" class="btn btn-primary btn-sm">Save Changes</button>
         </div>
       </form>
     </div>
@@ -197,19 +269,42 @@
             </td>
             <td><span class="badge badge-neutral">${i.category}</span></td>
             <td class="tabular-nums font-mono" style="font-weight: 700;">${i.quantity} ${i.unit}</td>
-            <td class="tabular-nums font-mono">₹${i.unit_cost.toFixed(1)}</td>
+            <td class="tabular-nums font-mono">₹${(i.unit_cost || 0).toFixed(1)}</td>
             <td class="tabular-nums font-mono" style="font-weight: 800; color: var(--color-forest);">
-              ₹${i.total_cost.toLocaleString('en-IN')}
+              ₹${(i.total_cost || 0).toLocaleString('en-IN')}
             </td>
             <td>${i.supplier || 'Authorized Kendra'}</td>
             <td class="font-mono" style="font-size: 0.75rem; color: var(--color-text-tertiary);">${i.date || '2026-06-20'}</td>
-            <td style="text-align: right;">
+            <td style="text-align: right; white-space: nowrap;">
+              <button class="btn-doodle-edit btn-edit-input" data-id="${i.id}" title="Edit Input Stock Details">
+                ✏️
+              </button>
               <button class="task-delete-btn btn-delete-input" data-id="${i.id}" title="Fold into paper & Throw into Dustbin">
                 🗑
               </button>
             </td>
           </tr>
         `).join('');
+
+        // Attach edit doodle handler
+        tbody.querySelectorAll('.btn-edit-input').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            const item = inputs.find(i => String(i.id) === String(id));
+            if (!item) return;
+
+            document.getElementById('edit-inp-id').value = item.id;
+            document.getElementById('edit-inp-name').value = item.name || '';
+            document.getElementById('edit-inp-category').value = item.category || 'FERTILIZER';
+            document.getElementById('edit-inp-supplier').value = item.supplier || '';
+            document.getElementById('edit-inp-qty').value = item.quantity || 1;
+            document.getElementById('edit-inp-unit').value = item.unit || 'kg';
+            document.getElementById('edit-inp-cost').value = item.unit_cost || 0;
+            document.getElementById('edit-inp-date').value = item.date || new Date().toISOString().split('T')[0];
+
+            document.getElementById('edit-input-modal').classList.add('active');
+          });
+        });
 
         // Attach paper fold & dustbin throw handler
         tbody.querySelectorAll('.btn-delete-input').forEach(btn => {
@@ -253,6 +348,29 @@
           form.reset();
           window.FarmPilotApp.showToast('⚡ Input stock logged and materialized in ledger! 🎉');
         });
+      });
+
+      // Edit Form Submission Handler
+      const editForm = document.getElementById('edit-input-form');
+      const editModal = document.getElementById('edit-input-modal');
+      editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('edit-inp-id').value;
+        const payload = {
+          name: document.getElementById('edit-inp-name').value,
+          category: document.getElementById('edit-inp-category').value,
+          supplier: document.getElementById('edit-inp-supplier').value,
+          quantity: parseFloat(document.getElementById('edit-inp-qty').value),
+          unit: document.getElementById('edit-inp-unit').value,
+          unit_cost: parseFloat(document.getElementById('edit-inp-cost').value),
+          date: document.getElementById('edit-inp-date').value
+        };
+
+        await window.FarmPilotDB.updateInput(id, payload);
+        inputs = await window.FarmPilotDB.getInputs();
+        render();
+        editModal.classList.remove('active');
+        window.FarmPilotApp.showToast('⚡ Input stock record updated & saved! ✏️');
       });
     });
   </script>

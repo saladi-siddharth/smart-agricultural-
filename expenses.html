@@ -210,6 +210,7 @@
               <option value="SEEDS">Seed Stock</option>
               <option value="CROP_PROTECTION">Crop Protection / Pesticides</option>
               <option value="EQUIPMENT">Machinery & Diesel</option>
+              <option value="OTHER">Other Operational Cost</option>
             </select>
           </div>
           <div class="form-group">
@@ -226,6 +227,57 @@
         <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; pt-3; border-top: 1px solid var(--color-border);">
           <button type="button" onclick="document.getElementById('add-expense-modal').classList.remove('active')" class="btn btn-secondary btn-sm">Cancel</button>
           <button type="submit" id="btn-submit-expense" class="btn btn-primary btn-sm btn-submit-animated">Record Outlay</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Expense Modal (Edit Doodle) -->
+  <div class="modal-overlay" id="edit-expense-modal">
+    <div class="modal-content">
+      <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="font-size: 1.125rem; font-weight: 800; color: var(--color-forest); display: flex; align-items: center; gap: 0.5rem;">
+            <span>✏️</span> Edit Operational Expense
+          </h3>
+          <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Modify voucher description, cost center category, or amount</p>
+        </div>
+        <button onclick="document.getElementById('edit-expense-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8; background: none; border: none; cursor: pointer;">✕</button>
+      </div>
+
+      <form id="edit-expense-form" style="padding: 1.5rem;">
+        <input type="hidden" id="edit-exp-id">
+        <div class="form-group">
+          <label class="form-label">Expense Description *</label>
+          <input type="text" id="edit-exp-desc" class="form-input" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label">Cost Category</label>
+            <select id="edit-exp-cat" class="form-select">
+              <option value="FERTILIZERS">Fertilizers</option>
+              <option value="LABOR">Field Labor</option>
+              <option value="SEEDS">Seed Stock</option>
+              <option value="CROP_PROTECTION">Crop Protection / Pesticides</option>
+              <option value="EQUIPMENT">Machinery & Diesel</option>
+              <option value="OTHER">Other Operational Cost</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Amount (₹) *</label>
+            <input type="number" id="edit-exp-amount" class="form-input" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Date Disbursed</label>
+          <input type="date" id="edit-exp-date" class="form-input" required>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; pt-3; border-top: 1px solid var(--color-border);">
+          <button type="button" onclick="document.getElementById('edit-expense-modal').classList.remove('active')" class="btn btn-secondary btn-sm">Cancel</button>
+          <button type="submit" id="btn-save-edit-expense" class="btn btn-primary btn-sm">Save Changes</button>
         </div>
       </form>
     </div>
@@ -284,17 +336,37 @@
             </td>
             <td><span class="badge badge-neutral">${e.category}</span></td>
             <td class="tabular-nums font-mono" style="font-weight: 800; color: var(--color-text-primary);">
-              ₹${e.amount.toLocaleString('en-IN')}
+              ₹${(parseFloat(e.amount) || 0).toLocaleString('en-IN')}
             </td>
-            <td class="font-mono" style="font-size: 0.75rem; color: var(--color-text-secondary);">${e.date}</td>
+            <td class="font-mono" style="font-size: 0.75rem; color: var(--color-text-secondary);">${e.date || '2026-06-25'}</td>
             <td><span class="badge badge-success">Audited</span></td>
-            <td style="text-align: right;">
+            <td style="text-align: right; white-space: nowrap;">
+              <button class="btn-doodle-edit btn-edit-expense" data-id="${e.id}" title="Edit Expense Details">
+                ✏️
+              </button>
               <button class="task-delete-btn btn-delete-expense" data-id="${e.id}" title="Fold into paper & Throw into Dustbin">
                 🗑
               </button>
             </td>
           </tr>
         `).join('');
+
+        // Attach edit doodle handler
+        tbody.querySelectorAll('.btn-edit-expense').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            const item = expenses.find(e => String(e.id) === String(id));
+            if (!item) return;
+
+            document.getElementById('edit-exp-id').value = item.id;
+            document.getElementById('edit-exp-desc').value = item.description || '';
+            document.getElementById('edit-exp-cat').value = item.category || 'FERTILIZERS';
+            document.getElementById('edit-exp-amount').value = item.amount || 0;
+            document.getElementById('edit-exp-date').value = item.date || new Date().toISOString().split('T')[0];
+
+            document.getElementById('edit-expense-modal').classList.add('active');
+          });
+        });
 
         // Attach paper fold & dustbin throw handler
         tbody.querySelectorAll('.btn-delete-expense').forEach(btn => {
@@ -333,8 +405,29 @@
           expenses = await window.FarmPilotDB.getExpenses();
           render();
           form.reset();
+          document.getElementById('exp-date').value = new Date().toISOString().split('T')[0];
           window.FarmPilotApp.showToast('⚡ Expense outlay recorded & materialized in ledger! 🎉');
         });
+      });
+
+      // Edit Form Submission Handler
+      const editForm = document.getElementById('edit-expense-form');
+      const editModal = document.getElementById('edit-expense-modal');
+      editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('edit-exp-id').value;
+        const payload = {
+          description: document.getElementById('edit-exp-desc').value,
+          category: document.getElementById('edit-exp-cat').value,
+          amount: parseFloat(document.getElementById('edit-exp-amount').value),
+          date: document.getElementById('edit-exp-date').value
+        };
+
+        await window.FarmPilotDB.updateExpense(id, payload);
+        expenses = await window.FarmPilotDB.getExpenses();
+        render();
+        editModal.classList.remove('active');
+        window.FarmPilotApp.showToast('⚡ Expense voucher updated & saved! ✏️');
       });
     });
   </script>

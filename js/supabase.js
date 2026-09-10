@@ -521,6 +521,26 @@
       }
     },
 
+    async deleteAlert(alertId) {
+      let list = getLocal('alerts', window.FARMPILOT_CONFIG.DEFAULT_ALERTS);
+      list = list.filter(a => a.id !== alertId);
+      setLocal('alerts', list);
+
+      const client = this.getClient();
+      if (client) {
+        try {
+          await client.from('alerts').delete().eq('id', alertId);
+        } catch (e) {
+          console.warn('Failed to delete alert in Supabase:', e);
+        }
+      }
+
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        window.dispatchEvent(new CustomEvent('farmpilot:alert-resolved', { detail: { alertId } }));
+      }
+      return { success: true, alertId };
+    },
+
     // --- EXPENSES & FINANCIALS ---
     async getExpenses(farmId) {
       const client = this.getClient();
@@ -591,6 +611,42 @@
       setLocal('expenses', list);
       this.calculateHealth();
       return newExp;
+    },
+
+    async updateExpense(expenseId, data) {
+      let list = getLocal('expenses', window.FARMPILOT_CONFIG.DEFAULT_EXPENSES);
+      const targetIndex = list.findIndex(e => e.id === expenseId);
+      const updatedItem = {
+        ...(targetIndex >= 0 ? list[targetIndex] : {}),
+        ...data,
+        id: expenseId,
+        amount: parseFloat(data.amount) || 0,
+        date: data.date || (targetIndex >= 0 ? list[targetIndex].date : new Date().toISOString().split('T')[0])
+      };
+
+      if (targetIndex >= 0) {
+        list[targetIndex] = updatedItem;
+      } else {
+        list.unshift(updatedItem);
+      }
+      setLocal('expenses', list);
+
+      const client = this.getClient();
+      if (client) {
+        try {
+          await client.from('expenses').update({
+            description: updatedItem.description,
+            category: updatedItem.category,
+            amount: updatedItem.amount,
+            expense_date: updatedItem.date
+          }).eq('id', expenseId);
+        } catch (e) {
+          console.warn('Failed to update expense in Supabase:', e);
+        }
+      }
+
+      this.calculateHealth();
+      return updatedItem;
     },
 
     async deleteExpense(expenseId) {
@@ -691,6 +747,48 @@
       setLocal('inputs', list);
       this.calculateHealth();
       return newInp;
+    },
+
+    async updateInput(inputId, data) {
+      const totalCost = (parseFloat(data.quantity) || 0) * (parseFloat(data.unit_cost) || 0);
+      let list = getLocal('inputs', window.FARMPILOT_CONFIG.DEFAULT_INPUTS);
+      const targetIndex = list.findIndex(i => i.id === inputId);
+      const updatedItem = {
+        ...(targetIndex >= 0 ? list[targetIndex] : {}),
+        ...data,
+        id: inputId,
+        quantity: parseFloat(data.quantity) || 0,
+        unit_cost: parseFloat(data.unit_cost) || 0,
+        total_cost: totalCost,
+        date: data.date || (targetIndex >= 0 ? list[targetIndex].date : new Date().toISOString().split('T')[0])
+      };
+
+      if (targetIndex >= 0) {
+        list[targetIndex] = updatedItem;
+      } else {
+        list.unshift(updatedItem);
+      }
+      setLocal('inputs', list);
+
+      const client = this.getClient();
+      if (client) {
+        try {
+          await client.from('inputs').update({
+            name: updatedItem.name,
+            input_type: updatedItem.category,
+            quantity: updatedItem.quantity,
+            unit: updatedItem.unit,
+            cost: totalCost,
+            supplier: updatedItem.supplier,
+            used_date: updatedItem.date
+          }).eq('id', inputId);
+        } catch (e) {
+          console.warn('Failed to update input in Supabase:', e);
+        }
+      }
+
+      this.calculateHealth();
+      return updatedItem;
     },
 
     async deleteInput(inputId) {
@@ -816,6 +914,67 @@
       const stored = getLocal('farm_health', null);
       if (stored) return stored;
       return this.calculateHealth();
+    },
+
+    // --- TIER B AWD WATER MANAGEMENT PROTOCOL ---
+    getIrrigationLogs() {
+      const defaultLogs = [
+        { id: 'irg-0', date: '2026-09-10', field: 'North Block (Plot A)', protocol: 'AWD Submersion', depth: 5.0, hours: 3.5, cost: 350, status: 'Completed' },
+        { id: 'irg-1', date: '2026-06-22', field: 'North Block (Plot A)', protocol: 'AWD Submersion', depth: 5.0, hours: 3.5, cost: 350, status: 'Completed' },
+        { id: 'irg-2', date: '2026-06-15', field: 'North Block (Plot A)', protocol: 'Continuous Ponding', depth: 7.5, hours: 5.0, cost: 500, status: 'Completed' },
+        { id: 'irg-3', date: '2026-06-29', field: 'Central Sector (Plot B)', protocol: 'AWD Submersion', depth: 4.5, hours: 3.0, cost: 300, status: 'Scheduled' }
+      ];
+      try {
+        const val = localStorage.getItem('farmpilot_irrigation_logs');
+        if (val) {
+          const parsed = JSON.parse(val);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+      localStorage.setItem('farmpilot_irrigation_logs', JSON.stringify(defaultLogs));
+      return defaultLogs;
+    },
+
+    saveIrrigationLog(data) {
+      let list = this.getIrrigationLogs();
+      const newLog = {
+        id: 'irg-' + Date.now(),
+        date: data.date || new Date().toISOString().split('T')[0],
+        field: data.field || 'North Block (Plot A)',
+        protocol: data.protocol || 'AWD Submersion',
+        depth: parseFloat(data.depth) || 5.0,
+        hours: parseFloat(data.hours) || 3.5,
+        cost: parseFloat(data.cost) || 350,
+        status: data.status || 'Completed'
+      };
+      list.unshift(newLog);
+      localStorage.setItem('farmpilot_irrigation_logs', JSON.stringify(list));
+      return newLog;
+    },
+
+    updateIrrigationLog(id, data) {
+      let list = this.getIrrigationLogs();
+      const idx = list.findIndex(i => i.id === id);
+      if (idx >= 0) {
+        list[idx] = {
+          ...list[idx],
+          ...data,
+          id,
+          depth: parseFloat(data.depth) !== undefined ? parseFloat(data.depth) : list[idx].depth,
+          hours: parseFloat(data.hours) !== undefined ? parseFloat(data.hours) : list[idx].hours,
+          cost: parseFloat(data.cost) !== undefined ? parseFloat(data.cost) : list[idx].cost
+        };
+        localStorage.setItem('farmpilot_irrigation_logs', JSON.stringify(list));
+        return list[idx];
+      }
+      return null;
+    },
+
+    deleteIrrigationLog(id) {
+      let list = this.getIrrigationLogs();
+      list = list.filter(i => i.id !== id);
+      localStorage.setItem('farmpilot_irrigation_logs', JSON.stringify(list));
+      return true;
     }
   };
 })();

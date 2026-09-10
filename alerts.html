@@ -165,9 +165,9 @@
           const sevBadge = item.severity === 'CRITICAL' ? 'badge-danger' : item.severity === 'WARNING' ? 'badge-warning' : 'badge-success';
 
           return `
-            <div class="alert-dossier-card ${sev} ${isResolved ? 'resolved' : ''}">
+            <div class="alert-dossier-card ${sev} ${isResolved ? 'resolved' : ''}" id="alert-card-${item.id}">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
-                <div>
+                <div style="flex: 1;">
                   <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
                     <span class="badge ${sevBadge}">
                       ${item.severity}
@@ -195,21 +195,25 @@
                   </p>
                 </div>
 
-                <div style="text-align: right;">
-                  <span class="font-mono" style="font-size: 0.6875rem; color: var(--color-text-tertiary);">
-                    ${new Date(item.created_at || Date.now()).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                  </span>
+                <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="font-mono" style="font-size: 0.6875rem; color: var(--color-text-tertiary);">
+                      ${new Date(item.created_at || Date.now()).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                    <button onclick="dismissAlert('${item.id}', this)" title="Dismiss Alert" style="background: none; border: 1px solid var(--color-border); border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: var(--color-text-tertiary); font-size: 0.6875rem;">✕</button>
+                  </div>
+
                   ${!isResolved ? `
-                    <div style="margin-top: 0.5rem;">
-                      <button class="btn btn-sm btn-primary" onclick="resolveAlert('${item.id}')">
-                        <span>✓ Resolve Alert</span>
+                    <div>
+                      <button class="btn btn-sm btn-primary" onclick="resolveAlert('${item.id}', this)">
+                        <span>✓ Resolve & Remove Alert</span>
                       </button>
                     </div>
                   ` : `
-                    <div style="margin-top: 0.5rem;">
-                      <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-forest);">
-                        ✓ State Cleared
-                      </span>
+                    <div>
+                      <button class="btn btn-sm btn-outline" onclick="dismissAlert('${item.id}', this)">
+                        <span>Remove from Archive</span>
+                      </button>
                     </div>
                   `}
                 </div>
@@ -239,11 +243,43 @@
         }).join('');
       }
 
-      window.resolveAlert = async (id) => {
-        await window.FarmPilotDB.resolveAlert(id);
-        alerts = await window.FarmPilotDB.getAlerts();
-        renderAlerts();
-        window.FarmPilotApp.showToast('✓ Alert marked resolved! Operational history updated.');
+      window.animateAndRemoveCard = async (id, btn) => {
+        const card = btn ? btn.closest('.alert-dossier-card') : document.getElementById(`alert-card-${id}`);
+        if (card) {
+          card.style.transition = 'all 0.35s ease';
+          card.style.opacity = '0';
+          card.style.transform = 'translateY(-12px) scale(0.95)';
+          card.style.maxHeight = '0';
+          card.style.marginTop = '0';
+          card.style.marginBottom = '0';
+          card.style.paddingTop = '0';
+          card.style.paddingBottom = '0';
+          card.style.overflow = 'hidden';
+        }
+      };
+
+      window.resolveAlert = async (id, btn) => {
+        window.animateAndRemoveCard(id, btn);
+        await window.FarmPilotDB.deleteAlert(id);
+        alerts = alerts.filter(a => String(a.id) !== String(id));
+        updateStats();
+
+        setTimeout(() => {
+          renderAlerts();
+          window.FarmPilotApp.showToast('✓ Alert resolved and permanently removed from dashboard! 🎉');
+        }, 360);
+      };
+
+      window.dismissAlert = async (id, btn) => {
+        window.animateAndRemoveCard(id, btn);
+        await window.FarmPilotDB.deleteAlert(id);
+        alerts = alerts.filter(a => String(a.id) !== String(id));
+        updateStats();
+
+        setTimeout(() => {
+          renderAlerts();
+          window.FarmPilotApp.showToast('Alert dismissed and removed. ✕');
+        }, 360);
       };
 
       renderAlerts();

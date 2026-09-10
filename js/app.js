@@ -101,48 +101,128 @@ window.FarmPilotApp = {
     if (!sidebarEl) return;
 
     const user = window.FarmPilotAuth.getUser() || window.FARMPILOT_CONFIG.PERSONAS.OWNER;
-    const isWorker = user.role === 'WORKER';
+    const role = user.role || 'OWNER';
 
-    const navItems = isWorker ? [
-      {
-        group: 'Worker Shift',
-        items: [
-          { id: 'worker', label: "Today's Tasks", icon: '🚜', href: 'worker.html', badge: 'Active Shift', badgeType: 'success' },
-          { id: 'activities', label: 'All Field Tasks', icon: '📋', href: 'activities.html' }
-        ]
-      }
-    ] : [
-      {
-        group: 'Overview',
-        items: [
-          { id: 'dashboard', label: 'Dashboard', icon: '📊', href: 'dashboard.html' },
-          { id: 'farms', label: 'Farms Portfolio', icon: '🚜', href: 'farms.html' },
-          { id: 'crops', label: 'Crop Cycles', icon: '🌱', href: 'crops.html', badge: 'Active' }
-        ]
-      },
-      {
-        group: 'Operations',
-        items: [
-          { id: 'activities', label: 'Field Operations', icon: '📋', href: 'activities.html', badge: '1 Overdue', badgeType: 'danger' },
-          { id: 'inputs', label: 'Inputs & Stock', icon: '📦', href: 'inputs.html' },
-          { id: 'expenses', label: 'Financials & Budget', icon: '💰', href: 'expenses.html' }
-        ]
-      },
-      {
-        group: 'Intelligence & SaaS',
-        items: [
-          { id: 'alerts', label: 'Alert Center', icon: '🔔', href: 'alerts.html', badge: '1 Urgent', badgeType: 'danger' },
-          { id: 'intelligence', label: 'Farm Health', icon: '🧠', href: 'intelligence.html', badge: '82/100', badgeType: 'success' },
-          { id: 'reports', label: 'Executive Reports', icon: '📑', href: 'reports.html' }
-        ]
-      },
-      {
-        group: 'Field Staff View',
-        items: [
-          { id: 'worker', label: "Mobile Worker View", icon: '📱', href: 'worker.html' }
-        ]
-      }
-    ];
+    // Role-based route guard
+    if (role === 'WORKER' && ['expenses', 'farms', 'reports'].includes(this.activePage)) {
+      window.location.href = 'worker.html';
+      return;
+    }
+    if (role === 'CONSULTANT' && ['expenses', 'farms'].includes(this.activePage)) {
+      window.location.href = 'crops.html';
+      return;
+    }
+
+    let navItems = [];
+
+    if (role === 'WORKER') {
+      navItems = [
+        {
+          group: 'Field Worker Shift',
+          items: [
+            { id: 'worker', label: "Today's Shift", icon: '🚜', href: 'worker.html', badge: 'Active Shift', badgeType: 'success' },
+            { id: 'activities', label: 'Field Tasks & AWD', icon: '📋', href: 'activities.html', badge: '1 Overdue', badgeType: 'danger' }
+          ]
+        },
+        {
+          group: 'Field Notifications',
+          items: [
+            { id: 'alerts', label: 'Alert Center', icon: '🔔', href: 'alerts.html', badge: '1 Urgent', badgeType: 'danger' }
+          ]
+        }
+      ];
+    } else if (role === 'CONSULTANT') {
+      navItems = [
+        {
+          group: 'Agronomic Overview',
+          items: [
+            { id: 'dashboard', label: 'Dashboard', icon: '📊', href: 'dashboard.html' },
+            { id: 'crops', label: 'Crop Cycles & Phenology', icon: '🌱', href: 'crops.html', badge: 'Active' }
+          ]
+        },
+        {
+          group: 'Field Management',
+          items: [
+            { id: 'activities', label: 'Field Operations & AWD', icon: '📋', href: 'activities.html', badge: '1 Overdue', badgeType: 'danger' },
+            { id: 'inputs', label: 'Inputs & Stock', icon: '📦', href: 'inputs.html' }
+          ]
+        },
+        {
+          group: 'Advisory & Intel',
+          items: [
+            { id: 'alerts', label: 'Alert Center', icon: '🔔', href: 'alerts.html', badge: '1 Urgent', badgeType: 'danger' },
+            { id: 'intelligence', label: 'Farm Health & Soil', icon: '🧠', href: 'intelligence.html', badge: '82/100', badgeType: 'success' },
+            { id: 'reports', label: 'Agronomic Reports', icon: '📑', href: 'reports.html' }
+          ]
+        }
+      ];
+    } else if (role === 'MANAGER') {
+      navItems = [
+        {
+          group: 'Operations Command',
+          items: [
+            { id: 'dashboard', label: 'Dashboard', icon: '📊', href: 'dashboard.html' },
+            { id: 'farms', label: 'Farms Portfolio', icon: '🚜', href: 'farms.html' },
+            { id: 'crops', label: 'Crop Cycles', icon: '🌱', href: 'crops.html', badge: 'Active' }
+          ]
+        },
+        {
+          group: 'Field & Logistics',
+          items: [
+            { id: 'activities', label: 'Field Operations & AWD', icon: '📋', href: 'activities.html', badge: '1 Overdue', badgeType: 'danger' },
+            { id: 'inputs', label: 'Inputs & Stock', icon: '📦', href: 'inputs.html' },
+            { id: 'expenses', label: 'Financials & Budget', icon: '💰', href: 'expenses.html' }
+          ]
+        },
+        {
+          group: 'Intelligence',
+          items: [
+            { id: 'alerts', label: 'Alert Center', icon: '🔔', href: 'alerts.html', badge: '1 Urgent', badgeType: 'danger' },
+            { id: 'intelligence', label: 'Farm Health', icon: '🧠', href: 'intelligence.html', badge: '82/100', badgeType: 'success' }
+          ]
+        },
+        {
+          group: 'Staff Mode',
+          items: [
+            { id: 'worker', label: 'Mobile Worker View', icon: '📱', href: 'worker.html' }
+          ]
+        }
+      ];
+    } else {
+      // OWNER (Full enterprise oversight)
+      navItems = [
+        {
+          group: 'Executive Overview',
+          items: [
+            { id: 'dashboard', label: 'Dashboard', icon: '📊', href: 'dashboard.html' },
+            { id: 'farms', label: 'Farms Portfolio', icon: '🚜', href: 'farms.html' },
+            { id: 'crops', label: 'Crop Cycles', icon: '🌱', href: 'crops.html', badge: 'Active' }
+          ]
+        },
+        {
+          group: 'Operations & Ledgers',
+          items: [
+            { id: 'activities', label: 'Field Operations & AWD', icon: '📋', href: 'activities.html', badge: '1 Overdue', badgeType: 'danger' },
+            { id: 'inputs', label: 'Inputs & Stock', icon: '📦', href: 'inputs.html' },
+            { id: 'expenses', label: 'Financials & Budget', icon: '💰', href: 'expenses.html' }
+          ]
+        },
+        {
+          group: 'Intelligence & SaaS',
+          items: [
+            { id: 'alerts', label: 'Alert Center', icon: '🔔', href: 'alerts.html', badge: '1 Urgent', badgeType: 'danger' },
+            { id: 'intelligence', label: 'Farm Health', icon: '🧠', href: 'intelligence.html', badge: '82/100', badgeType: 'success' },
+            { id: 'reports', label: 'Executive Reports', icon: '📑', href: 'reports.html' }
+          ]
+        },
+        {
+          group: 'Field Staff View',
+          items: [
+            { id: 'worker', label: 'Mobile Worker View', icon: '📱', href: 'worker.html' }
+          ]
+        }
+      ];
+    }
 
     sidebarEl.innerHTML = `
       <!-- Brand Header -->
