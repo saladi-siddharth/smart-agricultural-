@@ -438,6 +438,23 @@
       return newInp;
     },
 
+    async deleteInput(inputId) {
+      let list = getLocal('inputs', window.FARMPILOT_CONFIG.DEFAULT_INPUTS);
+      list = list.filter(i => i.id !== inputId);
+      setLocal('inputs', list);
+
+      const client = this.getClient();
+      if (client) {
+        try {
+          await client.from('inputs').delete().eq('id', inputId);
+        } catch (e) {
+          console.warn('Failed to delete input in Supabase:', e);
+        }
+      }
+      this.calculateHealth();
+      return { success: true, deletedId: inputId };
+    },
+
     // --- EXPENSES (Table: expenses) ---
     async getExpenses(farmId) {
       const client = this.getClient();
@@ -507,6 +524,23 @@
       setLocal('expenses', list);
       this.calculateHealth();
       return newExp;
+    },
+
+    async deleteExpense(expenseId) {
+      let list = getLocal('expenses', window.FARMPILOT_CONFIG.DEFAULT_EXPENSES);
+      list = list.filter(e => e.id !== expenseId);
+      setLocal('expenses', list);
+
+      const client = this.getClient();
+      if (client) {
+        try {
+          await client.from('expenses').delete().eq('id', expenseId);
+        } catch (e) {
+          console.warn('Failed to delete expense in Supabase:', e);
+        }
+      }
+      this.calculateHealth();
+      return { success: true, deletedId: expenseId };
     },
 
     // --- DYNAMIC FARM HEALTH ENGINE (Problem Statement Formula) ---

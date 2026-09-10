@@ -86,6 +86,7 @@
                     <th>Total Outlay (₹)</th>
                     <th>Authorized Supplier</th>
                     <th>Date</th>
+                    <th style="text-align: right;">Action</th>
                   </tr>
                 </thead>
                 <tbody id="inputs-table-body">
@@ -108,7 +109,7 @@
           <h3 style="font-size: 1.125rem; font-weight: 800;">Log Input Procurement</h3>
           <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Record fertilizer, seed, or chemical purchase</p>
         </div>
-        <button onclick="document.getElementById('add-input-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8;">✕</button>
+        <button onclick="document.getElementById('add-input-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8; background: none; border: none; cursor: pointer;">✕</button>
       </div>
 
       <form id="add-input-form" style="padding: 1.5rem;">
@@ -165,18 +166,31 @@
   <script src="js/config.js"></script>
   <script src="js/supabase.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/trash-animation.js"></script>
   <script src="js/app.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       window.FarmPilotApp.init('inputs');
+      window.TrashAnimationEngine.init('inputs');
 
       const tbody = document.getElementById('inputs-table-body');
       let inputs = await window.FarmPilotDB.getInputs();
 
       function render() {
+        if (inputs.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--color-text-secondary);">
+                All inventory items cleared. Log new purchase above.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
         tbody.innerHTML = inputs.map(i => `
-          <tr>
+          <tr id="input-row-${i.id}">
             <td>
               <strong style="color: var(--color-text-primary); display: block;">${i.name}</strong>
             </td>
@@ -188,8 +202,29 @@
             </td>
             <td>${i.supplier || 'Authorized Kendra'}</td>
             <td class="font-mono" style="font-size: 0.75rem; color: var(--color-text-tertiary);">${i.date || '2026-06-20'}</td>
+            <td style="text-align: right;">
+              <button class="task-delete-btn btn-delete-input" data-id="${i.id}" title="Fold into paper & Throw into Dustbin">
+                🗑
+              </button>
+            </td>
           </tr>
         `).join('');
+
+        // Attach paper fold & dustbin throw handler
+        tbody.querySelectorAll('.btn-delete-input').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            const rowEl = document.getElementById(`input-row-${id}`);
+            if (rowEl) {
+              window.TrashAnimationEngine.animateDiscard(rowEl, async () => {
+                await window.FarmPilotDB.deleteInput(id);
+                inputs = await window.FarmPilotDB.getInputs();
+                render();
+                window.FarmPilotApp.showToast('Input record folded & recycled into dustbin! 🗑️');
+              });
+            }
+          });
+        });
       }
 
       render();

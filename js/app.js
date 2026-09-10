@@ -134,25 +134,6 @@ window.FarmPilotApp = {
         </a>
       </div>
 
-      <!-- Executive Estate Switcher Widget -->
-      <div class="estate-switcher-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-          <span class="estate-switcher-badge">Active Estate</span>
-          <span style="display: flex; align-items: center; gap: 0.25rem; font-size: 0.625rem; font-weight: 700; color: #059669;">
-            <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #10B981;" class="animate-pulse-glow"></span>
-            Online
-          </span>
-        </div>
-        <p style="font-weight: 800; font-size: 0.8125rem; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-          Green Valley Farm
-        </p>
-        <div style="font-size: 0.6875rem; color: var(--color-text-secondary); margin-top: 0.15rem; display: flex; align-items: center; gap: 0.35rem;">
-          <span class="tabular-nums font-mono" style="font-weight: 600;">25.0 Acres</span>
-          <span>•</span>
-          <span>3 Parcels</span>
-        </div>
-      </div>
-
       <!-- Navigation Section -->
       <nav class="sidebar-nav">
         ${navItems.map(g => `

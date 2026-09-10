@@ -113,6 +113,7 @@
                     <th>Amount (₹)</th>
                     <th>Date Disbursed</th>
                     <th>Status</th>
+                    <th style="text-align: right;">Action</th>
                   </tr>
                 </thead>
                 <tbody id="expenses-table-body">
@@ -133,20 +134,20 @@
       <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
         <div>
           <h3 style="font-size: 1.125rem; font-weight: 800;">Record Operational Expense</h3>
-          <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Log material or labor expenditure</p>
+          <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Log field activity cost, chemical purchase, or labor payout</p>
         </div>
-        <button onclick="document.getElementById('add-expense-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8;">✕</button>
+        <button onclick="document.getElementById('add-expense-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8; background: none; border: none; cursor: pointer;">✕</button>
       </div>
 
       <form id="add-expense-form" style="padding: 1.5rem;">
         <div class="form-group">
           <label class="form-label">Expense Description *</label>
-          <input type="text" id="exp-desc" class="form-input" required placeholder="e.g. Zinc Spray Solution & Hand Sprayer Rent">
+          <input type="text" id="exp-desc" class="form-input" required placeholder="e.g. Zinc Sulfate Foliar Spray Application">
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
           <div class="form-group">
-            <label class="form-label">Category</label>
+            <label class="form-label">Cost Category</label>
             <select id="exp-cat" class="form-select">
               <option value="FERTILIZERS">Fertilizers</option>
               <option value="LABOR">Field Labor</option>
@@ -179,11 +180,13 @@
   <script src="js/config.js"></script>
   <script src="js/supabase.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/trash-animation.js"></script>
   <script src="js/app.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       window.FarmPilotApp.init('expenses');
+      window.TrashAnimationEngine.init('expenses');
 
       document.getElementById('exp-date').value = new Date().toISOString().split('T')[0];
 
@@ -191,8 +194,19 @@
       let expenses = await window.FarmPilotDB.getExpenses();
 
       function render() {
+        if (expenses.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 2.5rem; color: var(--color-text-secondary);">
+                All expense vouchers cleared. Log new outlays above.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
         tbody.innerHTML = expenses.map(e => `
-          <tr>
+          <tr id="expense-row-${e.id}">
             <td>
               <strong style="color: var(--color-text-primary); display: block;">${e.description}</strong>
             </td>
@@ -202,8 +216,29 @@
             </td>
             <td class="font-mono" style="font-size: 0.75rem; color: var(--color-text-secondary);">${e.date}</td>
             <td><span class="badge badge-success">Audited</span></td>
+            <td style="text-align: right;">
+              <button class="task-delete-btn btn-delete-expense" data-id="${e.id}" title="Fold into paper & Throw into Dustbin">
+                🗑
+              </button>
+            </td>
           </tr>
         `).join('');
+
+        // Attach paper fold & dustbin throw handler
+        tbody.querySelectorAll('.btn-delete-expense').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            const rowEl = document.getElementById(`expense-row-${id}`);
+            if (rowEl) {
+              window.TrashAnimationEngine.animateDiscard(rowEl, async () => {
+                await window.FarmPilotDB.deleteExpense(id);
+                expenses = await window.FarmPilotDB.getExpenses();
+                render();
+                window.FarmPilotApp.showToast('Expense item folded & disposed into dustbin! 🗑️');
+              });
+            }
+          });
+        });
       }
 
       render();
