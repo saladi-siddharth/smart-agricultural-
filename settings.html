@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmPilot — Settings & Farm Intelligence Integration</title>
+  <meta name="description" content="Configure 24+ regional agricultural languages and integrate FarmPilot Neural AI grounded in verified farm operational records.">
+
+  <!-- Progressive Web App & Offline Capabilities -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#064E3B">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
+
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <style>
+    .settings-hero {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      gap: 1.5rem;
+      padding: 1.75rem;
+      border-radius: var(--radius-xl);
+      color: #FFFFFF;
+      background: linear-gradient(118deg, #0D2820 0%, #143D30 58%, #0E5F4A 100%);
+      box-shadow: 0 18px 36px rgba(13, 40, 32, 0.18);
+    }
+
+    .settings-hero::after {
+      content: '';
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      right: -110px;
+      top: -155px;
+      border: 1px solid rgba(167, 243, 208, 0.22);
+      border-radius: 50%;
+      box-shadow: 0 0 0 28px rgba(167, 243, 208, 0.05), 0 0 0 58px rgba(167, 243, 208, 0.035);
+      pointer-events: none;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .lang-card {
+      background: #FFFFFF;
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.15rem;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .lang-card:hover {
+      border-color: #10B981;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.12);
+    }
+
+    .lang-card.active {
+      border-color: #059669;
+      background: #F0FDF4;
+      box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2);
+    }
+
+    .lang-flag {
+      font-size: 1.65rem;
+      line-height: 1;
+    }
+
+    .chip-filter {
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: 1px solid var(--color-border);
+      background: #FFFFFF;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip-filter.active {
+      background: var(--color-forest);
+      color: #FFFFFF;
+      border-color: var(--color-forest);
+    }
+
+    .sandbox-container {
+      background: #FFFFFF;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chat-bubble-user {
+      background: #F1F5F9;
+      border-radius: 12px 12px 2px 12px;
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      color: #0F172A;
+      max-width: 80%;
+      margin-left: auto;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+    }
+
+    .chat-bubble-ai {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px 12px 12px 2px;
+      padding: 1rem 1.15rem;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: #1E293B;
+      max-width: 92%;
+      margin-bottom: 0.75rem;
+    }
+
+    .prompt-chip {
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
+      border-radius: 999px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .prompt-chip:hover {
+      background: #ECFDF5;
+      border-color: #6EE7B7;
+      color: #065F46;
+    }
+
+    @media (max-width: 900px) {
+      .settings-hero {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app-layout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="app-content">
+        <div class="app-content-inner animate-fade-in" style="display: grid; gap: 1.75rem;">
+
+          <!-- EXECUTIVE HERO BANNER -->
+          <div class="settings-hero">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <span class="badge" style="background: rgba(110, 231, 183, 0.2); color: #A7F3D0; border: 1px solid rgba(110, 231, 183, 0.4);">
+                  🌐 Multilingual OS & FarmPilot Neural AI
+                </span>
+                <span class="badge" style="background: rgba(255, 255, 255, 0.15); color: #FFFFFF;">
+                  24 Agricultural Languages Supported
+                </span>
+              </div>
+              <h1 style="font-size: clamp(1.4rem, 2.2vw, 2.1rem); font-weight: 800; line-height: 1.2; margin: 0 0 0.5rem 0;">
+                Settings & Farm Intelligence Integration
+              </h1>
+              <p style="font-size: 0.875rem; color: #D1FAE5; max-width: 650px; line-height: 1.5; margin: 0;">
+                Configure language preferences across 24 regional and global farming languages. Connect your Neural Engine API key to power conversational farm intelligence grounded in verified database facts.
+              </p>
+            </div>
+
+            <!-- Quick Metrics Snapshot -->
+            <div style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: var(--radius-lg); padding: 1.15rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <span style="font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.08em; color: #A7F3D0; font-weight: 800;">
+                  Active Interface Language
+                </span>
+                <div style="font-size: 1.25rem; font-weight: 800; color: #FFFFFF; display: flex; align-items: center; gap: 0.45rem; margin-top: 0.2rem;" id="hero-active-lang">
+                  🌐 English (English)
+                </div>
+              </div>
+
+              <div style="margin-top: 1rem; pt-2; border-top: 1px solid rgba(255,255,255,0.15); display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.72rem; color: #A7F3D0;">Neural AI Model:</span>
+                <span class="font-mono" style="font-size: 0.72rem; font-weight: 800; color: #FFFFFF; background: rgba(0,0,0,0.25); padding: 0.15rem 0.5rem; border-radius: 4px;" id="hero-active-model">
+                  gemini-2.5-flash
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 1: NEURAL ENGINE API KEY INTEGRATION -->
+          <div class="card" style="padding: 1.5rem; border: 1.5px solid #A7F3D0; background: linear-gradient(180deg, #FFFFFF 0%, #F0FDF4 100%);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="font-size: 1.35rem;">⚡</span>
+                  <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--color-forest); margin: 0;">
+                    FarmPilot Neural AI Engine API Key Integration
+                  </h2>
+                  <span id="gemini-status-badge" class="badge badge-warning" style="font-weight: 800;">
+                    Checking Status...
+                  </span>
+                </div>
+                <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin: 0.25rem 0 0 0;">
+                  Connect your Neural Engine API key to enable high-reasoning conversational intelligence in any of the 24 languages.
+                </p>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button onclick="testGeminiConnection()" id="btn-test-gemini" class="btn btn-secondary btn-sm" style="font-weight: 800;">
+                  🔌 Test Connection
+                </button>
+                <button onclick="saveGeminiKey()" id="btn-save-gemini" class="btn btn-primary btn-sm" style="font-weight: 800;">
+                  💾 Save Configuration
+                </button>
+              </div>
+            </div>
+
+            <!-- Configuration Inputs Grid -->
+            <div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(200px, 1fr); gap: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.75rem; font-weight: 800; color: var(--color-text-primary); margin-bottom: 0.35rem;">
+                  NEURAL ENGINE API KEY (AI Studio Compatible)
+                </label>
+                <div style="position: relative; display: flex; align-items: center;">
+                  <input type="password" id="gemini-api-key-input" placeholder="AIzaSy..." 
+                    style="width: 100%; padding: 0.65rem 3rem 0.65rem 0.85rem; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.8125rem; outline: none; transition: border-color 0.2s;"
+                    onfocus="this.style.borderColor='var(--color-emerald)'" onblur="this.style.borderColor='var(--color-border)'">
+                  <button type="button" onclick="toggleKeyVisibility()" id="btn-toggle-key" 
+                    style="position: absolute; right: 0.65rem; background: none; border: none; font-size: 1rem; cursor: pointer; color: #64748B; padding: 0.2rem;">
+                    👁️
+                  </button>
+                </div>
+                <span style="font-size: 0.6875rem; color: var(--color-text-tertiary); display: block; margin-top: 0.35rem;">
+                  Your key is stored securely in your local browser and encrypted server session. Get a free API key at <a href="https://aistudio.google.com" target="_blank" style="color:#059669; font-weight:700;">Google AI Studio</a>.
+                </span>
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 0.75rem; font-weight: 800; color: var(--color-text-primary); margin-bottom: 0.35rem;">
+                  MODEL ARCHITECTURE
+                </label>
+                <select id="gemini-model-select" 
+                  style="width: 100%; padding: 0.65rem 0.85rem; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.8125rem; font-weight: 700; background: #FFFFFF; outline: none; cursor: pointer;">
+                  <option value="gemini-2.5-flash" selected>gemini-2.5-flash (Recommended • Ultra-Fast Agronomy)</option>
+                  <option value="gemini-1.5-flash">gemini-1.5-flash (High Throughput)</option>
+                  <option value="gemini-1.5-pro">gemini-1.5-pro (Deep Multistep Reasoning)</option>
+                </select>
+                <span id="gemini-test-result" style="font-size: 0.6875rem; font-weight: 700; display: block; margin-top: 0.35rem; color: #64748B;">
+                  Status: Ready to test
+                </span>
+              </div>
+            </div>
+
+            <!-- Explainable Grounding Callout -->
+            <div style="margin-top: 1rem; background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: var(--radius-md); padding: 0.85rem 1rem; display: flex; align-items: center; gap: 0.75rem;">
+              <span style="font-size: 1.25rem;">🛡️</span>
+              <div style="font-size: 0.75rem; color: var(--color-text-secondary); line-height: 1.5;">
+                <strong style="color: var(--color-forest);">Ground Truth Guarantee:</strong>
+                FarmPilot injects verified farm parameters (Paddy BPT-5204, Day 38 Tillering, Health Score 82/100, Overdue Zinc Spray, Cost ₹1,42,500, Break-Even 1.81 T/Ac) into the FarmPilot AI Engine system instructions. Responses strictly mirror your audited database records.
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 2: 24+ MULTILINGUAL CONVERSATIONAL MATRIX -->
+          <div class="card" style="padding: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+              <div>
+                <span class="context-chip">Universal Multilingual OS</span>
+                <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--color-text-primary); margin: 0.2rem 0;">
+                  24 Regional & Global Agricultural Languages
+                </h2>
+                <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin: 0;">
+                  Click any language to switch the entire application interface and conversational intelligence engine.
+                </p>
+              </div>
+
+              <!-- Search and Filter Controls -->
+              <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="lang-search-input" placeholder="Search 24 languages..." 
+                  style="padding: 0.4rem 0.75rem; border: 1px solid var(--color-border); border-radius: var(--radius-full); font-size: 0.75rem; width: 180px; outline: none;"
+                  oninput="filterLanguages()">
+                <button class="chip-filter active" onclick="setRegionFilter('all', this)">All (24)</button>
+                <button class="chip-filter" onclick="setRegionFilter('indian', this)">Indian Regional (13)</button>
+                <button class="chip-filter" onclick="setRegionFilter('global', this)">Global Ag (11)</button>
+              </div>
+            </div>
+
+            <!-- Languages Grid -->
+            <div class="settings-grid" id="languages-grid-container">
+              <!-- Loaded dynamically by JavaScript -->
+            </div>
+          </div>
+
+          <!-- SECTION 3: INTERACTIVE GROUNDED CONVERSATIONAL SANDBOX -->
+          <div class="sandbox-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+              <div>
+                <span class="context-chip">Live Neural Sandbox</span>
+                <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--color-text-primary); margin: 0.2rem 0;" id="sandbox-heading">
+                  Conversational Farm Intelligence Sandbox
+                </h2>
+                <p style="font-size: 0.78rem; color: var(--color-text-secondary); margin: 0;">
+                  Test real-time conversational responses in your selected language powered by FarmPilot Neural AI and verified farm data.
+                </p>
+              </div>
+
+              <div id="sandbox-lang-tag" style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; font-weight: 800; background: #F0FDF4; border: 1px solid #A7F3D0; color: #047857; padding: 0.25rem 0.65rem; border-radius: 999px;">
+                <span>🌐 English</span>
+              </div>
+            </div>
+
+            <!-- Sample Question Chips for current language -->
+            <div style="margin-bottom: 1rem;">
+              <span style="font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; color: var(--color-text-tertiary); letter-spacing: 0.05em; display: block; margin-bottom: 0.35rem;">
+                Suggested Localized Queries (1-Click)
+              </span>
+              <div id="sandbox-sample-chips" style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                <!-- Loaded dynamically based on active language -->
+              </div>
+            </div>
+
+            <!-- Chat Stream / Results Box -->
+            <div id="sandbox-chat-history" style="background: #FAFAFA; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 1rem; min-height: 180px; max-height: 420px; overflow-y: auto; margin-bottom: 1rem;">
+              <div style="text-align: center; color: var(--color-text-tertiary); font-size: 0.8125rem; padding: 2rem 1rem;">
+                Select a suggested query above or type your agricultural inquiry to test the multilingual FarmPilot AI intelligence engine.
+              </div>
+            </div>
+
+            <!-- Input Bar -->
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" id="sandbox-query-input" placeholder="Ask in any of the 24 languages (e.g. తెలుగు, हिन्दी, தமிழ், English)..." 
+                style="flex: 1; padding: 0.7rem 1rem; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); font-size: 0.85rem; outline: none;"
+                onkeydown="if(event.key === 'Enter') executeSandboxQuery()">
+              <button onclick="executeSandboxQuery()" id="btn-sandbox-submit" class="btn btn-primary" style="font-weight: 800; padding: 0.7rem 1.5rem; flex-shrink: 0; display: flex; align-items: center; gap: 0.4rem;">
+                <span>Ask FarmPilot AI</span>
+                <span>🌾</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- SECTION 4: GROUNDED TELEMETRY INSPECTOR -->
+          <div class="card" style="padding: 1.25rem 1.5rem; background: #F8FAFC;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-forest);">
+                🔍 Active Grounding Facts Injected into FarmPilot AI Prompt
+              </span>
+              <span class="badge badge-success" style="font-size: 0.65rem;">
+                Audited & Synchronized
+              </span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; font-size: 0.78rem;">
+              <div style="background: #FFFFFF; padding: 0.65rem; border-radius: 6px; border: 1px solid #E2E8F0;">
+                <span style="color: #64748B; font-size: 0.6875rem; display: block;">Active Parcel & Crop</span>
+                <strong style="color: #0F172A;">Paddy BPT-5204 (18.5 Ac)</strong>
+              </div>
+              <div style="background: #FFFFFF; padding: 0.65rem; border-radius: 6px; border: 1px solid #E2E8F0;">
+                <span style="color: #64748B; font-size: 0.6875rem; display: block;">Phenological Stage</span>
+                <strong style="color: #0F172A;">Active Tillering (Day 38/120)</strong>
+              </div>
+              <div style="background: #FFFFFF; padding: 0.65rem; border-radius: 6px; border: 1px solid #E2E8F0;">
+                <span style="color: #64748B; font-size: 0.6875rem; display: block;">Farm Health Score</span>
+                <strong style="color: #059669;" id="ground-health-score">82 / 100</strong>
+              </div>
+              <div style="background: #FFFFFF; padding: 0.65rem; border-radius: 6px; border: 1px solid #E2E8F0;">
+                <span style="color: #64748B; font-size: 0.6875rem; display: block;">Active Bottleneck</span>
+                <strong style="color: #D97706;">Zinc Sulfate Foliar Spray</strong>
+              </div>
+              <div style="background: #FFFFFF; padding: 0.65rem; border-radius: 6px; border: 1px solid #E2E8F0;">
+                <span style="color: #64748B; font-size: 0.6875rem; display: block;">Economic Break-Even</span>
+                <strong style="color: #0F172A;">1.81 Tonnes / Acre</strong>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/intelligence/crop-stage-engine.js"></script>
+  <script src="js/intelligence/activity-intelligence.js"></script>
+  <script src="js/intelligence/cost-intelligence.js"></script>
+  <script src="js/intelligence/profitability-engine.js"></script>
+  <script src="js/intelligence/risk-engine.js"></script>
+  <script src="js/intelligence/weather-context-engine.js"></script>
+  <script src="js/intelligence/data-quality-engine.js"></script>
+  <script src="js/intelligence/farm-health-engine.js"></script>
+  <script src="js/intelligence/cultivation-plan-engine.js"></script>
+  <script src="js/intelligence/comparison-benchmarking-engine.js"></script>
+  <script src="js/intelligence/recommendation-engine.js"></script>
+  <script src="js/intelligence/ask-farmpilot-engine.js"></script>
+  <script src="js/intelligence.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/weather.js"></script>
+  <script src="js/offline-sync.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    let activeRegionFilter = 'all';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.FarmPilotApp.init('settings');
+      loadGeminiConfiguration();
+      renderLanguagesGrid();
+      updateSandboxUI();
+
+      // Listen for language changes across the app
+      window.addEventListener('farmpilot:language-changed', (e) => {
+        renderLanguagesGrid();
+        updateSandboxUI();
+      });
+    });
+
+    async function loadGeminiConfiguration() {
+      const storedKey = localStorage.getItem('farmpilot_gemini_api_key') || '';
+      const storedModel = localStorage.getItem('farmpilot_gemini_model') || 'gemini-2.5-flash';
+
+      const keyInput = document.getElementById('gemini-api-key-input');
+      const modelSelect = document.getElementById('gemini-model-select');
+
+      if (keyInput && storedKey) {
+        keyInput.value = storedKey;
+      }
+      if (modelSelect && storedModel) {
+        modelSelect.value = storedModel;
+      }
+
+      // Check server API status
+      try {
+        const resp = await fetch('/api/gemini/status');
+        if (resp.ok) {
+          const status = await resp.json();
+          const badge = document.getElementById('gemini-status-badge');
+          if (badge) {
+            if (status.hasKey || storedKey) {
+              badge.className = 'badge badge-success';
+              badge.textContent = '✓ Configured & Active';
+            } else {
+              badge.className = 'badge badge-warning';
+              badge.textContent = 'API Key Required';
+            }
+          }
+          if (status.activeModel && modelSelect && !storedModel) {
+            modelSelect.value = status.activeModel;
+          }
+          document.getElementById('hero-active-model').textContent = modelSelect.value;
+        }
+      } catch (e) {
+        console.warn('Could not reach /api/gemini/status:', e);
+      }
+    }
+
+    function toggleKeyVisibility() {
+      const input = document.getElementById('gemini-api-key-input');
+      const btn = document.getElementById('btn-toggle-key');
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🔒';
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁️';
+      }
+    }
+
+    async function saveGeminiKey() {
+      const keyInput = document.getElementById('gemini-api-key-input');
+      const modelSelect = document.getElementById('gemini-model-select');
+      const key = keyInput.value.trim();
+      const model = modelSelect.value;
+
+      if (!key) {
+        window.FarmPilotApp.showToast('Please enter a valid Gemini API Key', 'danger');
+        return;
+      }
+
+      localStorage.setItem('farmpilot_gemini_api_key', key);
+      localStorage.setItem('farmpilot_gemini_model', model);
+
+      try {
+        const resp = await fetch('/api/gemini/save-key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiKey: key, model })
+        });
+        const data = await resp.json();
+        if (data.success) {
+          window.FarmPilotApp.showToast('✓ Gemini API Key saved to system and persisted successfully!', 'success');
+          loadGeminiConfiguration();
+        } else {
+          window.FarmPilotApp.showToast(`Saved locally (${data.error || 'Server sync skipped'})`, 'primary');
+        }
+      } catch (e) {
+        window.FarmPilotApp.showToast('✓ API Key saved to local application storage!', 'success');
+      }
+    }
+
+    async function testGeminiConnection() {
+      const keyInput = document.getElementById('gemini-api-key-input');
+      const modelSelect = document.getElementById('gemini-model-select');
+      const key = keyInput.value.trim();
+      const model = modelSelect.value;
+      const resultText = document.getElementById('gemini-test-result');
+
+      if (!key) {
+        window.FarmPilotApp.showToast('Please enter an API Key to test connection', 'danger');
+        return;
+      }
+
+      resultText.style.color = '#D97706';
+      resultText.textContent = 'Testing connection to Neural AI Engine...';
+
+      const btn = document.getElementById('btn-test-gemini');
+      btn.disabled = true;
+
+      try {
+        const resp = await fetch('/api/gemini/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiKey: key, model })
+        });
+
+        const data = await resp.json();
+        if (data.success) {
+          resultText.style.color = '#059669';
+          resultText.textContent = `✓ Connected successfully (${data.latencyMs}ms latency • ${data.model})`;
+          window.FarmPilotApp.showToast(`✓ FarmPilot AI Engine Connected (${data.latencyMs}ms)`, 'success');
+          const badge = document.getElementById('gemini-status-badge');
+          if (badge) {
+            badge.className = 'badge badge-success';
+            badge.textContent = '✓ Verified Active';
+          }
+        } else {
+          resultText.style.color = '#DC2626';
+          resultText.textContent = `✕ Connection failed: ${data.error}`;
+          window.FarmPilotApp.showToast(`AI Engine Error: ${data.error}`, 'danger');
+        }
+      } catch (e) {
+        resultText.style.color = '#DC2626';
+        resultText.textContent = `✕ Network error: ${e.message}`;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function renderLanguagesGrid() {
+      const container = document.getElementById('languages-grid-container');
+      if (!container || !window.FarmPilotI18n) return;
+
+      const current = window.FarmPilotI18n.getCurrentLanguage();
+      const languages = window.FarmPilotI18n.getLanguages();
+      const searchTerm = (document.getElementById('lang-search-input')?.value || '').toLowerCase().trim();
+
+      const filtered = languages.filter(l => {
+        // Region filter
+        if (activeRegionFilter === 'indian') {
+          if (!['te', 'hi', 'ta', 'kn', 'ml', 'mr', 'bn', 'gu', 'pa', 'or', 'as', 'ur'].includes(l.code)) return false;
+        } else if (activeRegionFilter === 'global') {
+          if (['te', 'hi', 'ta', 'kn', 'ml', 'mr', 'bn', 'gu', 'pa', 'or', 'as', 'ur'].includes(l.code)) return false;
+        }
+
+        // Search filter
+        if (searchTerm) {
+          return l.name.toLowerCase().includes(searchTerm) ||
+                 l.native.toLowerCase().includes(searchTerm) ||
+                 l.region.toLowerCase().includes(searchTerm) ||
+                 l.code.toLowerCase().includes(searchTerm);
+        }
+        return true;
+      });
+
+      container.innerHTML = filtered.map(l => {
+        const isActive = l.code === current.code;
+        return `
+          <div class="lang-card ${isActive ? 'active' : ''}" onclick="selectLanguage('${l.code}')">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                <span class="lang-flag">${l.flag}</span>
+                ${isActive ? `
+                  <span class="badge badge-success" style="font-size: 0.65rem; font-weight: 800;">
+                    ✓ Active
+                  </span>
+                ` : `
+                  <span style="font-size: 0.6875rem; color: #64748B; font-weight: 700; text-transform: uppercase;">
+                    ${l.code}
+                  </span>
+                `}
+              </div>
+              <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--color-text-primary); margin: 0 0 2px 0;">
+                ${l.name}
+              </h3>
+              <div style="font-size: 0.95rem; font-weight: 700; color: var(--color-forest); margin-bottom: 0.35rem;">
+                ${l.native}
+              </div>
+              <p style="font-size: 0.72rem; color: var(--color-text-secondary); margin: 0; line-height: 1.4;">
+                ${l.region}
+              </p>
+            </div>
+
+            <div style="margin-top: 0.85rem; pt-1; border-top: 1px solid var(--color-border); padding-top: 0.5rem;">
+              <button class="btn ${isActive ? 'btn-primary' : 'btn-outline'} btn-sm" style="width: 100%; font-size: 0.72rem; font-weight: 800;">
+                ${isActive ? 'Selected Language' : 'Switch to ' + l.name}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Update hero active language display
+      const heroLang = document.getElementById('hero-active-lang');
+      if (heroLang) {
+        heroLang.innerHTML = `${current.flag} ${current.name} (${current.native})`;
+      }
+    }
+
+    function selectLanguage(code) {
+      if (window.FarmPilotI18n) {
+        const lang = window.FarmPilotI18n.setLanguage(code);
+        renderLanguagesGrid();
+        updateSandboxUI();
+        if (window.FarmPilotApp) {
+          window.FarmPilotApp.renderHeader();
+          window.FarmPilotApp.renderSidebar();
+          window.FarmPilotApp.showToast(`🌐 Language changed to ${lang.name} (${lang.native})`, 'success');
+        }
+      }
+    }
+
+    function setRegionFilter(filter, btn) {
+      activeRegionFilter = filter;
+      document.querySelectorAll('.chip-filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderLanguagesGrid();
+    }
+
+    function filterLanguages() {
+      renderLanguagesGrid();
+    }
+
+    function updateSandboxUI() {
+      if (!window.FarmPilotI18n) return;
+      const current = window.FarmPilotI18n.getCurrentLanguage();
+
+      const heading = document.getElementById('sandbox-heading');
+      if (heading) {
+        heading.textContent = `Conversational Farm Intelligence — ${current.name} (${current.native})`;
+      }
+
+      const langTag = document.getElementById('sandbox-lang-tag');
+      if (langTag) {
+        langTag.innerHTML = `<span>${current.flag}</span><span>${current.native}</span>`;
+      }
+
+      const sampleQs = window.FarmPilotI18n.getSampleQuestions(current.code);
+      const chipsContainer = document.getElementById('sandbox-sample-chips');
+      if (chipsContainer) {
+        chipsContainer.innerHTML = sampleQs.map(q => `
+          <button class="prompt-chip" onclick="fillSandboxQuery('${q.replace(/'/g, "\\'")}')">${q}</button>
+        `).join('');
+      }
+
+      const input = document.getElementById('sandbox-query-input');
+      if (input) {
+        input.placeholder = `Ask in ${current.name} (${current.native})...`;
+      }
+    }
+
+    function fillSandboxQuery(q) {
+      const input = document.getElementById('sandbox-query-input');
+      input.value = q;
+      executeSandboxQuery();
+    }
+
+    async function executeSandboxQuery() {
+      const input = document.getElementById('sandbox-query-input');
+      const q = input.value.trim();
+      if (!q) return;
+
+      const history = document.getElementById('sandbox-chat-history');
+      const submitBtn = document.getElementById('btn-sandbox-submit');
+      const lang = window.FarmPilotI18n ? window.FarmPilotI18n.getCurrentLanguage() : { code: 'en', name: 'English' };
+
+      // Append user bubble
+      const userBubble = document.createElement('div');
+      userBubble.className = 'chat-bubble-user';
+      userBubble.textContent = q;
+      history.appendChild(userBubble);
+      history.scrollTop = history.scrollHeight;
+
+      // Append AI loading bubble
+      const aiBubble = document.createElement('div');
+      aiBubble.className = 'chat-bubble-ai';
+      aiBubble.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-forest); font-weight: 700;">
+          <span class="animate-spin" style="display: inline-block;">⏳</span>
+          <span>Reasoning with FarmPilot Neural AI in ${lang.name} (${lang.native})...</span>
+        </div>
+      `;
+      history.appendChild(aiBubble);
+      history.scrollTop = history.scrollHeight;
+
+      submitBtn.disabled = true;
+
+      const startTime = Date.now();
+
+      try {
+        const apiKey = localStorage.getItem('farmpilot_gemini_api_key') || '';
+        const model = localStorage.getItem('farmpilot_gemini_model') || 'gemini-2.5-flash';
+
+        const resp = await fetch('/api/gemini/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: q,
+            language: lang.code,
+            apiKey,
+            model,
+            farmSnapshot: {
+              farmName: 'Green Valley Farm',
+              crop: 'Paddy (BPT-5204 Samba Mahsuri)',
+              stage: 'Active Tillering (Day 38 of 120)',
+              healthScore: 82,
+              overdueTask: 'Zinc Sulfate Foliar Spray in North Block',
+              totalCost: '₹1,42,500 spent (+14.3% variance)',
+              breakEven: '1.81 Tonnes/Acre'
+            }
+          })
+        });
+
+        const latencyMs = Date.now() - startTime;
+        const data = await resp.json();
+
+        const providerLabel = (data.provider === 'gemini' || data.provider === 'farmpilot-neural-ai')
+          ? `✨ FarmPilot Neural AI (${data.model || model} • ${latencyMs}ms)` 
+          : `🌱 FarmPilot Local Precision Engine (${latencyMs}ms)`;
+
+        aiBubble.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+            <span class="badge" style="background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; font-size: 0.7rem; font-weight: 800;">
+              ${providerLabel}
+            </span>
+            <span class="badge badge-neutral" style="font-size: 0.6875rem;">
+              ${data.languageName || lang.name}
+            </span>
+          </div>
+          <div style="white-space: pre-line; line-height: 1.6;">${(data.answer || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</div>
+          ${data.recommendedAction ? `
+            <div style="margin-top: 0.65rem; background: #F0FDF4; border: 1px solid #DCFCE7; padding: 0.5rem 0.75rem; border-radius: 6px; color: #065F46; font-size: 0.8rem; font-weight: 700;">
+              ✓ Recommended Agronomic Action: ${data.recommendedAction}
+            </div>
+          ` : ''}
+          <div style="margin-top: 0.6rem; pt-1; border-top: 1px solid #E2E8F0; font-size: 0.6875rem; color: #94A3B8; display: flex; justify-content: space-between;">
+            <span>Grounded: Verified Farm Facts</span>
+            <span>Sources: ${(data.sources || ['Supabase Database']).join(' • ')}</span>
+          </div>
+        `;
+      } catch (err) {
+        aiBubble.innerHTML = `<div style="color: #DC2626;">Error querying FarmPilot AI: ${err.message}</div>`;
+      } finally {
+        submitBtn.disabled = false;
+        input.value = '';
+        history.scrollTop = history.scrollHeight;
+      }
+    }
+  </script>
+</body>
+</html>

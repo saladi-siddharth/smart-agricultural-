@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FarmPilot — Command Center Dashboard</title>
-  <meta name="description" content="Executive Agronomic Command Center with aerial parcel schematics, operations queue, and financial tracking.">
-  
+  <meta name="description"
+    content="Executive Agronomic Command Center with aerial parcel schematics, operations queue, and financial tracking.">
+
+  <!-- Progressive Web App & Offline Capabilities -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#064E3B">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
+
   <link rel="stylesheet" href="css/design-system.css">
   <link rel="stylesheet" href="css/components.css">
 
@@ -36,21 +44,95 @@
       pointer-events: none;
     }
 
-    .phase2-hero h1 { max-width: 700px; color: #FFFFFF; font-size: clamp(1.55rem, 2.4vw, 2.35rem); letter-spacing: -0.04em; }
-    .phase2-hero p { max-width: 620px; color: #C7E9D9; font-size: 0.875rem; }
-    .phase2-eyebrow { display: inline-flex; align-items: center; gap: 0.45rem; color: #6EE7B7; font-size: 0.6875rem; font-weight: 800; letter-spacing: 0.11em; text-transform: uppercase; }
-    .phase2-live-panel { position: relative; z-index: 1; display: grid; gap: 0.75rem; align-content: center; }
-    .phase2-signal { padding: 0.85rem 1rem; border: 1px solid rgba(167, 243, 208, 0.2); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(8px); }
-    .phase2-signal-label { display: block; color: #A7F3D0; font-size: 0.625rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
-    .phase2-signal-value { display: block; margin-top: 0.18rem; color: #FFFFFF; font-family: var(--font-mono); font-size: 1.1rem; font-weight: 800; }
-    .phase2-hero-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.1rem; }
-    .phase2-hero .btn-primary { background: #6EE7B7; color: #0D2820; }
-    .phase2-hero .btn-primary:hover { background: #A7F3D0; }
-    .phase2-hero .btn-outline { border-color: rgba(255, 255, 255, 0.28); background: rgba(255, 255, 255, 0.08); color: #FFFFFF; }
+    .phase2-hero h1 {
+      max-width: 700px;
+      color: #FFFFFF;
+      font-size: clamp(1.55rem, 2.4vw, 2.35rem);
+      letter-spacing: -0.04em;
+    }
+
+    .phase2-hero p {
+      max-width: 620px;
+      color: #C7E9D9;
+      font-size: 0.875rem;
+    }
+
+    .phase2-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: #6EE7B7;
+      font-size: 0.6875rem;
+      font-weight: 800;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .phase2-live-panel {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 0.75rem;
+      align-content: center;
+    }
+
+    .phase2-signal {
+      padding: 0.85rem 1rem;
+      border: 1px solid rgba(167, 243, 208, 0.2);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+    }
+
+    .phase2-signal-label {
+      display: block;
+      color: #A7F3D0;
+      font-size: 0.625rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .phase2-signal-value {
+      display: block;
+      margin-top: 0.18rem;
+      color: #FFFFFF;
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .phase2-hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1.1rem;
+    }
+
+    .phase2-hero .btn-primary {
+      background: #6EE7B7;
+      color: #0D2820;
+    }
+
+    .phase2-hero .btn-primary:hover {
+      background: #A7F3D0;
+    }
+
+    .phase2-hero .btn-outline {
+      border-color: rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.08);
+      color: #FFFFFF;
+    }
 
     @media (max-width: 760px) {
-      .phase2-hero { grid-template-columns: 1fr; padding: 1.25rem; }
-      .phase2-live-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .phase2-hero {
+        grid-template-columns: 1fr;
+        padding: 1.25rem;
+      }
+
+      .phase2-live-panel {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
     .dashboard-two-col {
@@ -122,8 +204,87 @@
       opacity: 0.6;
       background-color: var(--color-surface-secondary);
     }
+
+    /* AI Report & Multilingual Chatbot Styles */
+    .db-chat-bubble {
+      max-width: 82%;
+      padding: 0.65rem 0.95rem;
+      border-radius: 12px;
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      word-wrap: break-word;
+    }
+    .db-chat-user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: #FFFFFF;
+      border-bottom-right-radius: 2px;
+    }
+    .db-chat-ai {
+      align-self: flex-start;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      color: #0F172A;
+      border-bottom-left-radius: 2px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .dossier-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      padding: 1rem;
+    }
+    .dossier-modal-overlay.active {
+      display: flex;
+      animation: fadeIn 0.2s ease-out;
+    }
+    .dossier-modal-container {
+      background: #FFFFFF;
+      border-radius: var(--radius-xl);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      width: 100%;
+      max-width: 960px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+    }
+    .credentials-table th, .credentials-table td {
+      padding: 0.65rem 0.85rem;
+      font-size: 0.75rem;
+      border-bottom: 1px solid #F1F5F9;
+      text-align: left;
+    }
+    .credentials-table th {
+      background: #F8FAFC;
+      color: #64748B;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #ai-report-printable-area, #ai-report-printable-area * {
+        visibility: visible;
+      }
+      #ai-report-printable-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+    }
   </style>
 </head>
+
 <body>
 
   <div class="app-layout">
@@ -138,14 +299,16 @@
       <!-- Dashboard Viewport Content -->
       <main class="app-content">
         <div class="app-content-inner animate-fade-in">
-          
+
           <!-- Phase 2 Header Tour Action -->
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: -1rem;">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span class="badge badge-success" style="font-size: 0.6875rem; font-weight: 700;">Phase 2 Operations OS</span>
-              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Green Valley Agriculture Ltd • Machilipatnam, AP</span>
+              <span class="badge badge-success" style="font-size: 0.6875rem; font-weight: 700;"></span>
+              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Green Valley Agriculture Ltd •
+                Machilipatnam, AP</span>
             </div>
-            <button id="btn-demo-story-modal" class="demo-tour-badge" title="Launch Problem Statement 5-Minute Pitch Walkthrough">
+            <button id="btn-demo-story-modal" class="demo-tour-badge"
+              title="Launch Problem Statement 5-Minute Pitch Walkthrough">
               <span>▶ 5-Min Judge Demo Story</span>
             </button>
           </div>
@@ -153,28 +316,202 @@
           <section class="phase2-hero" aria-labelledby="phase2-hero-title">
             <div style="position: relative; z-index: 1;">
               <span class="phase2-eyebrow"><span class="animate-pulse-glow">●</span> Live estate command</span>
-              <h1 id="phase2-hero-title" style="margin-top: 0.55rem;">Turn every field decision into a better harvest.</h1>
-              <p style="margin-top: 0.7rem;">One operating system for crop cycles, field teams, inputs, budgets, and explainable agronomic action across your entire farm portfolio.</p>
+              <h1 id="phase2-hero-title" style="margin-top: 0.55rem;">Turn every field decision into a better harvest.
+              </h1>
+              <p style="margin-top: 0.7rem;">One operating system for crop cycles, field teams, inputs, budgets, and
+                explainable agronomic action across your entire farm portfolio.</p>
               <div class="phase2-hero-actions">
                 <a href="activities.html" class="btn btn-primary btn-sm">Open priority queue</a>
+                <a href="intelligence.html#farm-status-analysis-studio" class="btn btn-secondary btn-sm" style="background:#ECFDF5; color:#065F46; border:1px solid #A7F3D0; font-weight:800; display:inline-flex; align-items:center; gap:0.35rem;">
+                  <span>🔬</span>
+                  <span>Farm Status Analysis Studio</span>
+                </a>
                 <button id="btn-hero-demo" class="btn btn-outline btn-sm" type="button">Run the judge story</button>
+                <button type="button" id="btn-hero-generate-ai-report" onclick="generateAiFarmReport()" class="btn btn-sm" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFFFFF; font-weight: 800; display: inline-flex; align-items: center; gap: 0.45rem; box-shadow: 0 4px 14px rgba(16,185,129,0.45); border: 1.5px solid #6EE7B7; padding: 0.45rem 1rem; border-radius: var(--radius-md); font-size: 0.8125rem;">
+                  <span style="font-size: 1.05rem;" class="animate-pulse-glow">⚡</span>
+                  <span>Generate AI Farm Report</span>
+                </button>
+                <button type="button" onclick="openDatabaseInspectorModal()" class="btn btn-outline btn-sm" style="font-weight:800; display:inline-flex; align-items:center; gap:0.35rem;">
+                  <span>🗄️</span>
+                  <span>Supabase DB & Passwords</span>
+                </button>
+                <button type="button" onclick="scrollToAiChatbot()" class="btn btn-outline btn-sm" style="font-weight:800; display:inline-flex; align-items:center; gap:0.35rem;">
+                  <span>💬</span>
+                  <span>Farm AI Chat</span>
+                </button>
               </div>
             </div>
             <div class="phase2-live-panel" aria-label="Live estate signals">
-              <div class="phase2-signal"><span class="phase2-signal-label">Portfolio coverage</span><span id="hero-coverage" class="phase2-signal-value">73.5 ac</span></div>
-              <div class="phase2-signal"><span class="phase2-signal-label">Team execution</span><span id="hero-execution" class="phase2-signal-value">2 active</span></div>
-              <div class="phase2-signal"><span class="phase2-signal-label">Farm health</span><span id="hero-health" class="phase2-signal-value">82 / 100</span></div>
+              <div class="phase2-signal"><span class="phase2-signal-label">Portfolio coverage</span><span
+                  id="hero-coverage" class="phase2-signal-value">73.5 ac</span></div>
+              <div class="phase2-signal"><span class="phase2-signal-label">Team execution</span><span
+                  id="hero-execution" class="phase2-signal-value">2 active</span></div>
+              <div class="phase2-signal"><span class="phase2-signal-label">Farm health</span><span id="hero-health"
+                  class="phase2-signal-value">82 / 100</span></div>
             </div>
+          </section>
+
+          <!-- ========================================================================= -->
+          <!-- AI FARM REPORT COMPONENT (Comprehensive Agronomic & Financial Intelligence)-->
+          <!-- ========================================================================= -->
+          <section id="ai-farm-report-card" class="card" style="margin-bottom: 1.5rem; border: 2px solid #10B981; background: linear-gradient(135deg, #06281E 0%, #0D4733 100%); color: #FFFFFF; border-radius: var(--radius-xl); box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.25); overflow: hidden; position: relative;">
+            
+            <div style="padding: 1.5rem 1.75rem; position: relative; z-index: 2;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
+                    <span class="badge" style="background: rgba(52, 211, 153, 0.25); color: #6EE7B7; border: 1.5px solid rgba(52, 211, 153, 0.5); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">
+                      ⚡ AI Farm Report Component
+                    </span>
+                    <span class="badge" style="background: rgba(255, 255, 255, 0.15); color: #FFFFFF; font-size: 0.7rem;">
+                      Neural AI Engine • Live Supabase Grounding
+                    </span>
+                  </div>
+
+                  <h2 style="font-size: clamp(1.25rem, 2vw, 1.65rem); font-weight: 800; margin: 0 0 0.35rem; color: #FFFFFF; letter-spacing: -0.01em;">
+                    Farm AI Executive Agronomic & Financial Report
+                  </h2>
+                  <p style="font-size: 0.8125rem; color: #D1FAE5; margin: 0; max-width: 680px; line-height: 1.5;">
+                    Generate an exhaustive executive farm report synthesizing real-time field hydrology (AWD -4cm), crop phenology (Day 38 Tillering), active pathogen & zinc deficiency alerts, 48h spray windows, and economic break-even yields.
+                  </p>
+                </div>
+
+                <!-- Right Side Actions & Language Selector -->
+                <div style="display: flex; flex-direction: column; gap: 0.65rem; align-items: flex-end;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem; background: rgba(0, 0, 0, 0.3); padding: 0.35rem 0.65rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.15);">
+                    <span style="font-size: 0.75rem; color: #A7F3D0; font-weight: 700;">Report Language:</span>
+                    <select id="ai-report-lang-select" style="background: transparent; color: #FFFFFF; border: none; font-size: 0.8125rem; font-weight: 800; cursor: pointer; outline: none;">
+                      <option value="en" selected style="color:#000;">🌐 English (Global)</option>
+                      <option value="te" style="color:#000;">🇮🇳 Telugu (తెలుగు)</option>
+                      <option value="hi" style="color:#000;">🇮🇳 Hindi (हिन्दी)</option>
+                      <option value="ta" style="color:#000;">🇮🇳 Tamil (தமிழ்)</option>
+                      <option value="kn" style="color:#000;">🇮🇳 Kannada (ಕನ್ನಡ)</option>
+                      <option value="ml" style="color:#000;">🇮🇳 Malayalam (മലയാളം)</option>
+                      <option value="mr" style="color:#000;">🇮🇳 Marathi (मराठी)</option>
+                      <option value="bn" style="color:#000;">🇮🇳 Bengali (বাংলা)</option>
+                      <option value="gu" style="color:#000;">🇮🇳 Gujarati (ગુજરાતી)</option>
+                      <option value="es" style="color:#000;">🇪🇸 Spanish (Español)</option>
+                    </select>
+                  </div>
+
+                  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button type="button" id="btn-generate-ai-report" onclick="generateAiFarmReport()" class="btn" style="background: linear-gradient(135deg, #34D399 0%, #10B981 100%); color: #064E3B; font-weight: 900; font-size: 0.9375rem; padding: 0.7rem 1.4rem; border-radius: var(--radius-md); border: 2px solid #A7F3D0; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 6px 18px rgba(52, 211, 153, 0.45); transition: all 0.2s;">
+                      <span id="ai-report-btn-icon" style="font-size: 1.15rem;">⚡</span>
+                      <span id="ai-report-btn-text">Generate Full Farm AI Report</span>
+                    </button>
+                    <button type="button" onclick="loadLatestAiReportModal()" class="btn" style="background: rgba(255, 255, 255, 0.12); color: #FFFFFF; font-weight: 700; font-size: 0.8125rem; padding: 0.6rem 0.95rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.25); cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
+                      <span>📑</span>
+                      <span>View Archived Report</span>
+                    </button>
+                    <button type="button" onclick="openDatabaseInspectorModal()" class="btn" style="background: rgba(255, 255, 255, 0.12); color: #FFFFFF; font-weight: 700; font-size: 0.8125rem; padding: 0.6rem 0.95rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.25); cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
+                      <span>🗄️</span>
+                      <span>Supabase DB & Passwords</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Real-Time Telemetry Badges Strip -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.65rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.12);">
+                <div style="background: rgba(255, 255, 255, 0.06); padding: 0.6rem 0.85rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.1);">
+                  <span style="font-size: 0.65rem; text-transform: uppercase; color: #A7F3D0; font-weight: 800; letter-spacing: 0.05em;">Crop & Stage</span>
+                  <div style="font-size: 0.85rem; font-weight: 800; color: #FFFFFF; margin-top: 0.15rem;">Paddy BPT-5204 • Day 38</div>
+                  <span style="font-size: 0.6875rem; color: #6EE7B7;">Active Tillering</span>
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.06); padding: 0.6rem 0.85rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.1);">
+                  <span style="font-size: 0.65rem; text-transform: uppercase; color: #A7F3D0; font-weight: 800; letter-spacing: 0.05em;">Water Hydrology</span>
+                  <div style="font-size: 0.85rem; font-weight: 800; color: #FFFFFF; margin-top: 0.15rem;">AWD -4.0 cm</div>
+                  <span style="font-size: 0.6875rem; color: #34D399;">Safe Perched Table</span>
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.06); padding: 0.6rem 0.85rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.1);">
+                  <span style="font-size: 0.65rem; text-transform: uppercase; color: #FCD34D; font-weight: 800; letter-spacing: 0.05em;">Deficiency Risk</span>
+                  <div style="font-size: 0.85rem; font-weight: 800; color: #FFFFFF; margin-top: 0.15rem;">Zinc (Zn) Chlorosis</div>
+                  <span style="font-size: 0.6875rem; color: #FDE68A;">Foliar Due &lt; Day 40</span>
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.06); padding: 0.6rem 0.85rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.1);">
+                  <span style="font-size: 0.65rem; text-transform: uppercase; color: #A7F3D0; font-weight: 800; letter-spacing: 0.05em;">Financial Health</span>
+                  <div style="font-size: 0.85rem; font-weight: 800; color: #FFFFFF; margin-top: 0.15rem;">₹18,500 Spent (37%)</div>
+                  <span style="font-size: 0.6875rem; color: #6EE7B7;">Break-Even: 1.81 T/Ac</span>
+                </div>
+              </div>
+
+              <!-- Inline Report Dynamic Preview Area -->
+              <div id="ai-report-inline-container" style="display: none; margin-top: 1.25rem; background: #FFFFFF; color: #0F172A; border-radius: var(--radius-lg); padding: 1.25rem; border: 1px solid #CBD5E1; box-shadow: var(--shadow-md);">
+                <!-- Rendered dynamically upon clicking Generate -->
+              </div>
+
+            </div>
+          </section>
+
+          <!-- ========================================================================= -->
+          <!-- REAL-TIME MULTILINGUAL FARM AI CHATBOT COMPONENT (Regional Conversational)-->
+          <!-- ========================================================================= -->
+          <section id="dashboard-ai-chatbot-card" class="card" style="margin-bottom: 1.5rem; border: 1.5px solid #10B981; background: #FFFFFF; border-radius: var(--radius-xl); box-shadow: var(--shadow-sm);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <div style="width: 38px; height: 38px; border-radius: 10px; background: #ECFDF5; border: 1px solid #A7F3D0; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                  🤖
+                </div>
+                <div>
+                  <h3 style="font-size: 1.05rem; font-weight: 800; margin: 0; color: var(--color-forest);">
+                    Real-Time Multilingual Farm AI Assistant
+                  </h3>
+                  <span style="font-size: 0.72rem; color: var(--color-text-secondary);">
+                    Ask agronomic questions in Telugu, Hindi, Tamil, Kannada, English, or 20+ regional languages
+                  </span>
+                </div>
+              </div>
+
+              <!-- Chatbot Language Selector & Status -->
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="badge" style="background: #F0FDF4; color: #059669; border: 1px solid #A7F3D0; font-size: 0.6875rem; font-weight: 700;">
+                  ● Live Grounded Assistant
+                </span>
+                <select id="chatbot-lang-select" onchange="handleChatbotLanguageChange(this.value)" style="border: 1.5px solid #CBD5E1; border-radius: var(--radius-md); padding: 0.3rem 0.6rem; font-size: 0.75rem; font-weight: 800; color: #047857; background: #FFFFFF; cursor: pointer; outline: none;">
+                  <option value="te" selected>🇮🇳 Telugu (తెలుగు)</option>
+                  <option value="hi">🇮🇳 Hindi (हिन्दी)</option>
+                  <option value="ta">🇮🇳 Tamil (தமிழ்)</option>
+                  <option value="kn">🇮🇳 Kannada (ಕನ್ನಡ)</option>
+                  <option value="en">🌐 English (English)</option>
+                  <option value="mr">🇮🇳 Marathi (मराठी)</option>
+                  <option value="bn">🇮🇳 Bengali (বাংলা)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Suggested Localized Quick Question Chips -->
+            <div id="chatbot-quick-chips" style="display: flex; gap: 0.4rem; overflow-x: auto; padding-bottom: 0.4rem; margin-bottom: 0.85rem;">
+              <!-- Populated by JS -->
+            </div>
+
+            <!-- Chat Messages Scroll Container -->
+            <div id="dashboard-chat-viewport" style="background: #F8FAFC; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1rem; min-height: 180px; max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 0.85rem;">
+              <!-- Initial Welcome message populated by JS -->
+            </div>
+
+            <!-- Chat Input Composer -->
+            <form id="dashboard-chat-form" onsubmit="handleDashboardChatSubmit(event)" style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="text" id="dashboard-chat-input" class="form-input" placeholder="Ask in Telugu, Hindi, or English (e.g., వరి పంటలో నీటి యాజమాన్యం ఎలా చేయాలి?)..." style="font-size: 0.8125rem;" autocomplete="off">
+              <button type="submit" id="dashboard-chat-send-btn" class="btn btn-primary" style="background: #059669; padding: 0.6rem 1.25rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.35rem; flex-shrink: 0;">
+                <span>Send</span>
+                <span>➤</span>
+              </button>
+            </form>
           </section>
 
           <!-- Hero KPI Ribbon -->
           <section class="kpi-grid">
             <div class="kpi-card">
-              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); letter-spacing: 0.05em;">
+              <span
+                style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); letter-spacing: 0.05em;">
                 Total Managed Area
               </span>
-              <p id="kpi-area-val" class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-text-primary); margin: 0.35rem 0 0.2rem;">
-                25.0 <span style="font-size: 0.875rem; font-weight: 600; color: var(--color-text-secondary);">Acres</span>
+              <p id="kpi-area-val" class="tabular-nums font-mono"
+                style="font-size: 1.875rem; font-weight: 800; color: var(--color-text-primary); margin: 0.35rem 0 0.2rem;">
+                25.0 <span
+                  style="font-size: 0.875rem; font-weight: 600; color: var(--color-text-secondary);">Acres</span>
               </p>
               <span id="kpi-area-sub" style="font-size: 0.75rem; font-weight: 600; color: var(--color-emerald-dark);">
                 ✓ 3 Demarcated Parcels
@@ -182,10 +519,12 @@
             </div>
 
             <div class="kpi-card">
-              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); letter-spacing: 0.05em;">
+              <span
+                style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); letter-spacing: 0.05em;">
                 Active Crop Cycles
               </span>
-              <p id="kpi-crop-val" class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-forest); margin: 0.35rem 0 0.2rem;">
+              <p id="kpi-crop-val" class="tabular-nums font-mono"
+                style="font-size: 1.875rem; font-weight: 800; color: var(--color-forest); margin: 0.35rem 0 0.2rem;">
                 1 <span style="font-size: 0.875rem; font-weight: 600; color: var(--color-text-secondary);">Cycle</span>
               </p>
               <span id="kpi-crop-sub" style="font-size: 0.75rem; font-weight: 600; color: var(--color-text-secondary);">
@@ -194,10 +533,12 @@
             </div>
 
             <div class="kpi-card">
-              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); letter-spacing: 0.05em;">
+              <span
+                style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); letter-spacing: 0.05em;">
                 Field Operations
               </span>
-              <p id="kpi-op-count" class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-amber-dark); margin: 0.35rem 0 0.2rem;">
+              <p id="kpi-op-count" class="tabular-nums font-mono"
+                style="font-size: 1.875rem; font-weight: 800; color: var(--color-amber-dark); margin: 0.35rem 0 0.2rem;">
                 1 Overdue
               </p>
               <span id="kpi-op-sub" style="font-size: 0.75rem; font-weight: 600; color: var(--color-amber-dark);">
@@ -206,10 +547,12 @@
             </div>
 
             <div class="kpi-card">
-              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); letter-spacing: 0.05em;">
+              <span
+                style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); letter-spacing: 0.05em;">
                 Kharif Budget Outlay
               </span>
-              <p id="kpi-budget-val" class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-text-primary); margin: 0.35rem 0 0.2rem;">
+              <p id="kpi-budget-val" class="tabular-nums font-mono"
+                style="font-size: 1.875rem; font-weight: 800; color: var(--color-text-primary); margin: 0.35rem 0 0.2rem;">
                 ₹18,500
               </p>
               <span id="kpi-budget-sub" style="font-size: 0.75rem; font-weight: 600; color: var(--color-emerald-dark);">
@@ -219,10 +562,13 @@
           </section>
 
           <!-- Problem Statement Phase 2: 💧 Irrigation Status & AWD Widget -->
-          <section class="card" style="margin-bottom: 1.5rem; border: 1.5px solid #60A5FA; background: linear-gradient(180deg, #FFFFFF 0%, #F0F9FF 100%);">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+          <section class="card"
+            style="margin-bottom: 1.5rem; border: 1.5px solid #60A5FA; background: linear-gradient(180deg, #FFFFFF 0%, #F0F9FF 100%);">
+            <div
+              style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
               <div style="display: flex; align-items: center; gap: 0.65rem;">
-                <div style="width: 40px; height: 40px; border-radius: 10px; background: #DBEAFE; color: #1D4ED8; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                <div
+                  style="width: 40px; height: 40px; border-radius: 10px; background: #DBEAFE; color: #1D4ED8; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
                   💧
                 </div>
                 <div>
@@ -230,7 +576,8 @@
                     <h3 style="font-size: 1.125rem; font-weight: 800; color: #1E3A8A; margin: 0;">
                       Irrigation & AWD Water Balance Status
                     </h3>
-                    <span class="badge" style="background: #DBEAFE; color: #1E40AF; font-weight: 800; font-size: 0.625rem;">
+                    <span class="badge"
+                      style="background: #DBEAFE; color: #1E40AF; font-weight: 800; font-size: 0.625rem;">
                       AWD SAFE SUBMERSION
                     </span>
                   </div>
@@ -241,18 +588,23 @@
               </div>
 
               <div style="display: flex; gap: 0.5rem; align-items: center;">
-                <a href="activities.html" class="btn btn-outline btn-sm" style="border-color: #93C5FD; color: #1D4ED8; background: #FFFFFF; font-size: 0.75rem;">
+                <a href="activities.html" class="btn btn-outline btn-sm"
+                  style="border-color: #93C5FD; color: #1D4ED8; background: #FFFFFF; font-size: 0.75rem;">
                   <span>View Full Irrigation Ledger</span>
                   <span>→</span>
                 </a>
               </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+            <div
+              style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
               <!-- Last Irrigation -->
-              <div style="background: #FFFFFF; padding: 1rem; border-radius: var(--radius-md); border: 1px solid #BFDBFE;">
-                <span style="font-size: 0.6875rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Last Irrigation Run</span>
-                <div style="font-size: 1.125rem; font-weight: 800; color: #1E293B; margin-top: 0.25rem;" id="dash-last-irrigation">
+              <div
+                style="background: #FFFFFF; padding: 1rem; border-radius: var(--radius-md); border: 1px solid #BFDBFE;">
+                <span style="font-size: 0.6875rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Last
+                  Irrigation Run</span>
+                <div style="font-size: 1.125rem; font-weight: 800; color: #1E293B; margin-top: 0.25rem;"
+                  id="dash-last-irrigation">
                   10 Sep 2026 • 06:30 AM
                 </div>
                 <div style="font-size: 0.75rem; color: #059669; font-weight: 700; margin-top: 0.25rem;">
@@ -261,9 +613,12 @@
               </div>
 
               <!-- Next Scheduled Irrigation -->
-              <div style="background: #FFFFFF; padding: 1rem; border-radius: var(--radius-md); border: 1px solid #BFDBFE;">
-                <span style="font-size: 0.6875rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Next Scheduled Flooding</span>
-                <div style="font-size: 1.125rem; font-weight: 800; color: #1E3A8A; margin-top: 0.25rem;" id="dash-next-irrigation">
+              <div
+                style="background: #FFFFFF; padding: 1rem; border-radius: var(--radius-md); border: 1px solid #BFDBFE;">
+                <span style="font-size: 0.6875rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Next
+                  Scheduled Flooding</span>
+                <div style="font-size: 1.125rem; font-weight: 800; color: #1E3A8A; margin-top: 0.25rem;"
+                  id="dash-next-irrigation">
                   12 Sep 2026 • 06:30 AM
                 </div>
                 <div style="font-size: 0.75rem; color: #D97706; font-weight: 700; margin-top: 0.25rem;">
@@ -272,8 +627,10 @@
               </div>
 
               <!-- Field Parcel & Water Volume -->
-              <div style="background: #FFFFFF; padding: 1rem; border-radius: var(--radius-md); border: 1px solid #BFDBFE;">
-                <span style="font-size: 0.6875rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Active Parcel & Volume</span>
+              <div
+                style="background: #FFFFFF; padding: 1rem; border-radius: var(--radius-md); border: 1px solid #BFDBFE;">
+                <span style="font-size: 0.6875rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Active
+                  Parcel & Volume</span>
                 <div style="font-size: 1.125rem; font-weight: 800; color: #1E293B; margin-top: 0.25rem;">
                   North Block (Plot A)
                 </div>
@@ -283,8 +640,10 @@
               </div>
 
               <!-- AWD Pipe Water Depth -->
-              <div style="background: #FFFFFF; padding: 1rem; border-radius: var(--radius-md); border: 1px solid #BFDBFE;">
-                <span style="font-size: 0.6875rem; font-weight: 700; color: #64748B; text-transform: uppercase;">AWD Pipe Water Depth</span>
+              <div
+                style="background: #FFFFFF; padding: 1rem; border-radius: var(--radius-md); border: 1px solid #BFDBFE;">
+                <span style="font-size: 0.6875rem; font-weight: 700; color: #64748B; text-transform: uppercase;">AWD
+                  Pipe Water Depth</span>
                 <div style="font-size: 1.125rem; font-weight: 800; color: #059669; margin-top: 0.25rem;">
                   5.0 cm
                 </div>
@@ -295,17 +654,24 @@
             </div>
 
             <!-- Smart Rule-Based AI Microclimate Recommendation Strip -->
-            <div style="background: #EFF6FF; border: 1px solid #93C5FD; border-radius: var(--radius-md); padding: 0.85rem 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+            <div
+              style="background: #EFF6FF; border: 1px solid #93C5FD; border-radius: var(--radius-md); padding: 0.85rem 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
               <div style="display: flex; align-items: center; gap: 0.65rem;">
                 <span style="font-size: 1.25rem;">🤖</span>
                 <div>
-                  <span style="font-size: 0.6875rem; font-weight: 800; color: #1D4ED8; text-transform: uppercase;">FarmPilot Agricultural Intelligence Recommendation</span>
+                  <span
+                    style="font-size: 0.6875rem; font-weight: 800; color: #1D4ED8; text-transform: uppercase;">FarmPilot
+                    Agricultural Intelligence Recommendation</span>
                   <div style="font-size: 0.8125rem; color: #1E3A8A; font-weight: 600;">
-                    <strong>Paddy BPT-5204 (North Block):</strong> Soil moisture is 31% with Machilipatnam ambient temperature at 31.5°C. Irrigate within next 18 hours (Suggested Volume: ≈ 4,200–4,600 L).
+                    <strong>Paddy BPT-5204 (North Block):</strong> Soil moisture is 31% with Machilipatnam ambient
+                    temperature at 31.5°C. Irrigate within next 18 hours (Suggested Volume: ≈ 4,200–4,600 L).
                   </div>
                 </div>
               </div>
-              <button onclick="FarmPilotApp.showToast('✓ Dispatched AWD irrigation alert to Field Manager and shift roster.', 'success')" class="btn btn-sm" style="background: #2563EB; color: #FFFFFF; font-weight: 700; font-size: 0.75rem; border: none; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer;">
+              <button
+                onclick="FarmPilotApp.showToast('✓ Dispatched AWD irrigation alert to Field Manager and shift roster.', 'success')"
+                class="btn btn-sm"
+                style="background: #2563EB; color: #FFFFFF; font-weight: 700; font-size: 0.75rem; border: none; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer;">
                 Schedule AWD Flood
               </button>
             </div>
@@ -313,19 +679,24 @@
 
           <!-- Phase 2: Explainable Farm Alert Banner -->
           <section id="phase1-farm-alert" class="farmpilot-alert-banner">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+            <div
+              style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
               <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
-                <div id="alert-icon-box" style="width: 44px; height: 44px; border-radius: 12px; background: #FEE2E2; border: 1.5px solid #FCA5A5; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; flex-shrink: 0;">
+                <div id="alert-icon-box"
+                  style="width: 44px; height: 44px; border-radius: 12px; background: #FEE2E2; border: 1.5px solid #FCA5A5; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; flex-shrink: 0;">
                   🚨
                 </div>
                 <div>
                   <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                    <span style="font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #DC2626;">
+                    <span
+                      style="font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #DC2626;">
                       Phase 2 Operational Alert
                     </span>
-                    <span id="alert-status-badge" class="badge badge-danger" style="font-size: 0.625rem; font-weight: 700;">Overdue by 2 Days</span>
+                    <span id="alert-status-badge" class="badge badge-danger"
+                      style="font-size: 0.625rem; font-weight: 700;">Overdue by 2 Days</span>
                   </div>
-                  <h3 id="alert-title" style="font-size: 1.125rem; font-weight: 800; color: #991B1B; margin-top: 0.2rem;">
+                  <h3 id="alert-title"
+                    style="font-size: 1.125rem; font-weight: 800; color: #991B1B; margin-top: 0.2rem;">
                     Fertilization activity is overdue by 2 days
                   </h3>
                   <p id="alert-subtitle" style="font-size: 0.8125rem; color: #7F1D1D; margin-top: 0.15rem;">
@@ -335,7 +706,8 @@
               </div>
 
               <div style="display: flex; gap: 0.5rem; align-items: center;">
-                <button id="btn-resolve-alert" class="btn btn-primary btn-sm btn-submit-animated" style="background: #DC2626; border-color: #B91C1C;">
+                <button id="btn-resolve-alert" class="btn btn-primary btn-sm btn-submit-animated"
+                  style="background: #DC2626; border-color: #B91C1C;">
                   <span>⚡ Complete Fertilizer Application Today</span>
                 </button>
               </div>
@@ -344,32 +716,48 @@
             <!-- Problem Statement Impact & Progress Breakdown -->
             <div class="alert-impact-grid">
               <div class="alert-impact-chip">
-                <span style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: #B91C1C;">Potential Impact 1</span>
-                <p id="chip-impact-1" style="font-weight: 700; color: #991B1B; margin-top: 0.15rem;">Crop schedule delay</p>
-                <span id="chip-impact-1-sub" style="font-size: 0.6875rem; color: #7F1D1D;">Tillering window closing</span>
+                <span
+                  style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: #B91C1C;">Potential
+                  Impact 1</span>
+                <p id="chip-impact-1" style="font-weight: 700; color: #991B1B; margin-top: 0.15rem;">Crop schedule delay
+                </p>
+                <span id="chip-impact-1-sub" style="font-size: 0.6875rem; color: #7F1D1D;">Tillering window
+                  closing</span>
               </div>
               <div class="alert-impact-chip">
-                <span style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: #B91C1C;">Potential Impact 2</span>
-                <p id="chip-impact-2" style="font-weight: 700; color: #991B1B; margin-top: 0.15rem;">Increased operational risk</p>
-                <span id="chip-impact-2-sub" style="font-size: 0.6875rem; color: #7F1D1D;">Yield penalty risk ~4.5%</span>
+                <span
+                  style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: #B91C1C;">Potential
+                  Impact 2</span>
+                <p id="chip-impact-2" style="font-weight: 700; color: #991B1B; margin-top: 0.15rem;">Increased
+                  operational risk</p>
+                <span id="chip-impact-2-sub" style="font-size: 0.6875rem; color: #7F1D1D;">Yield penalty risk
+                  ~4.5%</span>
               </div>
               <div class="alert-impact-chip">
-                <span style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: #B91C1C;">Current Crop Progress</span>
-                <p id="chip-progress" class="tabular-nums font-mono" style="font-weight: 800; color: #059669; margin-top: 0.15rem;">61% Completed</p>
+                <span style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: #B91C1C;">Current
+                  Crop Progress</span>
+                <p id="chip-progress" class="tabular-nums font-mono"
+                  style="font-weight: 800; color: #059669; margin-top: 0.15rem;">61% Completed</p>
                 <span style="font-size: 0.6875rem; color: #475569;">Stage 4 of 6 (Fertilization)</span>
               </div>
               <div class="alert-impact-chip" style="border-left: 3px solid #059669;">
-                <span style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: #047857;">Recommended Action</span>
-                <p id="chip-action" style="font-weight: 700; color: #065F46; margin-top: 0.15rem;">Apply Fertilizer Today</p>
+                <span
+                  style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: #047857;">Recommended
+                  Action</span>
+                <p id="chip-action" style="font-weight: 700; color: #065F46; margin-top: 0.15rem;">Apply Fertilizer
+                  Today</p>
                 <span id="chip-action-sub" style="font-size: 0.6875rem; color: #047857;">Foliar 5kg/ha ZnSO₄</span>
               </div>
             </div>
 
             <!-- Explainable AI Agronomic Rationale -->
-            <div id="alert-rationale-box" style="background: rgba(254, 242, 242, 0.7); border: 1px dashed #F87171; border-radius: var(--radius-md); padding: 0.75rem 1rem; margin-top: 0.5rem; display: flex; align-items: flex-start; gap: 0.6rem;">
+            <div id="alert-rationale-box"
+              style="background: rgba(254, 242, 242, 0.7); border: 1px dashed #F87171; border-radius: var(--radius-md); padding: 0.75rem 1rem; margin-top: 0.5rem; display: flex; align-items: flex-start; gap: 0.6rem;">
               <span style="font-size: 1rem; flex-shrink: 0;">💡</span>
               <div id="alert-rationale-text" style="font-size: 0.75rem; color: #7F1D1D; line-height: 1.5;">
-                <strong>Why this recommendation?</strong> This activity is linked directly to the current crop stage (Active Tillering) in Plot A and is already behind planned schedule. Delay past Day 60 inhibits panicle initiation and suppresses grain formation.
+                <strong>Why this recommendation?</strong> This activity is linked directly to the current crop stage
+                (Active Tillering) in Plot A and is already behind planned schedule. Delay past Day 60 inhibits panicle
+                initiation and suppresses grain formation.
               </div>
             </div>
           </section>
@@ -383,7 +771,7 @@
           <div class="dashboard-two-col">
             <!-- Left Column: Operations & Biological Cycle -->
             <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-              
+
               <!-- Today's Operations Queue -->
               <div class="card">
                 <div class="card-header">
@@ -400,7 +788,8 @@
                   <!-- Task 1: Overdue -->
                   <div class="task-item" id="task-row-1">
                     <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-                      <button class="btn-complete-task" data-task-id="act-1" style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--color-amber); background: transparent; color: transparent; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; flex-shrink: 0; margin-top: 2px;">
+                      <button class="btn-complete-task" data-task-id="act-1"
+                        style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--color-amber); background: transparent; color: transparent; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; flex-shrink: 0; margin-top: 2px;">
                         ✓
                       </button>
                       <div>
@@ -413,7 +802,8 @@
                         <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
                           North Block (Plot A) • Rate: 5kg/ha • Corrects interveinal chlorosis
                         </p>
-                        <span class="tabular-nums font-mono" style="font-size: 0.6875rem; font-weight: 700; color: var(--color-text-tertiary);">
+                        <span class="tabular-nums font-mono"
+                          style="font-size: 0.6875rem; font-weight: 700; color: var(--color-text-tertiary);">
                           Estimated Cost: ₹1,400
                         </span>
                       </div>
@@ -423,7 +813,8 @@
                   <!-- Task 2: Pending -->
                   <div class="task-item" id="task-row-2">
                     <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-                      <button class="btn-complete-task" data-task-id="act-2" style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--color-border-strong); background: transparent; color: transparent; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; flex-shrink: 0; margin-top: 2px;">
+                      <button class="btn-complete-task" data-task-id="act-2"
+                        style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--color-border-strong); background: transparent; color: transparent; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; flex-shrink: 0; margin-top: 2px;">
                         ✓
                       </button>
                       <div>
@@ -436,7 +827,8 @@
                         <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
                           North Block (Plot A) • Active tillering peak application
                         </p>
-                        <span class="tabular-nums font-mono" style="font-size: 0.6875rem; font-weight: 700; color: var(--color-text-tertiary);">
+                        <span class="tabular-nums font-mono"
+                          style="font-size: 0.6875rem; font-weight: 700; color: var(--color-text-tertiary);">
                           Estimated Cost: ₹2,800
                         </span>
                       </div>
@@ -446,7 +838,8 @@
                   <!-- Task 3: Pending -->
                   <div class="task-item" id="task-row-3">
                     <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-                      <button class="btn-complete-task" data-task-id="act-3" style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--color-border-strong); background: transparent; color: transparent; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; flex-shrink: 0; margin-top: 2px;">
+                      <button class="btn-complete-task" data-task-id="act-3"
+                        style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--color-border-strong); background: transparent; color: transparent; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; flex-shrink: 0; margin-top: 2px;">
                         ✓
                       </button>
                       <div>
@@ -459,7 +852,8 @@
                         <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
                           Central Sector (Plot B) • Inspect 4 traps along field perimeter
                         </p>
-                        <span class="tabular-nums font-mono" style="font-size: 0.6875rem; font-weight: 700; color: var(--color-text-tertiary);">
+                        <span class="tabular-nums font-mono"
+                          style="font-size: 0.6875rem; font-weight: 700; color: var(--color-text-tertiary);">
                           Estimated Cost: ₹450
                         </span>
                       </div>
@@ -488,48 +882,70 @@
 
                   <div class="crop-stage-step completed">
                     <div class="crop-stage-node">✓</div>
-                    <span style="font-size: 0.6875rem; font-weight: 700; margin-top: 0.5rem; color: var(--color-text-primary);">Land prep</span>
+                    <span
+                      style="font-size: 0.6875rem; font-weight: 700; margin-top: 0.5rem; color: var(--color-text-primary);">Land
+                      prep</span>
                   </div>
                   <div class="crop-stage-step completed">
                     <div class="crop-stage-node">✓</div>
-                    <span style="font-size: 0.6875rem; font-weight: 700; margin-top: 0.5rem; color: var(--color-text-primary);">Sowing</span>
+                    <span
+                      style="font-size: 0.6875rem; font-weight: 700; margin-top: 0.5rem; color: var(--color-text-primary);">Sowing</span>
                   </div>
                   <div class="crop-stage-step completed">
                     <div class="crop-stage-node">✓</div>
-                    <span style="font-size: 0.6875rem; font-weight: 700; margin-top: 0.5rem; color: var(--color-text-primary);">Irrigation</span>
+                    <span
+                      style="font-size: 0.6875rem; font-weight: 700; margin-top: 0.5rem; color: var(--color-text-primary);">Irrigation</span>
                   </div>
                   <div class="crop-stage-step active">
                     <div class="crop-stage-node animate-pulse-glow">4</div>
-                    <span style="font-size: 0.6875rem; font-weight: 800; margin-top: 0.5rem; color: var(--color-forest);">Fertilization</span>
-                    <span style="font-size: 0.625rem; font-weight: 700; color: var(--color-emerald);">58% Complete</span>
+                    <span
+                      style="font-size: 0.6875rem; font-weight: 800; margin-top: 0.5rem; color: var(--color-forest);">Fertilization</span>
+                    <span style="font-size: 0.625rem; font-weight: 700; color: var(--color-emerald);">58%
+                      Complete</span>
                   </div>
                   <div class="crop-stage-step">
                     <div class="crop-stage-node">5</div>
-                    <span style="font-size: 0.6875rem; font-weight: 600; margin-top: 0.5rem; color: var(--color-text-tertiary);">Pest mgmt</span>
+                    <span
+                      style="font-size: 0.6875rem; font-weight: 600; margin-top: 0.5rem; color: var(--color-text-tertiary);">Pest
+                      mgmt</span>
                   </div>
                   <div class="crop-stage-step">
                     <div class="crop-stage-node">6</div>
-                    <span style="font-size: 0.6875rem; font-weight: 600; margin-top: 0.5rem; color: var(--color-text-tertiary);">Harvest</span>
+                    <span
+                      style="font-size: 0.6875rem; font-weight: 600; margin-top: 0.5rem; color: var(--color-text-tertiary);">Harvest</span>
                   </div>
                 </div>
 
                 <!-- Yield & Revenue Simulation Strip (Problem Statement Standard) -->
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.5rem; pt-4; border-top: 1px solid var(--color-border-subtle);">
-                  <div style="background-color: var(--color-surface-secondary); padding: 0.75rem; border-radius: var(--radius-md);">
-                    <span style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Target Yield</span>
-                    <p class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.2rem;">
+                <div
+                  style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.5rem; pt-4; border-top: 1px solid var(--color-border-subtle);">
+                  <div
+                    style="background-color: var(--color-surface-secondary); padding: 0.75rem; border-radius: var(--radius-md);">
+                    <span
+                      style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Target
+                      Yield</span>
+                    <p class="tabular-nums font-mono"
+                      style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.2rem;">
                       4.2 <span style="font-size: 0.75rem; font-weight: 600;">tonnes</span>
                     </p>
                   </div>
-                  <div style="background-color: var(--color-surface-secondary); padding: 0.75rem; border-radius: var(--radius-md);">
-                    <span style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">MSP Selling Price</span>
-                    <p class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.2rem;">
+                  <div
+                    style="background-color: var(--color-surface-secondary); padding: 0.75rem; border-radius: var(--radius-md);">
+                    <span
+                      style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">MSP
+                      Selling Price</span>
+                    <p class="tabular-nums font-mono"
+                      style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.2rem;">
                       ₹29,000 <span style="font-size: 0.75rem; font-weight: 600;">/tonne</span>
                     </p>
                   </div>
-                  <div style="background-color: var(--color-surface-secondary); padding: 0.75rem; border-radius: var(--radius-md);">
-                    <span style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Target Gross Revenue</span>
-                    <p class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-forest); margin-top: 0.2rem;">
+                  <div
+                    style="background-color: var(--color-surface-secondary); padding: 0.75rem; border-radius: var(--radius-md);">
+                    <span
+                      style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Target
+                      Gross Revenue</span>
+                    <p class="tabular-nums font-mono"
+                      style="font-size: 1.125rem; font-weight: 800; color: var(--color-forest); margin-top: 0.2rem;">
                       ₹1,21,800
                     </p>
                   </div>
@@ -539,7 +955,7 @@
 
             <!-- Right Column: Health Gauge, Financials & AI Advisory -->
             <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-              
+
               <!-- Farm Health Gauge Card -->
               <div class="card">
                 <div class="card-header">
@@ -554,10 +970,14 @@
 
                 <div class="gauge-svg-container">
                   <svg width="180" height="180" viewBox="0 0 180 180">
-                    <circle cx="90" cy="90" r="70" stroke="#F1F5F9" stroke-width="14" fill="none"/>
-                    <circle cx="90" cy="90" r="70" stroke="#059669" stroke-width="14" stroke-dasharray="440" stroke-dashoffset="79" stroke-linecap="round" fill="none" style="transition: stroke-dashoffset 1s ease-out;"/>
-                    <text x="90" y="85" text-anchor="middle" font-size="34" font-weight="800" font-family="'JetBrains Mono', monospace" fill="#0F172A">82</text>
-                    <text x="90" y="108" text-anchor="middle" font-size="11" font-weight="700" fill="#059669">/ 100 OPTIMAL</text>
+                    <circle cx="90" cy="90" r="70" stroke="#F1F5F9" stroke-width="14" fill="none" />
+                    <circle cx="90" cy="90" r="70" stroke="#059669" stroke-width="14" stroke-dasharray="440"
+                      stroke-dashoffset="79" stroke-linecap="round" fill="none"
+                      style="transition: stroke-dashoffset 1s ease-out;" />
+                    <text x="90" y="85" text-anchor="middle" font-size="34" font-weight="800"
+                      font-family="'JetBrains Mono', monospace" fill="#0F172A">82</text>
+                    <text x="90" y="108" text-anchor="middle" font-size="11" font-weight="700" fill="#059669">/ 100
+                      OPTIMAL</text>
                   </svg>
                 </div>
 
@@ -568,7 +988,9 @@
                       <span>Soil Vitality & Nutrients</span>
                       <span class="tabular-nums font-mono">88%</span>
                     </div>
-                    <div class="pillar-track"><div class="pillar-fill" style="width: 88%;"></div></div>
+                    <div class="pillar-track">
+                      <div class="pillar-fill" style="width: 88%;"></div>
+                    </div>
                   </div>
 
                   <div class="pillar-bar">
@@ -576,7 +998,9 @@
                       <span>Irrigation & Soil Moisture</span>
                       <span class="tabular-nums font-mono">84%</span>
                     </div>
-                    <div class="pillar-track"><div class="pillar-fill" style="width: 84%;"></div></div>
+                    <div class="pillar-track">
+                      <div class="pillar-fill" style="width: 84%;"></div>
+                    </div>
                   </div>
 
                   <div class="pillar-bar">
@@ -584,117 +1008,131 @@
                       <span>Pest Resistance Index</span>
                       <span class="tabular-nums font-mono">74%</span>
                     </div>
-                    <div class="pillar-track"><div class="pillar-fill" style="width: 74%;"></div></div>
-                  </div>
-
-              <!-- Problem Statement Phase 2: 👷 Labour Shifts & Cost Widget -->
-              <div class="card">
-                <div class="card-header">
-                  <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="font-size: 1.25rem;">👷</span>
-                    <div>
-                      <h3 style="font-size: 1rem; font-weight: 800; margin: 0;">Today's Labour & Shifts</h3>
-                      <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0.15rem 0 0;">24 Total Workers • Today's Cost: ₹12,450 (↑ 8.4%)</p>
+                    <div class="pillar-track">
+                      <div class="pillar-fill" style="width: 74%;"></div>
                     </div>
                   </div>
-                  <a href="labour.html" class="btn btn-secondary btn-sm">Manage Labour →</a>
-                </div>
 
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.65rem; margin-bottom: 0.85rem;">
-                  <div style="background: #FFFBEB; border: 1px solid #FDE68A; padding: 0.65rem; border-radius: var(--radius-md); text-align: center;">
-                    <span style="font-size: 0.625rem; font-weight: 800; color: #92400E;">☀️ MORNING</span>
-                    <div style="font-size: 1.125rem; font-weight: 800; color: #78350F; margin-top: 0.15rem;">12</div>
-                    <span style="font-size: 0.5625rem; color: #B45309;">Weeding & AWD</span>
+                  <!-- Problem Statement Phase 2: 👷 Labour Shifts & Cost Widget -->
+                  <div class="card">
+                    <div class="card-header">
+                      <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.25rem;">👷</span>
+                        <div>
+                          <h3 style="font-size: 1rem; font-weight: 800; margin: 0;">Today's Labour & Shifts</h3>
+                          <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0.15rem 0 0;">24
+                            Total Workers • Today's Cost: ₹12,450 (↑ 8.4%)</p>
+                        </div>
+                      </div>
+                      <a href="labour.html" class="btn btn-secondary btn-sm">Manage Labour →</a>
+                    </div>
+
+                    <div
+                      style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.65rem; margin-bottom: 0.85rem;">
+                      <div
+                        style="background: #FFFBEB; border: 1px solid #FDE68A; padding: 0.65rem; border-radius: var(--radius-md); text-align: center;">
+                        <span style="font-size: 0.625rem; font-weight: 800; color: #92400E;">☀️ MORNING</span>
+                        <div style="font-size: 1.125rem; font-weight: 800; color: #78350F; margin-top: 0.15rem;">12
+                        </div>
+                        <span style="font-size: 0.5625rem; color: #B45309;">Weeding & AWD</span>
+                      </div>
+
+                      <div
+                        style="background: #EFF6FF; border: 1px solid #BFDBFE; padding: 0.65rem; border-radius: var(--radius-md); text-align: center;">
+                        <span style="font-size: 0.625rem; font-weight: 800; color: #1E40AF;">⛅ AFT'NOON</span>
+                        <div style="font-size: 1.125rem; font-weight: 800; color: #1E3A8A; margin-top: 0.15rem;">8</div>
+                        <span style="font-size: 0.5625rem; color: #1D4ED8;">Trellis & Water</span>
+                      </div>
+
+                      <div
+                        style="background: #EEF2FF; border: 1px solid #C7D2FE; padding: 0.65rem; border-radius: var(--radius-md); text-align: center;">
+                        <span style="font-size: 0.625rem; font-weight: 800; color: #4338CA;">🌙 NIGHT</span>
+                        <div style="font-size: 1.125rem; font-weight: 800; color: #3730A3; margin-top: 0.15rem;">4</div>
+                        <span style="font-size: 0.5625rem; color: #4338CA;">Borewell Guard</span>
+                      </div>
+                    </div>
+
+                    <div
+                      style="background: var(--color-surface-secondary); padding: 0.65rem 0.85rem; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem;">
+                      <span style="color: var(--color-text-secondary);">📅 Next Shift: <strong>Tomorrow 06:00 AM (8
+                          Workers)</strong></span>
+                      <span style="font-weight: 700; color: #059669;">Crop: ₹1,24,500</span>
+                    </div>
                   </div>
 
-                  <div style="background: #EFF6FF; border: 1px solid #BFDBFE; padding: 0.65rem; border-radius: var(--radius-md); text-align: center;">
-                    <span style="font-size: 0.625rem; font-weight: 800; color: #1E40AF;">⛅ AFT'NOON</span>
-                    <div style="font-size: 1.125rem; font-weight: 800; color: #1E3A8A; margin-top: 0.15rem;">8</div>
-                    <span style="font-size: 0.5625rem; color: #1D4ED8;">Trellis & Water</span>
+                  <!-- Financial Outlay Breakdown -->
+                  <div class="card">
+                    <div class="card-header">
+                      <div>
+                        <h3 style="font-size: 1rem; font-weight: 800;">Season Financial Outlay</h3>
+                        <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.2rem;">
+                          Total Spend: ₹18,500 / ₹50,000 Budget (37%)
+                        </p>
+                      </div>
+                      <a href="expenses.html" class="btn btn-secondary btn-sm">Ledger →</a>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 0.625rem;">
+                      <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                        <span>Fertilizers (DAP & Urea)</span>
+                        <strong class="tabular-nums font-mono">₹8,100 (44%)</strong>
+                      </div>
+                      <div style="height: 6px; background: #F1F5F9; border-radius: 4px; overflow: hidden;">
+                        <div style="width: 44%; height: 100%; background: #059669;"></div>
+                      </div>
+
+                      <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                        <span>Transplanting Labor</span>
+                        <strong class="tabular-nums font-mono">₹5,600 (30%)</strong>
+                      </div>
+                      <div style="height: 6px; background: #F1F5F9; border-radius: 4px; overflow: hidden;">
+                        <div style="width: 30%; height: 100%; background: #10B981;"></div>
+                      </div>
+
+                      <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                        <span>Foundation Seed Stock</span>
+                        <strong class="tabular-nums font-mono">₹3,600 (19%)</strong>
+                      </div>
+                      <div style="height: 6px; background: #F1F5F9; border-radius: 4px; overflow: hidden;">
+                        <div style="width: 19%; height: 100%; background: #34D399;"></div>
+                      </div>
+
+                      <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                        <span>Crop Protection (Zinc Sulfate)</span>
+                        <strong class="tabular-nums font-mono">₹1,200 (7%)</strong>
+                      </div>
+                      <div style="height: 6px; background: #F1F5F9; border-radius: 4px; overflow: hidden;">
+                        <div style="width: 7%; height: 100%; background: #6EE7B7;"></div>
+                      </div>
+                    </div>
                   </div>
 
-                  <div style="background: #EEF2FF; border: 1px solid #C7D2FE; padding: 0.65rem; border-radius: var(--radius-md); text-align: center;">
-                    <span style="font-size: 0.625rem; font-weight: 800; color: #4338CA;">🌙 NIGHT</span>
-                    <div style="font-size: 1.125rem; font-weight: 800; color: #3730A3; margin-top: 0.15rem;">4</div>
-                    <span style="font-size: 0.5625rem; color: #4338CA;">Borewell Guard</span>
-                  </div>
-                </div>
-
-                <div style="background: var(--color-surface-secondary); padding: 0.65rem 0.85rem; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem;">
-                  <span style="color: var(--color-text-secondary);">📅 Next Shift: <strong>Tomorrow 06:00 AM (8 Workers)</strong></span>
-                  <span style="font-weight: 700; color: #059669;">Crop: ₹1,24,500</span>
-                </div>
-              </div>
-
-              <!-- Financial Outlay Breakdown -->
-              <div class="card">
-                <div class="card-header">
-                  <div>
-                    <h3 style="font-size: 1rem; font-weight: 800;">Season Financial Outlay</h3>
-                    <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.2rem;">
-                      Total Spend: ₹18,500 / ₹50,000 Budget (37%)
+                  <!-- Explainable AI Agronomic Advisory Card -->
+                  <div class="card" style="border-left: 4px solid var(--color-amber);">
+                    <div
+                      style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                      <div>
+                        <span class="badge badge-warning" style="margin-bottom: 0.35rem;">High Priority Advisory</span>
+                        <h4 style="font-size: 0.9375rem; font-weight: 800; color: var(--color-text-primary);">
+                          Zinc Deficiency Remediation
+                        </h4>
+                      </div>
+                    </div>
+                    <p
+                      style="font-size: 0.75rem; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 1rem;">
+                      North Block (Plot A) soil test shows 0.4 ppm Zn (critical threshold &lt; 0.6 ppm). Foliar spray of
+                      0.5% Zinc Sulfate + 0.25% lime recommended within 48 hours to avert interveinal chlorosis.
                     </p>
+                    <button onclick="document.getElementById('advisory-modal').classList.add('active')"
+                      class="btn btn-outline btn-sm" style="width: 100%;">
+                      Inspect Agronomic Protocol →
+                    </button>
                   </div>
-                  <a href="expenses.html" class="btn btn-secondary btn-sm">Ledger →</a>
+
                 </div>
-
-                <div style="display: flex; flex-direction: column; gap: 0.625rem;">
-                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
-                    <span>Fertilizers (DAP & Urea)</span>
-                    <strong class="tabular-nums font-mono">₹8,100 (44%)</strong>
-                  </div>
-                  <div style="height: 6px; background: #F1F5F9; border-radius: 4px; overflow: hidden;">
-                    <div style="width: 44%; height: 100%; background: #059669;"></div>
-                  </div>
-
-                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
-                    <span>Transplanting Labor</span>
-                    <strong class="tabular-nums font-mono">₹5,600 (30%)</strong>
-                  </div>
-                  <div style="height: 6px; background: #F1F5F9; border-radius: 4px; overflow: hidden;">
-                    <div style="width: 30%; height: 100%; background: #10B981;"></div>
-                  </div>
-
-                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
-                    <span>Foundation Seed Stock</span>
-                    <strong class="tabular-nums font-mono">₹3,600 (19%)</strong>
-                  </div>
-                  <div style="height: 6px; background: #F1F5F9; border-radius: 4px; overflow: hidden;">
-                    <div style="width: 19%; height: 100%; background: #34D399;"></div>
-                  </div>
-
-                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
-                    <span>Crop Protection (Zinc Sulfate)</span>
-                    <strong class="tabular-nums font-mono">₹1,200 (7%)</strong>
-                  </div>
-                  <div style="height: 6px; background: #F1F5F9; border-radius: 4px; overflow: hidden;">
-                    <div style="width: 7%; height: 100%; background: #6EE7B7;"></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Explainable AI Agronomic Advisory Card -->
-              <div class="card" style="border-left: 4px solid var(--color-amber);">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
-                  <div>
-                    <span class="badge badge-warning" style="margin-bottom: 0.35rem;">High Priority Advisory</span>
-                    <h4 style="font-size: 0.9375rem; font-weight: 800; color: var(--color-text-primary);">
-                      Zinc Deficiency Remediation
-                    </h4>
-                  </div>
-                </div>
-                <p style="font-size: 0.75rem; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 1rem;">
-                  North Block (Plot A) soil test shows 0.4 ppm Zn (critical threshold &lt; 0.6 ppm). Foliar spray of 0.5% Zinc Sulfate + 0.25% lime recommended within 48 hours to avert interveinal chlorosis.
-                </p>
-                <button onclick="document.getElementById('advisory-modal').classList.add('active')" class="btn btn-outline btn-sm" style="width: 100%;">
-                  Inspect Agronomic Protocol →
-                </button>
               </div>
 
             </div>
-          </div>
-
-        </div>
       </main>
     </div>
   </div>
@@ -702,20 +1140,27 @@
   <!-- Explainable AI Advisory Modal -->
   <div class="modal-overlay" id="advisory-modal">
     <div class="modal-content">
-      <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+      <div
+        style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
         <div>
           <h3 style="font-size: 1.125rem; font-weight: 800;">Agronomic Advisory Protocol</h3>
           <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Evidence-backed remediation guidance</p>
         </div>
-        <button onclick="document.getElementById('advisory-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8;">✕</button>
+        <button onclick="document.getElementById('advisory-modal').classList.remove('active')"
+          style="font-size: 1.25rem; color: #94A3B8;">✕</button>
       </div>
       <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; font-size: 0.8125rem;">
         <div>
-          <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.25rem;">Diagnostic Trigger:</strong>
-          <p style="color: var(--color-text-secondary);">Soil test ID #ST-2026-088 registered DTPA-extractable Zinc at 0.42 mg/kg in North Block clay loam soil. Threshold for high-yielding paddy varieties (BPT-5204) is 0.60 mg/kg.</p>
+          <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.25rem;">Diagnostic
+            Trigger:</strong>
+          <p style="color: var(--color-text-secondary);">Soil test ID #ST-2026-088 registered DTPA-extractable Zinc at
+            0.42 mg/kg in North Block clay loam soil. Threshold for high-yielding paddy varieties (BPT-5204) is 0.60
+            mg/kg.</p>
         </div>
-        <div style="background-color: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-          <strong style="color: var(--color-forest); display: block; margin-bottom: 0.25rem;">Recommended Formulation:</strong>
+        <div
+          style="background-color: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+          <strong style="color: var(--color-forest); display: block; margin-bottom: 0.25rem;">Recommended
+            Formulation:</strong>
           <ul style="padding-left: 1.25rem; line-height: 1.6; color: var(--color-text-secondary);">
             <li>Zinc Sulfate Heptahydrate (21% Zn) at 5 kg/ha.</li>
             <li>Dissolve in 500 liters of water per hectare.</li>
@@ -724,333 +1169,361 @@
           </ul>
         </div>
         <div>
-          <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.25rem;">Expected Recovery Timeline:</strong>
-          <p style="color: var(--color-text-secondary);">Visual leaf recovery anticipated within 5 to 7 days post-spray. Normal tillering vegetative index restored by Day 10.</p>
+          <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.25rem;">Expected Recovery
+            Timeline:</strong>
+          <p style="color: var(--color-text-secondary);">Visual leaf recovery anticipated within 5 to 7 days post-spray.
+            Normal tillering vegetative index restored by Day 10.</p>
         </div>
       </div>
-      <div style="padding: 1rem 1.5rem; border-top: 1px solid var(--color-border); display: flex; justify-content: flex-end;">
-  <!-- Phase 2: 5-Minute Judge Demo Story Modal -->
-  <div class="modal-overlay" id="demo-story-modal">
-    <div class="modal-content" style="max-width: 640px;">
-      <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%);">
-        <div style="display: flex; align-items: center; gap: 0.65rem;">
-          <div style="width: 32px; height: 32px; border-radius: 8px; background: #059669; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.875rem;">
-            ▶
+      <div
+        style="padding: 1rem 1.5rem; border-top: 1px solid var(--color-border); display: flex; justify-content: flex-end;">
+        <!-- Phase 2: 5-Minute Judge Demo Story Modal -->
+        <div class="modal-overlay" id="demo-story-modal">
+          <div class="modal-content" style="max-width: 640px;">
+            <div
+              style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%);">
+              <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <div
+                  style="width: 32px; height: 32px; border-radius: 8px; background: #059669; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.875rem;">
+                  ▶
+                </div>
+                <div>
+                  <h3 style="font-size: 1.05rem; font-weight: 800; color: #065F46;">Phase 2 Official Demo Story</h3>
+                  <p style="font-size: 0.75rem; color: #047857;">6-step morning workflow across the FarmPilot operating
+                    system</p>
+                </div>
+              </div>
+              <button onclick="document.getElementById('demo-story-modal').classList.remove('active')"
+                style="font-size: 1.25rem; color: #64748B; background: none; border: none; cursor: pointer;">✕</button>
+            </div>
+
+            <div style="padding: 1.5rem;" id="demo-story-body">
+              <!-- Dynamic Scene Content injected by JS -->
+            </div>
+
+            <div
+              style="padding: 1rem 1.5rem; border-top: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: var(--color-surface-secondary);">
+              <button id="btn-demo-prev" class="btn btn-secondary btn-sm">← Previous Scene</button>
+              <div id="demo-scene-dots" style="display: flex; gap: 0.35rem;">
+                <!-- Injected scene indicators -->
+              </div>
+              <button id="btn-demo-next" class="btn btn-primary btn-sm">Next Scene →</button>
+            </div>
           </div>
-          <div>
-            <h3 style="font-size: 1.05rem; font-weight: 800; color: #065F46;">Phase 2 Official Demo Story</h3>
-            <p style="font-size: 0.75rem; color: #047857;">6-step morning workflow across the FarmPilot operating system</p>
-          </div>
         </div>
-        <button onclick="document.getElementById('demo-story-modal').classList.remove('active')" style="font-size: 1.25rem; color: #64748B; background: none; border: none; cursor: pointer;">✕</button>
-      </div>
 
-      <div style="padding: 1.5rem;" id="demo-story-body">
-        <!-- Dynamic Scene Content injected by JS -->
-      </div>
+        <!-- Confetti Canvas -->
+        <canvas id="confetti-canvas"></canvas>
 
-      <div style="padding: 1rem 1.5rem; border-top: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: var(--color-surface-secondary);">
-        <button id="btn-demo-prev" class="btn btn-secondary btn-sm">← Previous Scene</button>
-        <div id="demo-scene-dots" style="display: flex; gap: 0.35rem;">
-          <!-- Injected scene indicators -->
-        </div>
-        <button id="btn-demo-next" class="btn btn-primary btn-sm">Next Scene →</button>
-      </div>
-    </div>
-  </div>
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <script src="js/config.js"></script>
+        <script src="js/supabase.js"></script>
+        <script src="js/intelligence/crop-stage-engine.js"></script>
+        <script src="js/intelligence/activity-intelligence.js"></script>
+        <script src="js/intelligence/cost-intelligence.js"></script>
+        <script src="js/intelligence/profitability-engine.js"></script>
+        <script src="js/intelligence/risk-engine.js"></script>
+        <script src="js/intelligence/weather-context-engine.js"></script>
+        <script src="js/intelligence/data-quality-engine.js"></script>
+        <script src="js/intelligence/farm-health-engine.js"></script>
+        <script src="js/intelligence/cultivation-plan-engine.js"></script>
+        <script src="js/intelligence/comparison-benchmarking-engine.js"></script>
+        <script src="js/intelligence/recommendation-engine.js"></script>
+        <script src="js/intelligence/ask-farmpilot-engine.js"></script>
+        <script src="js/intelligence.js"></script>
+        <script src="js/auth.js"></script>
+        <script src="js/audit.js"></script>
+        <script src="js/labour.js"></script>
+        <script src="js/irrigation.js"></script>
+        <script src="js/confetti.js"></script>
+        <script src="js/parcel-map.js"></script>
+        <script src="js/mailer.js"></script>
+        <script src="js/weather.js"></script>
+        <script src="js/i18n.js"></script>
+        <script src="js/offline-sync.js"></script>
+        <script src="js/app.js"></script>
+        <script src="js/trash-animation.js"></script>
 
-  <!-- Confetti Canvas -->
-  <canvas id="confetti-canvas"></canvas>
+        <script>
+          document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Shell
+            window.FarmPilotApp.init('dashboard');
 
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/config.js"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/audit.js"></script>
-  <script src="js/labour.js"></script>
-  <script src="js/irrigation.js"></script>
-  <script src="js/confetti.js"></script>
-  <script src="js/parcel-map.js"></script>
-  <script src="js/mailer.js"></script>
-  <script src="js/weather.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/trash-animation.js"></script>
+            // Initialize Aerial Parcel Map
+            window.initParcelMap('dashboard-parcel-map');
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Initialize Shell
-      window.FarmPilotApp.init('dashboard');
+            // Update Dynamic KPIs from Database Records
+            async function updateDynamicKPIs() {
+              if (!window.FarmPilotDB) return;
+              const farm = await window.FarmPilotDB.getActiveFarm();
+              const farms = await window.FarmPilotDB.getFarms();
+              const activities = await window.FarmPilotDB.getActivities();
+              const fin = await window.FarmPilotDB.getFinancialSummary();
 
-      // Initialize Aerial Parcel Map
-      window.initParcelMap('dashboard-parcel-map');
+              const coverageEl = document.getElementById('hero-coverage');
+              const executionEl = document.getElementById('hero-execution');
+              if (coverageEl && farms?.length) {
+                const totalArea = farms.reduce((sum, item) => sum + (parseFloat(item.total_area) || 0), 0);
+                coverageEl.textContent = `${totalArea.toFixed(1)} ac`;
+              }
+              if (executionEl && activities) {
+                const activeTasks = activities.filter(item => item.status === 'PENDING' || item.status === 'IN_PROGRESS').length;
+                executionEl.textContent = `${activeTasks} active`;
+              }
 
-      // Update Dynamic KPIs from Database Records
-      async function updateDynamicKPIs() {
-        if (!window.FarmPilotDB) return;
-        const farm = await window.FarmPilotDB.getActiveFarm();
-        const farms = await window.FarmPilotDB.getFarms();
-        const activities = await window.FarmPilotDB.getActivities();
-        const fin = await window.FarmPilotDB.getFinancialSummary();
+              if (farm) {
+                const areaEl = document.getElementById('kpi-area-val');
+                if (areaEl) areaEl.innerHTML = `${farm.total_area} <span style="font-size: 0.875rem; font-weight: 600; color: var(--color-text-secondary);">${farm.area_unit || 'Acres'}</span>`;
+              }
 
-        const coverageEl = document.getElementById('hero-coverage');
-        const executionEl = document.getElementById('hero-execution');
-        if (coverageEl && farms?.length) {
-          const totalArea = farms.reduce((sum, item) => sum + (parseFloat(item.total_area) || 0), 0);
-          coverageEl.textContent = `${totalArea.toFixed(1)} ac`;
-        }
-        if (executionEl && activities) {
-          const activeTasks = activities.filter(item => item.status === 'PENDING' || item.status === 'IN_PROGRESS').length;
-          executionEl.textContent = `${activeTasks} active`;
-        }
-
-        if (farm) {
-          const areaEl = document.getElementById('kpi-area-val');
-          if (areaEl) areaEl.innerHTML = `${farm.total_area} <span style="font-size: 0.875rem; font-weight: 600; color: var(--color-text-secondary);">${farm.area_unit || 'Acres'}</span>`;
-        }
-
-        if (fin) {
-          const budEl = document.getElementById('kpi-budget-val');
-          const budSub = document.getElementById('kpi-budget-sub');
-          if (budEl) budEl.textContent = `₹${fin.totalSpent.toLocaleString('en-IN')}`;
-          if (budSub) budSub.textContent = `${fin.budgetUtilization}% of ₹${fin.plannedBudget.toLocaleString('en-IN')} Budget`;
-        }
-      }
-      updateDynamicKPIs();
-
-      const heroHealth = document.getElementById('hero-health');
-      window.addEventListener('farmpilot:health-updated', (event) => {
-        if (heroHealth && event.detail?.score !== undefined) heroHealth.textContent = `${event.detail.score} / 100`;
-      });
-      const heroDemoButton = document.getElementById('btn-hero-demo');
-      if (heroDemoButton) heroDemoButton.addEventListener('click', () => document.getElementById('btn-demo-story-modal')?.click());
-
-      // Function to dynamically update Health Gauge & Telemetry on Dashboard
-      function applyHealthUpdate(health) {
-        if (!health) health = window.FarmPilotDB.getFarmHealth();
-
-        // 1. Update Gauge Circle and Score
-        const circle = document.querySelector('.gauge-svg-container circle:nth-child(2)');
-        const scoreText = document.querySelector('.gauge-svg-container text:nth-child(3)');
-        const labelText = document.querySelector('.gauge-svg-container text:nth-child(4)');
-
-        if (circle) {
-          const dashoffset = 440 - (440 * (health.score / 100));
-          circle.style.strokeDashoffset = dashoffset;
-          circle.style.stroke = health.score >= 90 ? '#059669' : '#D97706';
-        }
-        if (scoreText) scoreText.textContent = health.score;
-        if (labelText) {
-          labelText.textContent = `/ 100 ${health.status}`;
-          labelText.style.fill = health.score >= 90 ? '#059669' : '#D97706';
-        }
-
-        // 2. Update 4 Pillar Bars
-        const fills = document.querySelectorAll('.pillar-fill');
-        const numLabels = document.querySelectorAll('.pillar-label .font-mono');
-        if (fills.length >= 4) {
-          fills[0].style.width = health.pillars.soilVitality + '%';
-          fills[1].style.width = health.pillars.irrigation + '%';
-          fills[2].style.width = health.pillars.pestResistance + '%';
-          fills[3].style.width = health.pillars.cropVigor + '%';
-        }
-        if (numLabels.length >= 4) {
-          numLabels[0].textContent = health.pillars.soilVitality + '%';
-          numLabels[1].textContent = health.pillars.irrigation + '%';
-          numLabels[2].textContent = health.pillars.pestResistance + '%';
-          numLabels[3].textContent = health.pillars.cropVigor + '%';
-        }
-
-        // 3. Update KPI Card for Operations
-        const kpiOpValue = document.querySelector('.kpi-grid .kpi-card:nth-child(3) p');
-        const kpiOpSub = document.querySelector('.kpi-grid .kpi-card:nth-child(3) span:last-child');
-        if (kpiOpValue && kpiOpSub) {
-          if (health.overdueCount > 0) {
-            kpiOpValue.textContent = `${health.overdueCount} Overdue`;
-            kpiOpValue.style.color = 'var(--color-amber-dark)';
-            kpiOpSub.textContent = '⚠️ Zinc Sulfate Spray';
-            kpiOpSub.style.color = 'var(--color-amber-dark)';
-          } else {
-            kpiOpValue.textContent = '0 Overdue';
-            kpiOpValue.style.color = 'var(--color-forest)';
-            kpiOpSub.textContent = '✓ All Tasks on Schedule';
-            kpiOpSub.style.color = 'var(--color-emerald-dark)';
-          }
-        }
-
-        // 5. Update Phase 2 Explainable Farm Alert Banner
-        const alertBanner = document.getElementById('phase1-farm-alert');
-        const alertBtn = document.getElementById('btn-resolve-alert');
-        if (alertBanner && alertBtn) {
-          if (health.overdueCount === 0) {
-            alertBanner.classList.add('resolved');
-            const iconBox = document.getElementById('alert-icon-box');
-            if (iconBox) {
-              iconBox.textContent = '✓';
-              iconBox.style.background = '#D1FAE5';
-              iconBox.style.borderColor = '#6EE7B7';
+              if (fin) {
+                const budEl = document.getElementById('kpi-budget-val');
+                const budSub = document.getElementById('kpi-budget-sub');
+                if (budEl) budEl.textContent = `₹${fin.totalSpent.toLocaleString('en-IN')}`;
+                if (budSub) budSub.textContent = `${fin.budgetUtilization}% of ₹${fin.plannedBudget.toLocaleString('en-IN')} Budget`;
+              }
             }
-            const statusBadge = document.getElementById('alert-status-badge');
-            if (statusBadge) {
-              statusBadge.className = 'badge badge-success';
-              statusBadge.textContent = '✓ Fully Aligned & On Schedule';
-            }
-            const alertTitle = document.getElementById('alert-title');
-            if (alertTitle) {
-              alertTitle.textContent = 'Operational Alert Resolved: Fertilization Applied Today';
-              alertTitle.style.color = '#065F46';
-            }
-            const alertSubtitle = document.getElementById('alert-subtitle');
-            if (alertSubtitle) {
-              alertSubtitle.textContent = 'North Block (Plot A) • Zinc foliar spray completed. Vegetative vigor protected with 0 overdue tasks.';
-              alertSubtitle.style.color = '#047857';
-            }
+            updateDynamicKPIs();
 
-            const cImp1 = document.getElementById('chip-impact-1');
-            if (cImp1) {
-              cImp1.textContent = 'On Schedule';
-              cImp1.style.color = '#059669';
-            }
-            const cImp1Sub = document.getElementById('chip-impact-1-sub');
-            if (cImp1Sub) cImp1Sub.textContent = 'Tillering window secured';
+            const heroHealth = document.getElementById('hero-health');
+            window.addEventListener('farmpilot:health-updated', (event) => {
+              if (heroHealth && event.detail?.score !== undefined) heroHealth.textContent = `${event.detail.score} / 100`;
+            });
+            const heroDemoButton = document.getElementById('btn-hero-demo');
+            if (heroDemoButton) heroDemoButton.addEventListener('click', () => document.getElementById('btn-demo-story-modal')?.click());
 
-            const cImp2 = document.getElementById('chip-impact-2');
-            if (cImp2) {
-              cImp2.textContent = 'Risk Mitigated';
-              cImp2.style.color = '#059669';
-            }
-            const cImp2Sub = document.getElementById('chip-impact-2-sub');
-            if (cImp2Sub) cImp2Sub.textContent = '0.0% yield penalty';
+            // Function to dynamically update Health Gauge & Telemetry on Dashboard
+            function applyHealthUpdate(health) {
+              if (!health) health = window.FarmPilotDB.getFarmHealth();
 
-            const cProg = document.getElementById('chip-progress');
-            if (cProg) cProg.textContent = '68% Completed';
+              // 1. Update Gauge Circle and Score
+              const circle = document.querySelector('.gauge-svg-container circle:nth-child(2)');
+              const scoreText = document.querySelector('.gauge-svg-container text:nth-child(3)');
+              const labelText = document.querySelector('.gauge-svg-container text:nth-child(4)');
 
-            const cAction = document.getElementById('chip-action');
-            if (cAction) {
-              cAction.textContent = '✓ Completed Today';
-              cAction.style.color = '#059669';
-            }
+              if (circle) {
+                const dashoffset = 440 - (440 * (health.score / 100));
+                circle.style.strokeDashoffset = dashoffset;
+                circle.style.stroke = health.score >= 90 ? '#059669' : '#D97706';
+              }
+              if (scoreText) scoreText.textContent = health.score;
+              if (labelText) {
+                labelText.textContent = `/ 100 ${health.status}`;
+                labelText.style.fill = health.score >= 90 ? '#059669' : '#D97706';
+              }
 
-            const ratBox = document.getElementById('alert-rationale-box');
-            if (ratBox) {
-              ratBox.style.background = '#ECFDF5';
-              ratBox.style.borderColor = '#A7F3D0';
-            }
-            const ratText = document.getElementById('alert-rationale-text');
-            if (ratText) {
-              ratText.style.color = '#065F46';
-              ratText.innerHTML = '<strong>Status: Optimal.</strong> Fertilizer application confirmed today. Nutrient uptake kinetics for active tillering are fully restored.';
-            }
-
-            alertBtn.style.background = '#059669';
-            alertBtn.style.borderColor = '#047857';
-            alertBtn.innerHTML = '<span>✓ Application Confirmed!</span>';
-            alertBtn.disabled = true;
-          }
-        }
-      }
-
-      // 6. Interactive Farm Alert Quick-Resolve Engine
-      const alertResolveBtn = document.getElementById('btn-resolve-alert');
-      if (alertResolveBtn) {
-        alertResolveBtn.addEventListener('click', async () => {
-          if (window.SubmitAnimationEngine) {
-            await window.SubmitAnimationEngine.handleFormSubmit(
-              alertResolveBtn,
-              null,
-              async () => {
-                const activities = await window.FarmPilotDB.getActivities();
-                const zincTask = activities.find(a => a.status === 'OVERDUE') || activities[0];
-                if (zincTask) {
-                  const res = await window.FarmPilotDB.completeActivity(zincTask.id);
-                  await renderDashboardOperations();
-                  if (res && res.health) {
-                    applyHealthUpdate(res.health);
-                  }
+              // 2. Update Pillar Bars
+              const fills = document.querySelectorAll('.pillar-fill');
+              const numLabels = document.querySelectorAll('.pillar-label .font-mono');
+              if (fills.length >= 4 && health.pillars) {
+                const p = health.pillars;
+                const v1 = p.schedule !== undefined ? p.schedule : (p.soilVitality || 82);
+                const v2 = p.cost !== undefined ? p.cost : (p.irrigation || 88);
+                const v3 = p.execution !== undefined ? p.execution : (p.pestResistance || 78);
+                const v4 = p.progress !== undefined ? p.progress : (p.cropVigor || 86);
+                fills[0].style.width = v1 + '%';
+                fills[1].style.width = v2 + '%';
+                fills[2].style.width = v3 + '%';
+                fills[3].style.width = v4 + '%';
+                if (numLabels.length >= 4) {
+                  numLabels[0].textContent = v1 + '%';
+                  numLabels[1].textContent = v2 + '%';
+                  numLabels[2].textContent = v3 + '%';
+                  numLabels[3].textContent = v4 + '%';
                 }
               }
-            );
-          } else {
-            const activities = await window.FarmPilotDB.getActivities();
-            const zincTask = activities.find(a => a.status === 'OVERDUE') || activities[0];
-            if (zincTask) {
-              const res = await window.FarmPilotDB.completeActivity(zincTask.id);
-              await renderDashboardOperations();
-              if (res && res.health) {
-                applyHealthUpdate(res.health);
+
+              // 3. Update KPI Card for Operations
+              const kpiOpValue = document.querySelector('.kpi-grid .kpi-card:nth-child(3) p');
+              const kpiOpSub = document.querySelector('.kpi-grid .kpi-card:nth-child(3) span:last-child');
+              if (kpiOpValue && kpiOpSub) {
+                if (health.overdueCount > 0) {
+                  kpiOpValue.textContent = `${health.overdueCount} Overdue`;
+                  kpiOpValue.style.color = 'var(--color-amber-dark)';
+                  kpiOpSub.textContent = '⚠️ Zinc Sulfate Spray';
+                  kpiOpSub.style.color = 'var(--color-amber-dark)';
+                } else {
+                  kpiOpValue.textContent = '0 Overdue';
+                  kpiOpValue.style.color = 'var(--color-forest)';
+                  kpiOpSub.textContent = '✓ All Tasks on Schedule';
+                  kpiOpSub.style.color = 'var(--color-emerald-dark)';
+                }
+              }
+
+              // 5. Update Phase 2 Explainable Farm Alert Banner
+              const alertBanner = document.getElementById('phase1-farm-alert');
+              const alertBtn = document.getElementById('btn-resolve-alert');
+              if (alertBanner && alertBtn) {
+                if (health.overdueCount === 0) {
+                  alertBanner.classList.add('resolved');
+                  const iconBox = document.getElementById('alert-icon-box');
+                  if (iconBox) {
+                    iconBox.textContent = '✓';
+                    iconBox.style.background = '#D1FAE5';
+                    iconBox.style.borderColor = '#6EE7B7';
+                  }
+                  const statusBadge = document.getElementById('alert-status-badge');
+                  if (statusBadge) {
+                    statusBadge.className = 'badge badge-success';
+                    statusBadge.textContent = '✓ Fully Aligned & On Schedule';
+                  }
+                  const alertTitle = document.getElementById('alert-title');
+                  if (alertTitle) {
+                    alertTitle.textContent = 'Operational Alert Resolved: Fertilization Applied Today';
+                    alertTitle.style.color = '#065F46';
+                  }
+                  const alertSubtitle = document.getElementById('alert-subtitle');
+                  if (alertSubtitle) {
+                    alertSubtitle.textContent = 'North Block (Plot A) • Zinc foliar spray completed. Vegetative vigor protected with 0 overdue tasks.';
+                    alertSubtitle.style.color = '#047857';
+                  }
+
+                  const cImp1 = document.getElementById('chip-impact-1');
+                  if (cImp1) {
+                    cImp1.textContent = 'On Schedule';
+                    cImp1.style.color = '#059669';
+                  }
+                  const cImp1Sub = document.getElementById('chip-impact-1-sub');
+                  if (cImp1Sub) cImp1Sub.textContent = 'Tillering window secured';
+
+                  const cImp2 = document.getElementById('chip-impact-2');
+                  if (cImp2) {
+                    cImp2.textContent = 'Risk Mitigated';
+                    cImp2.style.color = '#059669';
+                  }
+                  const cImp2Sub = document.getElementById('chip-impact-2-sub');
+                  if (cImp2Sub) cImp2Sub.textContent = '0.0% yield penalty';
+
+                  const cProg = document.getElementById('chip-progress');
+                  if (cProg) cProg.textContent = '68% Completed';
+
+                  const cAction = document.getElementById('chip-action');
+                  if (cAction) {
+                    cAction.textContent = '✓ Completed Today';
+                    cAction.style.color = '#059669';
+                  }
+
+                  const ratBox = document.getElementById('alert-rationale-box');
+                  if (ratBox) {
+                    ratBox.style.background = '#ECFDF5';
+                    ratBox.style.borderColor = '#A7F3D0';
+                  }
+                  const ratText = document.getElementById('alert-rationale-text');
+                  if (ratText) {
+                    ratText.style.color = '#065F46';
+                    ratText.innerHTML = '<strong>Status: Optimal.</strong> Fertilizer application confirmed today. Nutrient uptake kinetics for active tillering are fully restored.';
+                  }
+
+                  alertBtn.style.background = '#059669';
+                  alertBtn.style.borderColor = '#047857';
+                  alertBtn.innerHTML = '<span>✓ Application Confirmed!</span>';
+                  alertBtn.disabled = true;
+                }
               }
             }
-          }
-        });
-      }
 
-      // 7. Judge Demo Story Walkthrough Engine (Problem Statement Section 16)
-      const demoScenes = [
-        {
-          sceneNumber: 1,
-          title: "Scene 1: Morning Command Center",
-          pitch: "“This morning, our farm manager opens FarmPilot to supervise Green Valley Farm (25 Acres, Machilipatnam AP) growing Kharif Paddy BPT-5204.”",
-          details: "Dashboard highlights composite Farm Health at 82/100, Season progress at 58-68%, and Kharif budget utilization at ₹18,500/₹50,000.",
-          actionText: "Focus Top KPI Ribbon",
-          action: () => window.scrollTo({ top: 0, behavior: 'smooth' })
-        },
-        {
-          sceneNumber: 2,
-          title: "Scene 2: Operations Overdue Detection",
-          pitch: "“The manager checks today's priority queue. FarmPilot instantly flags that Zinc Sulfate foliar spray in North Block is overdue by 2 days.”",
-          details: "Not a passive digital notebook — an active operational detector highlighting schedule slippage before yield is compromised.",
-          actionText: "Highlight Operations Queue",
-          action: () => document.getElementById('operations-list').scrollIntoView({ behavior: 'smooth', block: 'center' })
-        },
-        {
-          sceneNumber: 3,
-          title: "Scene 3: Explainable Decision Support",
-          pitch: "“FarmPilot doesn't just display an alert — it explains the exact agronomic reason: delay past Day 60 inhibits tillering and panicle initiation.”",
-          details: "Demonstrates reliable, scientifically grounded reasoning without hallucination.",
-          actionText: "Highlight Explainable Banner",
-          action: () => document.getElementById('phase1-farm-alert').scrollIntoView({ behavior: 'smooth', block: 'center' })
-        },
-        {
-          sceneNumber: 4,
-          title: "Scene 4: Expenses & Budget Variance",
-          pitch: "“The manager audits seasonal burn rate. Fertilizer expenditure is flagged 14% above forecast due to supplementary micronutrient foliar treatments.”",
-          details: "Directly connects field chemical applications with financial balance sheets.",
-          actionText: "Inspect Expenses Ledger",
-          action: () => window.location.href = 'expenses.html'
-        },
-        {
-          sceneNumber: 5,
-          title: "Scene 5: Profitability Engine",
-          pitch: "“Expected yield of 4.2 Tonnes at ₹29,000 MSP projects ₹1,24,000 revenue and ₹77,500 expected net profit (62.5% margin).”",
-          details: "Addresses the judge requirement: 'Is this crop going to be profitable?'",
-          actionText: "View Biological Cycle",
-          action: () => document.querySelector('.crop-stage-track').scrollIntoView({ behavior: 'smooth', block: 'center' })
-        },
-        {
-          sceneNumber: 6,
-          title: "Scene 6: Resolution & Score Leap (82 → 94)",
-          pitch: "“The manager executes the overdue spray. Watch what happens: the alert turns green, the task is cleared, and Farm Health leaps 82 → 94 in real-time!”",
-          details: "The defining hackathon demo climax: an operating system that reacts dynamically to operational execution.",
-          actionText: "⚡ Trigger Resolution Climax Now",
-          action: () => {
-            document.getElementById('demo-story-modal').classList.remove('active');
-            document.getElementById('btn-resolve-alert').click();
-          }
-        }
-      ];
+            // 6. Interactive Farm Alert Quick-Resolve Engine
+            const alertResolveBtn = document.getElementById('btn-resolve-alert');
+            if (alertResolveBtn) {
+              alertResolveBtn.addEventListener('click', async () => {
+                if (window.SubmitAnimationEngine) {
+                  await window.SubmitAnimationEngine.handleFormSubmit(
+                    alertResolveBtn,
+                    null,
+                    async () => {
+                      const activities = await window.FarmPilotDB.getActivities();
+                      const zincTask = activities.find(a => a.status === 'OVERDUE') || activities[0];
+                      if (zincTask) {
+                        const res = await window.FarmPilotDB.completeActivity(zincTask.id);
+                        await renderDashboardOperations();
+                        if (res && res.health) {
+                          applyHealthUpdate(res.health);
+                        }
+                      }
+                    }
+                  );
+                } else {
+                  const activities = await window.FarmPilotDB.getActivities();
+                  const zincTask = activities.find(a => a.status === 'OVERDUE') || activities[0];
+                  if (zincTask) {
+                    const res = await window.FarmPilotDB.completeActivity(zincTask.id);
+                    await renderDashboardOperations();
+                    if (res && res.health) {
+                      applyHealthUpdate(res.health);
+                    }
+                  }
+                }
+              });
+            }
 
-      let currentSceneIdx = 0;
-      const demoModal = document.getElementById('demo-story-modal');
-      const demoBody = document.getElementById('demo-story-body');
-      const demoDots = document.getElementById('demo-scene-dots');
-      const prevBtn = document.getElementById('btn-demo-prev');
-      const nextBtn = document.getElementById('btn-demo-next');
+            // 7. Judge Demo Story Walkthrough Engine (Problem Statement Section 16)
+            const demoScenes = [
+              {
+                sceneNumber: 1,
+                title: "Scene 1: Morning Command Center",
+                pitch: "“This morning, our farm manager opens FarmPilot to supervise Green Valley Farm (25 Acres, Machilipatnam AP) growing Kharif Paddy BPT-5204.”",
+                details: "Dashboard highlights composite Farm Health at 82/100, Season progress at 58-68%, and Kharif budget utilization at ₹18,500/₹50,000.",
+                actionText: "Focus Top KPI Ribbon",
+                action: () => window.scrollTo({ top: 0, behavior: 'smooth' })
+              },
+              {
+                sceneNumber: 2,
+                title: "Scene 2: Operations Overdue Detection",
+                pitch: "“The manager checks today's priority queue. FarmPilot instantly flags that Zinc Sulfate foliar spray in North Block is overdue by 2 days.”",
+                details: "Not a passive digital notebook — an active operational detector highlighting schedule slippage before yield is compromised.",
+                actionText: "Highlight Operations Queue",
+                action: () => document.getElementById('operations-list').scrollIntoView({ behavior: 'smooth', block: 'center' })
+              },
+              {
+                sceneNumber: 3,
+                title: "Scene 3: Explainable Decision Support",
+                pitch: "“FarmPilot doesn't just display an alert — it explains the exact agronomic reason: delay past Day 60 inhibits tillering and panicle initiation.”",
+                details: "Demonstrates reliable, scientifically grounded reasoning without hallucination.",
+                actionText: "Highlight Explainable Banner",
+                action: () => document.getElementById('phase1-farm-alert').scrollIntoView({ behavior: 'smooth', block: 'center' })
+              },
+              {
+                sceneNumber: 4,
+                title: "Scene 4: Expenses & Budget Variance",
+                pitch: "“The manager audits seasonal burn rate. Fertilizer expenditure is flagged 14% above forecast due to supplementary micronutrient foliar treatments.”",
+                details: "Directly connects field chemical applications with financial balance sheets.",
+                actionText: "Inspect Expenses Ledger",
+                action: () => window.location.href = 'expenses.html'
+              },
+              {
+                sceneNumber: 5,
+                title: "Scene 5: Profitability Engine",
+                pitch: "“Expected yield of 4.2 Tonnes at ₹29,000 MSP projects ₹1,24,000 revenue and ₹77,500 expected net profit (62.5% margin).”",
+                details: "Addresses the judge requirement: 'Is this crop going to be profitable?'",
+                actionText: "View Biological Cycle",
+                action: () => document.querySelector('.crop-stage-track').scrollIntoView({ behavior: 'smooth', block: 'center' })
+              },
+              {
+                sceneNumber: 6,
+                title: "Scene 6: Resolution & Score Leap (82 → 94)",
+                pitch: "“The manager executes the overdue spray. Watch what happens: the alert turns green, the task is cleared, and Farm Health leaps 82 → 94 in real-time!”",
+                details: "The defining hackathon demo climax: an operating system that reacts dynamically to operational execution.",
+                actionText: "⚡ Trigger Resolution Climax Now",
+                action: () => {
+                  document.getElementById('demo-story-modal').classList.remove('active');
+                  document.getElementById('btn-resolve-alert').click();
+                }
+              }
+            ];
 
-      function renderDemoScene(idx) {
-        currentSceneIdx = idx;
-        const scene = demoScenes[idx];
+            let currentSceneIdx = 0;
+            const demoModal = document.getElementById('demo-story-modal');
+            const demoBody = document.getElementById('demo-story-body');
+            const demoDots = document.getElementById('demo-scene-dots');
+            const prevBtn = document.getElementById('btn-demo-prev');
+            const nextBtn = document.getElementById('btn-demo-next');
 
-        demoBody.innerHTML = `
+            function renderDemoScene(idx) {
+              currentSceneIdx = idx;
+              const scene = demoScenes[idx];
+
+              demoBody.innerHTML = `
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
             <span class="badge badge-success" style="font-size: 0.6875rem;">Scene ${scene.sceneNumber} of ${demoScenes.length}</span>
             <span style="font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 600;">Problem Statement Pitch Flow</span>
@@ -1073,47 +1546,731 @@
           </button>
         `;
 
-        document.getElementById('btn-demo-action').addEventListener('click', () => {
-          scene.action();
-        });
+              document.getElementById('btn-demo-action').addEventListener('click', () => {
+                scene.action();
+              });
 
-        // Update Dots
-        demoDots.innerHTML = demoScenes.map((s, i) => `
+              // Update Dots
+              demoDots.innerHTML = demoScenes.map((s, i) => `
           <div style="width: ${i === idx ? '20px' : '8px'}; height: 8px; border-radius: 4px; background: ${i === idx ? '#059669' : '#CBD5E1'}; transition: all 0.2s ease;"></div>
         `).join('');
 
-        prevBtn.disabled = idx === 0;
-        nextBtn.textContent = idx === demoScenes.length - 1 ? 'Finish Pitch ✓' : 'Next Scene →';
-      }
+              prevBtn.disabled = idx === 0;
+              nextBtn.textContent = idx === demoScenes.length - 1 ? 'Finish Pitch ✓' : 'Next Scene →';
+            }
 
-      if (document.getElementById('btn-demo-story-modal')) {
-        document.getElementById('btn-demo-story-modal').addEventListener('click', () => {
-          demoModal.classList.add('active');
-          renderDemoScene(currentSceneIdx);
-        });
-      }
+            if (document.getElementById('btn-demo-story-modal')) {
+              document.getElementById('btn-demo-story-modal').addEventListener('click', () => {
+                demoModal.classList.add('active');
+                renderDemoScene(currentSceneIdx);
+              });
+            }
 
-      prevBtn.addEventListener('click', () => {
-        if (currentSceneIdx > 0) renderDemoScene(currentSceneIdx - 1);
-      });
+            prevBtn.addEventListener('click', () => {
+              if (currentSceneIdx > 0) renderDemoScene(currentSceneIdx - 1);
+            });
 
-      nextBtn.addEventListener('click', () => {
-        if (currentSceneIdx < demoScenes.length - 1) {
-          renderDemoScene(currentSceneIdx + 1);
-        } else {
-          demoModal.classList.remove('active');
-        }
-      });
+            nextBtn.addEventListener('click', () => {
+              if (currentSceneIdx < demoScenes.length - 1) {
+                renderDemoScene(currentSceneIdx + 1);
+              } else {
+                demoModal.classList.remove('active');
+              }
+            });
 
-      // Listen for dynamic health event
-      window.addEventListener('farmpilot:health-updated', (e) => {
-        applyHealthUpdate(e.detail);
-      });
+            // Listen for dynamic health event
+            window.addEventListener('farmpilot:health-updated', (e) => {
+              applyHealthUpdate(e.detail);
+            });
 
-      // Initial check & render
-      applyHealthUpdate();
-      renderDashboardOperations();
-    });
-  </script>
+            // Initial check & render
+            applyHealthUpdate();
+            renderDashboardOperations();
+
+            // Initialize Multilingual Chatbot
+            initDashboardChatbot();
+          });
+
+          // =========================================================================
+          // AI FARM REPORT & MULTILINGUAL CHATBOT & DATABASE INSPECTOR CONTROLLERS
+          // =========================================================================
+          window.scrollToAiReport = function() {
+            const el = document.getElementById('ai-farm-report-card');
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              el.style.outline = '3px solid #34D399';
+              setTimeout(() => { el.style.outline = 'none'; }, 2000);
+            }
+          };
+
+          window.scrollToAiChatbot = function() {
+            const el = document.getElementById('dashboard-ai-chatbot-card');
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              const input = document.getElementById('dashboard-chat-input');
+              if (input) input.focus();
+            }
+          };
+
+          // 1. AI Farm Report Generator
+          let currentGeneratedReport = null;
+
+          window.generateAiFarmReport = async function() {
+            const btn = document.getElementById('btn-generate-ai-report');
+            const heroBtn = document.getElementById('btn-hero-generate-ai-report');
+            const floatBtn = document.getElementById('btn-floating-ai-report');
+            const icon = document.getElementById('ai-report-btn-icon');
+            const text = document.getElementById('ai-report-btn-text');
+            const langSelect = document.getElementById('ai-report-lang-select');
+            const inlineContainer = document.getElementById('ai-report-inline-container');
+            const modal = document.getElementById('ai-report-modal');
+            const modalContent = document.getElementById('ai-report-modal-content');
+            const selectedLang = langSelect ? langSelect.value : 'en';
+
+            if (btn) btn.disabled = true;
+            if (heroBtn) heroBtn.disabled = true;
+            if (floatBtn) floatBtn.disabled = true;
+            if (icon) icon.textContent = '⏳';
+            if (text) text.textContent = 'Synthesizing Farm Intelligence...';
+
+            // Show instant feedback in modal
+            if (modal) modal.classList.add('active');
+            if (modalContent) {
+              modalContent.innerHTML = `
+                <div style="text-align: center; padding: 4.5rem 2rem; color: #064E3B;">
+                  <div class="animate-spin" style="font-size: 3.5rem; display: inline-block; margin-bottom: 1.25rem;">🧠</div>
+                  <h3 style="font-size: 1.4rem; font-weight: 800; color: #064E3B; margin: 0 0 0.65rem;">Synthesizing Comprehensive Farm AI Report...</h3>
+                  <p style="color: #059669; font-size: 0.9375rem; max-width: 540px; margin: 0 auto; line-height: 1.6;">
+                    Querying Neural Engine API and correlating verified farm database metrics: Paddy BPT-5204 (Day 38 Tillering), AWD Water Tube (-4.0 cm), Zinc Chlorosis Alert, 48h Safe Spray Window, and Break-Even Yield...
+                  </p>
+                  <div style="margin-top: 1.5rem;">
+                    <span class="badge badge-success" style="font-size: 0.75rem; padding: 0.35rem 0.85rem;">Language: ${selectedLang.toUpperCase()} • Live Grounded</span>
+                  </div>
+                </div>
+              `;
+            }
+
+            if (inlineContainer) {
+              inlineContainer.style.display = 'block';
+              inlineContainer.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: #047857;">
+                  <span class="animate-spin" style="font-size: 2rem; display: inline-block;">🧠</span>
+                  <h4 style="margin: 0.75rem 0 0.25rem; font-weight: 800; color: #064E3B;">Analyzing Farm Telemetry with AI Engine...</h4>
+                  <p style="margin: 0; font-size: 0.8125rem; color: #059669;">Correlating AWD water tubes (-4cm), Paddy BPT-5204 Day 38 Tillering, zinc foliar deficiency, 48h spray windows, and break-even finances...</p>
+                </div>
+              `;
+            }
+
+            try {
+              const resp = await fetch('/api/reports/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  language: selectedLang,
+                  generated_by: 'siddharth',
+                  farm_id: '43666b6c-8208-4148-be22-df38d21b1836'
+                })
+              });
+
+              const data = await resp.json();
+              if (data && data.success && data.report) {
+                currentGeneratedReport = data.report;
+                renderReportInline(data.report);
+                populateModalReport(data.report);
+                if (window.FarmPilotApp && window.FarmPilotApp.showToast) {
+                  window.FarmPilotApp.showToast(`✓ Comprehensive AI Farm Report generated in ${data.report.language_name}! Saved to Supabase.`, 'success');
+                }
+              } else {
+                throw new Error(data.error || 'Failed to generate report');
+              }
+            } catch (err) {
+              if (inlineContainer) {
+                inlineContainer.innerHTML = `<div style="color: #DC2626; padding: 1rem; font-weight: 700;">Error generating report: ${err.message}</div>`;
+              }
+              if (modalContent) {
+                modalContent.innerHTML = `
+                  <div style="text-align: center; padding: 3rem 1.5rem; color: #DC2626;">
+                    <span style="font-size: 2.5rem;">⚠️</span>
+                    <h3 style="margin: 0.75rem 0 0.25rem;">Failed to Generate Report</h3>
+                    <p style="font-size: 0.875rem;">${err.message}</p>
+                    <button onclick="generateAiFarmReport()" class="btn btn-primary btn-sm" style="margin-top: 1rem;">Retry</button>
+                  </div>
+                `;
+              }
+            } finally {
+              if (btn) btn.disabled = false;
+              if (heroBtn) heroBtn.disabled = false;
+              if (floatBtn) floatBtn.disabled = false;
+              if (icon) icon.textContent = '⚡';
+              if (text) text.textContent = 'Generate Full Farm AI Report';
+            }
+          };
+
+          function renderReportInline(rpt) {
+            const container = document.getElementById('ai-report-inline-container');
+            if (!container) return;
+
+            container.style.display = 'block';
+            container.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                  <span class="badge badge-success" style="font-size: 0.6875rem;">✓ AI Dossier Active</span>
+                  <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin: 0.25rem 0 0;">${rpt.report_title}</h3>
+                  <span style="font-size: 0.72rem; color: #64748B;">Generated: ${new Date(rpt.created_at).toLocaleString()} • Language: <strong>${rpt.language_name}</strong> • Health Index: <strong>${rpt.health_score}/100</strong></span>
+                </div>
+                <div style="display: flex; gap: 0.4rem;">
+                  <button type="button" onclick="loadLatestAiReportModal()" class="btn btn-sm btn-primary" style="background: #059669; font-size: 0.75rem; font-weight: 800;">
+                    <span>🔍</span>
+                    <span>Open Full Screen Dossier</span>
+                  </button>
+                  <button type="button" onclick="printAiReport()" class="btn btn-sm btn-outline" style="font-size: 0.75rem;">
+                    <span>🖨️ Print / PDF</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Executive Narrative Summary -->
+              <div style="background: #F0FDF4; border-left: 4px solid #059669; border-radius: 6px; padding: 0.85rem 1rem; margin-bottom: 1rem; color: #064E3B; font-size: 0.85rem; line-height: 1.6;">
+                <strong>Executive Synthesis:</strong> ${rpt.executive_summary}
+              </div>
+
+              <!-- Key Agronomic Panels Grid -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.85rem; margin-bottom: 1rem;">
+                
+                <!-- Hydrology & AWD -->
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 0.85rem;">
+                  <div style="font-size: 0.75rem; font-weight: 800; color: #0284C7; text-transform: uppercase; margin-bottom: 0.35rem;">💧 Hydrology & AWD Status</div>
+                  <div style="font-size: 0.8125rem; color: #334155; line-height: 1.5;">
+                    • <strong>Water Tube Level:</strong> ${rpt.water_awd_telemetry.field_water_tube_depth_cm} cm (${rpt.water_awd_telemetry.status})<br>
+                    • <strong>Soil Moisture:</strong> ${rpt.water_awd_telemetry.soil_moisture_pct}%<br>
+                    • <strong>Next Irrigation Cycle:</strong> In ${rpt.water_awd_telemetry.next_irrigation_due_in_hours} hours<br>
+                    • <strong>Water Saved:</strong> ${(rpt.water_awd_telemetry.cumulative_water_saved_liters || 0).toLocaleString()} Liters
+                  </div>
+                </div>
+
+                <!-- Pathology & Zinc Deficiency -->
+                <div style="background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 8px; padding: 0.85rem;">
+                  <div style="font-size: 0.75rem; font-weight: 800; color: #D97706; text-transform: uppercase; margin-bottom: 0.35rem;">🔬 Nutrition & Pathology Defense</div>
+                  <div style="font-size: 0.8125rem; color: #78350F; line-height: 1.5;">
+                    • <strong>Symptom:</strong> ${rpt.pathology_nutrient_status.symptoms_detected}<br>
+                    • <strong>Urgent Prescription:</strong> ${rpt.pathology_nutrient_status.prescription}<br>
+                    • <strong>Application Window:</strong> ${rpt.pathology_nutrient_status.target_window}<br>
+                    • <strong>Spray Safety:</strong> ${rpt.weather_context.foliar_spray_window}
+                  </div>
+                </div>
+
+                <!-- Financial Balance & Break-Even -->
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 0.85rem;">
+                  <div style="font-size: 0.75rem; font-weight: 800; color: #059669; text-transform: uppercase; margin-bottom: 0.35rem;">💰 Financials & Break-Even Yield</div>
+                  <div style="font-size: 0.8125rem; color: #334155; line-height: 1.5;">
+                    • <strong>Spend to Date:</strong> ₹${rpt.financial_projection.total_spent_inr.toLocaleString()} (${rpt.financial_projection.budget_utilized_pct}% of budget)<br>
+                    • <strong>Cost Per Acre:</strong> ₹${rpt.financial_projection.cost_per_acre_inr}/Ac<br>
+                    • <strong>Break-Even Yield:</strong> ${rpt.financial_projection.break_even_yield_t_per_ac} T/Ac (Mandi: ₹${rpt.financial_projection.mandi_spot_rate_per_quintal_inr}/Q)<br>
+                    • <strong>Projected Net Margin:</strong> ₹${rpt.financial_projection.projected_net_margin_inr.toLocaleString()}
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Priority Directives -->
+              <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 0.85rem;">
+                <div style="font-size: 0.75rem; font-weight: 800; color: #475569; text-transform: uppercase; margin-bottom: 0.5rem;">📋 Priority Field Directives</div>
+                <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                  ${rpt.priority_actions.map(a => `
+                    <div style="display: flex; align-items: baseline; gap: 0.5rem; font-size: 0.8125rem; color: #1E293B;">
+                      <span class="badge ${a.priority === 'CRITICAL' ? 'badge-danger' : a.priority === 'HIGH' ? 'badge-warning' : 'badge-neutral'}" style="font-size: 0.6rem;">${a.priority}</span>
+                      <span>${a.action}</span>
+                      <span style="font-size: 0.7rem; color: #64748B; margin-left: auto;">${a.assignee}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+          }
+
+          window.loadLatestAiReportModal = async function() {
+            const modal = document.getElementById('ai-report-modal');
+            const content = document.getElementById('ai-report-modal-content');
+            if (modal) modal.classList.add('active');
+
+            try {
+              const resp = await fetch('/api/reports/latest');
+              const data = await resp.json();
+              if (data && data.report) {
+                currentGeneratedReport = data.report;
+                populateModalReport(data.report);
+              } else {
+                generateAiFarmReport();
+              }
+            } catch (e) {
+              console.error('Error fetching latest report:', e);
+            }
+          };
+
+          function populateModalReport(rpt) {
+            const content = document.getElementById('ai-report-modal-content');
+            if (!content) return;
+
+            content.innerHTML = `
+              <div id="ai-report-printable-area">
+                
+                <!-- Report Header -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #059669; padding-bottom: 1rem; margin-bottom: 1.25rem;">
+                  <div>
+                    <span style="font-size: 0.75rem; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.05em;">FarmPilot Agronomic OS • Certified Report</span>
+                    <h2 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin: 0.25rem 0 0.4rem;">${rpt.report_title}</h2>
+                    <div style="font-size: 0.78rem; color: #64748B;">
+                      Estate: <strong>${rpt.farm_name}</strong> • Language: <strong>${rpt.language_name}</strong> • Timestamp: <strong>${new Date(rpt.created_at).toLocaleString()}</strong>
+                    </div>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-size: 1.75rem; font-weight: 800; color: #059669;">${rpt.health_score}<span style="font-size: 0.9rem; color: #64748B;">/100</span></div>
+                    <span style="font-size: 0.6875rem; font-weight: 700; color: #047857; background: #ECFDF5; padding: 0.2rem 0.5rem; border-radius: 4px;">Health Score</span>
+                  </div>
+                </div>
+
+                <!-- Executive Summary -->
+                <div style="background: #F0FDF4; border-left: 4px solid #059669; border-radius: 6px; padding: 1rem; margin-bottom: 1.25rem; color: #064E3B; font-size: 0.875rem; line-height: 1.6;">
+                  <strong>Executive Summary:</strong> ${rpt.executive_summary}
+                </div>
+
+                <!-- 2x2 Operational Matrix -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.25rem;">
+                  
+                  <div style="border: 1px solid #E2E8F0; border-radius: 8px; padding: 1rem; background: #FAFAFA;">
+                    <h4 style="margin: 0 0 0.5rem; color: #0F172A; font-size: 0.875rem; font-weight: 800;">🌾 Crop Phenology & Stage</h4>
+                    <p style="margin: 0; font-size: 0.8125rem; color: #475569; line-height: 1.5;">
+                      • Crop: <strong>${rpt.crop_stage_analysis.crop}</strong><br>
+                      • Parcel: <strong>${rpt.crop_stage_analysis.parcel}</strong> (${rpt.crop_stage_analysis.area_acres} Acres)<br>
+                      • Sowing Date: <strong>${rpt.crop_stage_analysis.sowing_date}</strong> (Day ${rpt.crop_stage_analysis.days_from_sowing})<br>
+                      • Current Stage: <strong>${rpt.crop_stage_analysis.current_stage}</strong><br>
+                      • Target Harvest: <strong>${rpt.crop_stage_analysis.target_harvest}</strong>
+                    </p>
+                  </div>
+
+                  <div style="border: 1px solid #E2E8F0; border-radius: 8px; padding: 1rem; background: #FAFAFA;">
+                    <h4 style="margin: 0 0 0.5rem; color: #0F172A; font-size: 0.875rem; font-weight: 800;">💧 AWD Water Hydrology</h4>
+                    <p style="margin: 0; font-size: 0.8125rem; color: #475569; line-height: 1.5;">
+                      • Irrigation Regime: <strong>${rpt.water_awd_telemetry.regime}</strong><br>
+                      • Field Water Tube: <strong>${rpt.water_awd_telemetry.field_water_tube_depth_cm} cm</strong><br>
+                      • Hydrologic State: <strong>${rpt.water_awd_telemetry.status}</strong><br>
+                      • Soil Moisture: <strong>${rpt.water_awd_telemetry.soil_moisture_pct}%</strong><br>
+                      • Next Inflow: <strong>Within ${rpt.water_awd_telemetry.next_irrigation_due_in_hours} hours</strong>
+                    </p>
+                  </div>
+
+                  <div style="border: 1px solid #E2E8F0; border-radius: 8px; padding: 1rem; background: #FAFAFA;">
+                    <h4 style="margin: 0 0 0.5rem; color: #0F172A; font-size: 0.875rem; font-weight: 800;">🔬 Nutrition & Pathogen Protection</h4>
+                    <p style="margin: 0; font-size: 0.8125rem; color: #475569; line-height: 1.5;">
+                      • Detected: <strong>${rpt.pathology_nutrient_status.symptoms_detected}</strong><br>
+                      • Deficient Element: <strong>${rpt.pathology_nutrient_status.deficiency}</strong><br>
+                      • Prescription: <strong>${rpt.pathology_nutrient_status.prescription}</strong><br>
+                      • Target Application: <strong>${rpt.pathology_nutrient_status.target_window}</strong><br>
+                      • Foliar Safety: <strong>${rpt.weather_context.foliar_spray_window}</strong>
+                    </p>
+                  </div>
+
+                  <div style="border: 1px solid #E2E8F0; border-radius: 8px; padding: 1rem; background: #FAFAFA;">
+                    <h4 style="margin: 0 0 0.5rem; color: #0F172A; font-size: 0.875rem; font-weight: 800;">💰 Financial Ledger & Break-Even</h4>
+                    <p style="margin: 0; font-size: 0.8125rem; color: #475569; line-height: 1.5;">
+                      • Outlay to Date: <strong>₹${rpt.financial_projection.total_spent_inr.toLocaleString()}</strong> (${rpt.financial_projection.budget_utilized_pct}%)<br>
+                      • Cost/Acre: <strong>₹${rpt.financial_projection.cost_per_acre_inr}/Ac</strong><br>
+                      • Expected Yield: <strong>${rpt.financial_projection.expected_yield_t_per_ac} T/Ac</strong><br>
+                      • Break-Even Yield: <strong>${rpt.financial_projection.break_even_yield_t_per_ac} T/Ac</strong><br>
+                      • Projected Net Profit: <strong>₹${rpt.financial_projection.projected_net_margin_inr.toLocaleString()}</strong>
+                    </p>
+                  </div>
+
+                </div>
+
+                <!-- Priority Action Checklist -->
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                  <h4 style="margin: 0 0 0.65rem; color: #0F172A; font-size: 0.875rem; font-weight: 800;">📋 Mandatory Field Action Directives</h4>
+                  <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                    ${rpt.priority_actions.map(a => `
+                      <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.6rem; background: #F8FAFC; border-radius: 4px; border-left: 3px solid ${a.priority === 'CRITICAL' ? '#DC2626' : a.priority === 'HIGH' ? '#D97706' : '#2563EB'};">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem;">
+                          <span class="badge ${a.priority === 'CRITICAL' ? 'badge-danger' : a.priority === 'HIGH' ? 'badge-warning' : 'badge-primary'}" style="font-size: 0.6rem;">${a.priority}</span>
+                          <strong>${a.action}</strong>
+                        </div>
+                        <span style="font-size: 0.72rem; color: #64748B; font-weight: 700;">Assignee: ${a.assignee}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+
+                <div style="text-align: center; font-size: 0.7rem; color: #94A3B8; margin-top: 1.5rem; border-top: 1px solid #E2E8F0; padding-top: 0.75rem;">
+                  Archived in Supabase PostgreSQL (Table: <code>public.farm_ai_reports</code>) • Generated by FarmPilot Precision Neural Intelligence
+                </div>
+
+              </div>
+            `;
+          }
+
+          window.closeAiReportModal = function() {
+            const modal = document.getElementById('ai-report-modal');
+            if (modal) modal.classList.remove('active');
+          };
+
+          window.printAiReport = function() {
+            window.print();
+          };
+
+          // 2. Supabase Database User & Passwords Inspector Modal
+          window.openDatabaseInspectorModal = async function() {
+            const modal = document.getElementById('supabase-inspector-modal');
+            const tbody = document.getElementById('supabase-credentials-tbody');
+            if (modal) modal.classList.add('active');
+
+            if (tbody) {
+              tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem; color:#64748B;">Connecting to Supabase and retrieving user credentials...</td></tr>';
+            }
+
+            try {
+              const resp = await fetch('/api/database/users');
+              const data = await resp.json();
+
+              if (data && data.success && data.users) {
+                renderDatabaseUsersTable(data.users);
+                const countBadge = document.getElementById('supabase-users-count-badge');
+                if (countBadge) countBadge.textContent = `${data.count} Registered Users`;
+              }
+            } catch (err) {
+              if (tbody) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2rem; color:#DC2626;">Error retrieving credentials: ${err.message}</td></tr>`;
+              }
+            }
+          };
+
+          function renderDatabaseUsersTable(users) {
+            const tbody = document.getElementById('supabase-credentials-tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = users.map(u => {
+              const roleBadge = u.role === 'OWNER' ? 'badge-success' : u.role === 'MANAGER' ? 'badge-primary' : u.role === 'WORKER' ? 'badge-warning' : 'badge-neutral';
+              return `
+                <tr>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                      <div style="width: 28px; height: 28px; border-radius: 50%; background: ${u.avatar_bg || '#059669'}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem;">
+                        ${u.avatar_letter || u.full_name.charAt(0)}
+                      </div>
+                      <div>
+                        <strong style="color: #0F172A;">${u.full_name}</strong>
+                        <div class="font-mono" style="font-size: 0.7rem; color: #059669; font-weight: 700;">@${u.username}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge ${roleBadge}" style="font-size: 0.65rem;">${u.role}</span>
+                    <div style="font-size: 0.6875rem; color: #64748B; margin-top: 0.15rem;">${u.role_label}</div>
+                  </td>
+                  <td>
+                    <div style="font-size: 0.75rem; color: #1E293B;">${u.email}</div>
+                    <div style="font-size: 0.7rem; color: #64748B;">${u.phone}</div>
+                  </td>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                      <code style="background: #F1F5F9; padding: 0.2rem 0.4rem; border-radius: 4px; font-weight: 800; color: #047857; font-size: 0.75rem;">${u.password_plain}</code>
+                      <button type="button" onclick="copyCredential('${u.password_plain}', 'Password')" style="border: none; background: none; cursor: pointer; font-size: 0.75rem;" title="Copy Password">📋</button>
+                    </div>
+                    <div style="font-size: 0.6875rem; color: #64748B; margin-top: 0.15rem;">PIN: <strong>${u.pin}</strong></div>
+                  </td>
+                  <td>
+                    <div style="font-size: 0.75rem; color: #1E293B;">${u.farm_name}</div>
+                    <div style="font-size: 0.6875rem; color: #64748B;">${u.assigned_parcel}</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-success" style="font-size: 0.625rem;">${u.status}</span>
+                  </td>
+                </tr>
+              `;
+            }).join('');
+          }
+
+          window.closeDatabaseInspectorModal = function() {
+            const modal = document.getElementById('supabase-inspector-modal');
+            if (modal) modal.classList.remove('active');
+          };
+
+          window.copyCredential = function(text, label) {
+            navigator.clipboard.writeText(text);
+            if (window.FarmPilotApp && window.FarmPilotApp.showToast) {
+              window.FarmPilotApp.showToast(`✓ Copied ${label} to clipboard!`, 'info');
+            }
+          };
+
+          // 3. Real-Time Multilingual Agronomic Chatbot Logic
+          const CHATBOT_LOCALIZED_CHIPS = {
+            te: [
+              'వరి పంటలో నీటి యాజమాన్యం ఎలా చేయాలి?',
+              'జింక్ సల్ఫేట్ పిచికారీ ఎప్పుడు చేయాలి?',
+              'ఎకరాకు కనీస సమాన దిగుబడి (Break-Even) ఎంత?',
+              'ఈరోజు ప్రాధాన్యత కలిగిన పనులు ఏమిటి?'
+            ],
+            hi: [
+              'धान की फसल में पानी का प्रबंधन कैसे करें?',
+              'जिंक सल्फेट का छिड़काव कब करना चाहिए?',
+              'प्रति एकड़ ब्रेक-इवन उत्पादन कितना है?',
+              'आज खेत में कौन से कार्य आवश्यक हैं?'
+            ],
+            ta: [
+              'நெல் பயிரில் நீர் மேலாண்மை செய்வது எப்படி?',
+              'துத்தநாக சல்பேட் தெளிப்பு எப்போது செய்ய வேண்டும்?',
+              'ஏக்கருக்கு சமநிலை மகசூல் என்ன?',
+              'இன்று செய்ய வேண்டிய பணிகள் யாவை?'
+            ],
+            kn: [
+              'ಭತ್ತದ ಬೆಳೆಯಲ್ಲಿ ನೀರು ನಿರ್ವಹಣೆ ಹೇಗೆ ಮಾಡಬೇಕು?',
+              'ಸತುವಿನ ಸಿಂಪಡಣೆ ಯಾವಾಗ ಮಾಡಬೇಕು?',
+              'ಎಕರೆಗೆ ಸಮತೋಲನ ಇಳುವರಿ ಎಷ್ಟು?',
+              'ಇಂದು ಮಾಡಬೇಕಾದ ತುರ್ತು ಕೆಲಸಗಳು ಯಾವುವು?'
+            ],
+            en: [
+              'What needs immediate attention today?',
+              'What is my AWD water status and next irrigation?',
+              'How much have we spent on fertilizers this cycle?',
+              'What is my break-even yield and safety buffer?'
+            ],
+            mr: [
+              'धान पिकात पाण्याचे व्यवस्थापन कसे करावे?',
+              'झिंक सल्फेटची फवारणी कधी करावी?',
+              'आज शेतात कोणते काम आवश्यक आहे?'
+            ],
+            bn: [
+              'ধান চাষে সেচ ব্যবস্থাপনা কীভাবে করবেন?',
+              'জিঙ্ক সালফেট স্প্রে কখন করতে হবে?',
+              'আজকের অগ্রাধিকার কাজ কী?'
+            ]
+          };
+
+          function initDashboardChatbot() {
+            const langSelect = document.getElementById('chatbot-lang-select');
+            const initialLang = langSelect ? langSelect.value : 'te';
+            handleChatbotLanguageChange(initialLang);
+
+            // Populate welcome bubble
+            const viewport = document.getElementById('dashboard-chat-viewport');
+            if (viewport && viewport.children.length === 0) {
+              viewport.innerHTML = `
+                <div class="db-chat-bubble db-chat-ai">
+                  <div style="font-weight: 800; color: #047857; margin-bottom: 0.25rem; font-size: 0.72rem;">
+                    🤖 FarmPilot Neural AI Assistant • Live Farm Grounding
+                  </div>
+                  <div>
+                    నమస్కారం! నేను మీ ఫార్మ్‌పైలట్ వ్యవసాయ ఏఐ అసిస్టెంట్‌ని. నార్త్ బ్లాక్ వరి పంట (BPT-5204), AWD నీటి మట్టం (-4cm), జింక్ లోపం లేదా ఎరువుల ఖర్చుల గురించి తెలుగు, హిందీ లేదా ఇంగ్లీషులో నన్ను ఏదైనా అడగవచ్చు.
+                  </div>
+                </div>
+              `;
+            }
+          }
+
+          window.handleChatbotLanguageChange = function(langCode) {
+            const chipsContainer = document.getElementById('chatbot-quick-chips');
+            if (!chipsContainer) return;
+
+            const chips = CHATBOT_LOCALIZED_CHIPS[langCode] || CHATBOT_LOCALIZED_CHIPS['en'];
+            chipsContainer.innerHTML = chips.map(c => `
+              <button type="button" class="badge badge-neutral" style="cursor: pointer; border: 1px solid var(--color-border); font-size: 0.72rem; padding: 0.3rem 0.65rem; background: #FFFFFF; color: #334155; font-weight: 700; white-space: nowrap;" onclick="insertChatbotChip('${c.replace(/'/g, "\\'")}')">
+                ${c}
+              </button>
+            `).join('');
+
+            const input = document.getElementById('dashboard-chat-input');
+            if (input) {
+              if (langCode === 'te') input.placeholder = 'తెలుగులో అడగండి (ఉదా: జింక్ సల్ఫేట్ ఎప్పుడు పిచికారీ చేయాలి?)...';
+              else if (langCode === 'hi') input.placeholder = 'हिन्दी में पूछें (उदा: जिंक सल्फेट का छिड़काव कब करें?)...';
+              else if (langCode === 'ta') input.placeholder = 'தமிழில் கேளுங்கள் (उदा: நீர் மேலாண்மை செய்வது எப்படி?)...';
+              else if (langCode === 'kn') input.placeholder = 'ಕನ್ನಡದಲ್ಲಿ ಕೇಳಿ (ಉದಾ: ನೀರಿನ ನಿರ್ವಹಣೆ ಹೇಗೆ?)...';
+              else input.placeholder = 'Ask agronomic question in English or regional language...';
+            }
+          };
+
+          window.insertChatbotChip = function(text) {
+            const input = document.getElementById('dashboard-chat-input');
+            if (input) {
+              input.value = text;
+              input.focus();
+            }
+          };
+
+          window.handleDashboardChatSubmit = async function(e) {
+            e.preventDefault();
+            const input = document.getElementById('dashboard-chat-input');
+            const q = input?.value?.trim();
+            if (!q) return;
+
+            const viewport = document.getElementById('dashboard-chat-viewport');
+            const langSelect = document.getElementById('chatbot-lang-select');
+            const langCode = langSelect ? langSelect.value : 'te';
+            const sendBtn = document.getElementById('dashboard-chat-send-btn');
+
+            // 1. Append User Bubble
+            const userBubble = document.createElement('div');
+            userBubble.className = 'db-chat-bubble db-chat-user';
+            userBubble.innerHTML = `
+              <div style="font-size: 0.6875rem; font-weight: 700; opacity: 0.85; margin-bottom: 0.15rem;">You</div>
+              <div>${q}</div>
+            `;
+            viewport.appendChild(userBubble);
+            input.value = '';
+            viewport.scrollTop = viewport.scrollHeight;
+
+            // 2. Append AI Loading Bubble
+            const aiBubble = document.createElement('div');
+            aiBubble.className = 'db-chat-bubble db-chat-ai';
+            aiBubble.innerHTML = `
+              <div style="display: flex; align-items: center; gap: 0.5rem; color: #047857; font-weight: 700;">
+                <span class="animate-spin" style="display: inline-block;">⏳</span>
+                <span>Reasoning with FarmPilot Neural AI...</span>
+              </div>
+            `;
+            viewport.appendChild(aiBubble);
+            viewport.scrollTop = viewport.scrollHeight;
+
+            if (sendBtn) sendBtn.disabled = true;
+
+            const startTime = Date.now();
+
+            try {
+              const apiKey = localStorage.getItem('farmpilot_gemini_api_key') || '';
+              const model = localStorage.getItem('farmpilot_gemini_model') || 'gemini-2.5-flash';
+
+              const resp = await fetch('/api/gemini/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  query: q,
+                  language: langCode,
+                  apiKey,
+                  model,
+                  farmSnapshot: {
+                    farmName: 'Green Valley Farm',
+                    crop: 'Paddy (BPT-5204 Samba Mahsuri)',
+                    stage: 'Active Tillering (Day 38 of 120)',
+                    healthScore: 82,
+                    overdueTask: 'Zinc Sulfate Foliar Spray in North Block Plot A',
+                    totalCost: '₹18,500 spent of ₹50,000 budget (37% utilized)',
+                    breakEven: '1.81 Tonnes/Acre at ₹25.50/kg'
+                  }
+                })
+              });
+
+              const latencyMs = Date.now() - startTime;
+              const data = await resp.json();
+
+              const providerLabel = (data.provider === 'gemini' || data.provider === 'farmpilot-neural-ai')
+                ? `✨ FarmPilot Neural AI (${data.model || model} • ${latencyMs}ms)`
+                : `🌱 FarmPilot Verified Engine (${latencyMs}ms)`;
+
+              aiBubble.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; flex-wrap: wrap; gap: 0.35rem;">
+                  <span class="badge" style="background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; font-size: 0.65rem; font-weight: 800;">
+                    ${providerLabel}
+                  </span>
+                  <span class="badge badge-neutral" style="font-size: 0.625rem;">
+                    ${data.languageName || 'Regional'}
+                  </span>
+                </div>
+                <div style="white-space: pre-line; line-height: 1.5; color: #1E293B;">${(data.answer || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</div>
+                ${data.recommendedAction ? `
+                  <div style="margin-top: 0.5rem; background: #F0FDF4; border: 1px solid #DCFCE7; padding: 0.45rem 0.65rem; border-radius: 4px; color: #065F46; font-size: 0.78rem; font-weight: 700;">
+                    ✓ Action: ${data.recommendedAction}
+                  </div>
+                ` : ''}
+              `;
+            } catch (err) {
+              aiBubble.innerHTML = `<div style="color: #DC2626;">Error communicating with AI: ${err.message}</div>`;
+            } finally {
+              if (sendBtn) sendBtn.disabled = false;
+              viewport.scrollTop = viewport.scrollHeight;
+            }
+          };
+
+          // Function Aliases for flexible programmatic and event bindings
+          window.openSupabaseInspector = window.openDatabaseInspectorModal;
+          window.generateFarmAiReport = window.generateAiFarmReport;
+          window.sendDashboardChatMessage = window.handleDashboardChatSubmit;
+        </script>
+
+        <!-- ========================================================================= -->
+        <!-- EXECUTIVE AI REPORT MODAL (Full Dossier, Print & PDF Export)               -->
+        <!-- ========================================================================= -->
+        <div class="dossier-modal-overlay" id="ai-report-modal">
+          <div class="dossier-modal-container">
+            <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: #F8FAFC;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.25rem;">📑</span>
+                <strong style="font-size: 0.95rem; color: #0F172A;">FarmPilot Executive Agronomic & Financial AI Dossier</strong>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button type="button" onclick="printAiReport()" class="btn btn-sm btn-primary" style="background: #059669; font-size: 0.75rem; font-weight: 800;">
+                  <span>🖨️ Print / Save PDF</span>
+                </button>
+                <button type="button" onclick="closeAiReportModal()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: #64748B;">✕</button>
+              </div>
+            </div>
+            <div id="ai-report-modal-content" style="flex: 1; overflow-y: auto; padding: 1.5rem;">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SUPABASE DATABASE & USER PASSWORDS INSPECTOR MODAL                        -->
+        <!-- ========================================================================= -->
+        <div class="dossier-modal-overlay" id="supabase-inspector-modal">
+          <div class="dossier-modal-container" style="max-width: 1040px;">
+            <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: #0D2820; color: #FFFFFF;">
+              <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <span style="font-size: 1.35rem;">🗄️</span>
+                <div>
+                  <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #FFFFFF;">Supabase Database & User Credentials Directory</h3>
+                  <span style="font-size: 0.7rem; color: #A7F3D0;">Live PostgreSQL Schema • Verified User Passwords, PINs & Multi-Tenant Farm Access</span>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <span id="supabase-users-count-badge" class="badge badge-success" style="font-size: 0.7rem;">8 Registered Users</span>
+                <button type="button" onclick="closeDatabaseInspectorModal()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: #A7F3D0;">✕</button>
+              </div>
+            </div>
+
+            <!-- Database Info Strip -->
+            <div style="background: #F0FDF4; border-bottom: 1px solid #A7F3D0; padding: 0.65rem 1.25rem; font-size: 0.75rem; color: #064E3B; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                📡 Connected Host: <strong>https://xgcamlpkbgjulkfknpud.supabase.co</strong> • Tables: <code>public.user_credentials</code>, <code>public.profiles</code>, <code>public.farm_ai_reports</code>
+              </div>
+              <div>
+                🔒 Security: <strong>Row-Level Security (RLS) Active</strong>
+              </div>
+            </div>
+
+            <!-- Credentials Table -->
+            <div style="flex: 1; overflow-y: auto; padding: 1rem;">
+              <table class="credentials-table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr>
+                    <th>User & Handle</th>
+                    <th>Role & Level</th>
+                    <th>Email & Phone</th>
+                    <th>Password & PIN</th>
+                    <th>Farm & Parcel</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="supabase-credentials-tbody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <div style="padding: 0.75rem 1.25rem; border-top: 1px solid var(--color-border); background: #F8FAFC; font-size: 0.72rem; color: #64748B; display: flex; justify-content: space-between; align-items: center;">
+              <span>Tip: Click the 📋 icon next to any user password to copy it for instant sign-in.</span>
+              <button type="button" onclick="closeDatabaseInspectorModal()" class="btn btn-secondary btn-sm" style="font-weight: 700;">Close Inspector</button>
+            </div>
+          </div>
+        </div>
+
 </body>
+
 </html>

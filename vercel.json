@@ -12,12 +12,18 @@
     { "source": "/farms", "destination": "/farms.html" },
     { "source": "/crops", "destination": "/crops.html" },
     { "source": "/activities", "destination": "/activities.html" },
+    { "source": "/soil", "destination": "/soil.html" },
+    { "source": "/community", "destination": "/community.html" },
     { "source": "/worker", "destination": "/worker.html" },
+    { "source": "/labour", "destination": "/labour.html" },
     { "source": "/alerts", "destination": "/alerts.html" },
     { "source": "/inputs", "destination": "/inputs.html" },
     { "source": "/expenses", "destination": "/expenses.html" },
     { "source": "/intelligence", "destination": "/intelligence.html" },
-    { "source": "/reports", "destination": "/reports.html" }
+    { "source": "/reports", "destination": "/reports.html" },
+    { "source": "/roles", "destination": "/roles.html" },
+    { "source": "/settings", "destination": "/settings.html" },
+    { "source": "/audit", "destination": "/audit.html" }
   ],
   "headers": [
     {

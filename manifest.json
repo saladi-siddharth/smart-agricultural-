@@ -1,0 +1,52 @@
+{
+  "name": "FarmPilot — Autonomous Agronomic OS",
+  "short_name": "FarmPilot",
+  "description": "Offline-first precision agriculture & farm operations platform supporting 24 regional languages and real-time offline synchronization.",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#071712",
+  "theme_color": "#064E3B",
+  "categories": ["agriculture", "productivity", "business", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Command Center Dashboard",
+      "short_name": "Dashboard",
+      "url": "/dashboard.html",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Field Worker Shift",
+      "short_name": "Worker Shift",
+      "url": "/worker.html",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Farm Action Center",
+      "short_name": "Intelligence",
+      "url": "/intelligence.html",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Settings & 24 Languages",
+      "short_name": "Settings",
+      "url": "/settings.html",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    }
+  ]
+}

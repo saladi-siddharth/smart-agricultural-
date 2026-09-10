@@ -33,6 +33,27 @@ window.FarmPilotApp = {
     if (window.FarmPilotWeather) {
       window.FarmPilotWeather.updateWidgets();
     }
+
+    if (window.FarmPilotI18n) {
+      window.FarmPilotI18n.applyTranslations();
+    } else {
+      const script = document.createElement('script');
+      script.src = 'js/i18n.js';
+      script.onload = () => {
+        if (window.FarmPilotI18n) {
+          window.FarmPilotI18n.applyTranslations();
+          this.renderHeader();
+          this.renderSidebar();
+        }
+      };
+      document.head.appendChild(script);
+    }
+
+    window.addEventListener('farmpilot:language-changed', (e) => {
+      this.renderHeader();
+      this.renderSidebar();
+      if (window.FarmPilotI18n) window.FarmPilotI18n.applyTranslations(e?.detail?.code);
+    });
   },
 
   renderImpersonationBanner() {
@@ -143,8 +164,8 @@ window.FarmPilotApp = {
     const user = window.FarmPilotAuth.getUser() || window.FARMPILOT_CONFIG.PERSONAS.OWNER;
     const role = window.FarmPilotAuth.getEffectiveRole();
 
-    // Role-based route guard
-    if (role === 'WORKER' && ['expenses', 'farms', 'reports', 'dashboard', 'crops', 'inputs', 'roles', 'audit'].includes(this.activePage)) {
+    // Role-based route guard: Workers strictly locked out of executive & financial dashboards
+    if (role === 'WORKER' && ['expenses', 'farms', 'reports', 'dashboard', 'crops', 'inputs', 'roles', 'audit', 'labour', 'intelligence'].includes(this.activePage)) {
       window.location.href = 'worker.html';
       return;
     }
@@ -169,9 +190,11 @@ window.FarmPilotApp = {
           ]
         },
         {
-          group: 'Field Notifications',
+          group: 'Communication & Alerts',
           items: [
-            { id: 'alerts', label: 'Alert Center', icon: '🔔', href: 'alerts.html', badge: '1 Urgent', badgeType: 'danger' }
+            { id: 'community', label: 'Community Ag Exchange', icon: '🌐', href: 'community.html', badge: 'Live', badgeType: 'primary' },
+            { id: 'alerts', label: 'Alert Center', icon: '🔔', href: 'alerts.html', badge: '1 Urgent', badgeType: 'danger' },
+            { id: 'settings', label: 'Language & Settings', icon: '⚙️', href: 'settings.html', badge: '24 Langs', badgeType: 'primary' }
           ]
         }
       ];
@@ -181,7 +204,9 @@ window.FarmPilotApp = {
           group: 'Agronomic Overview',
           items: [
             { id: 'dashboard', label: 'Dashboard', icon: '📊', href: 'dashboard.html' },
-            { id: 'crops', label: 'Crop Cycles & Phenology', icon: '🌱', href: 'crops.html', badge: 'Active' }
+            { id: 'crops', label: 'Crop Cycles & Phenology', icon: '🌱', href: 'crops.html', badge: 'Active' },
+            { id: 'soil', label: 'Soil & Land Health', icon: '🧪', href: 'soil.html', badge: 'SHC Lab', badgeType: 'success' },
+            { id: 'community', label: 'Community Ag Exchange', icon: '🌐', href: 'community.html', badge: 'Live', badgeType: 'primary' }
           ]
         },
         {
@@ -197,6 +222,7 @@ window.FarmPilotApp = {
             { id: 'alerts', label: 'Alert Center', icon: '🔔', href: 'alerts.html', badge: '1 Urgent', badgeType: 'danger' },
             { id: 'intelligence', label: 'Farm Health & Soil', icon: '🧠', href: 'intelligence.html', badge: '82/100', badgeType: 'success' },
             { id: 'reports', label: 'Agronomic Reports', icon: '📑', href: 'reports.html' },
+            { id: 'settings', label: 'Settings & FarmPilot AI', icon: '⚙️', href: 'settings.html', badge: '24 Langs', badgeType: 'primary' },
             { id: 'audit', label: 'Audit History', icon: '📜', href: 'audit.html' }
           ]
         }
@@ -208,7 +234,9 @@ window.FarmPilotApp = {
           items: [
             { id: 'dashboard', label: 'Dashboard', icon: '📊', href: 'dashboard.html' },
             { id: 'farms', label: 'Farms Portfolio', icon: '🚜', href: 'farms.html' },
-            { id: 'crops', label: 'Crop Cycles', icon: '🌱', href: 'crops.html', badge: 'Active' }
+            { id: 'crops', label: 'Crop Cycles', icon: '🌱', href: 'crops.html', badge: 'Active' },
+            { id: 'soil', label: 'Soil & Land Health', icon: '🧪', href: 'soil.html', badge: 'SHC Lab', badgeType: 'success' },
+            { id: 'community', label: 'Community Ag Exchange', icon: '🌐', href: 'community.html', badge: 'Live', badgeType: 'primary' }
           ]
         },
         {
@@ -225,6 +253,7 @@ window.FarmPilotApp = {
           items: [
             { id: 'alerts', label: 'Alert Center', icon: '🔔', href: 'alerts.html', badge: '1 Urgent', badgeType: 'danger' },
             { id: 'intelligence', label: 'Farm Health', icon: '🧠', href: 'intelligence.html', badge: '82/100', badgeType: 'success' },
+            { id: 'settings', label: 'Settings & FarmPilot AI', icon: '⚙️', href: 'settings.html', badge: '24 Langs', badgeType: 'primary' },
             { id: 'audit', label: 'Audit History', icon: '📜', href: 'audit.html' }
           ]
         },
@@ -250,28 +279,26 @@ window.FarmPilotApp = {
           group: 'Operations & Resources',
           items: [
             { id: 'activities', label: 'Field Operations & AWD', icon: '📋', href: 'activities.html', badge: '1 Overdue', badgeType: 'danger' },
+            { id: 'soil', label: 'Soil & Land Health', icon: '🧪', href: 'soil.html', badge: 'SHC Lab', badgeType: 'success' },
             { id: 'labour', label: 'Labour & Shifts', icon: '👷', href: 'labour.html', badge: '24 Today', badgeType: 'primary' },
             { id: 'inputs', label: 'Inputs & Stock', icon: '📦', href: 'inputs.html' },
-            { id: 'expenses', label: 'Financials & Budget', icon: '💰', href: 'expenses.html' }
+            { id: 'expenses', label: 'Financials & Budget', icon: '💰', href: 'expenses.html' },
+            { id: 'community', label: 'Community Ag Exchange', icon: '🌐', href: 'community.html', badge: 'Live', badgeType: 'primary' }
           ]
         },
         {
           group: 'Intelligence & SaaS',
           items: [
+            { id: 'intelligence', label: 'Farm Action Center', icon: '🧠', href: 'intelligence.html', badge: '82/100', badgeType: 'success' },
             { id: 'alerts', label: 'Alert Center', icon: '🔔', href: 'alerts.html', badge: '1 Urgent', badgeType: 'danger' },
-            { id: 'intelligence', label: 'Farm Health', icon: '🧠', href: 'intelligence.html', badge: '82/100', badgeType: 'success' },
-            { id: 'reports', label: 'Executive Reports', icon: '📑', href: 'reports.html' }
+            { id: 'reports', label: 'Agronomic Reports', icon: '📑', href: 'reports.html' },
+            { id: 'roles', label: 'Roles & Staff Matrix', icon: '👥', href: 'roles.html' },
+            { id: 'settings', label: 'Settings & FarmPilot AI', icon: '⚙️', href: 'settings.html', badge: '24 Langs', badgeType: 'primary' },
+            { id: 'audit', label: 'Audit History', icon: '📜', href: 'audit.html' }
           ]
         },
         {
-          group: 'Governance & Auditing',
-          items: [
-            { id: 'roles', label: 'Roles & Permissions', icon: '👥', href: 'roles.html', badge: 'Master', badgeType: 'primary' },
-            { id: 'audit', label: 'Audit History', icon: '📜', href: 'audit.html', badge: 'Live', badgeType: 'warning' }
-          ]
-        },
-        {
-          group: 'Field Staff View',
+          group: 'Staff Mode',
           items: [
             { id: 'worker', label: 'Mobile Worker View', icon: '📱', href: 'worker.html' }
           ]
@@ -319,11 +346,11 @@ window.FarmPilotApp = {
       <nav class="sidebar-nav">
         ${navItems.map(g => `
           <div>
-            <div class="nav-group-title">${g.group}</div>
+            <div class="nav-group-title">${window.FarmPilotI18n ? window.FarmPilotI18n.t(g.group, g.group) : g.group}</div>
             ${g.items.map(item => `
               <a href="${item.href}" class="nav-item ${this.activePage === item.id ? 'active' : ''}">
                 <span style="font-size: 1rem;">${item.icon}</span>
-                <span>${item.label}</span>
+                <span>${window.FarmPilotI18n ? window.FarmPilotI18n.t(item.label, item.label) : item.label}</span>
                 ${item.badge ? `
                   <span class="nav-badge ${item.badgeType || 'success'}">${item.badge}</span>
                 ` : ''}
@@ -414,6 +441,7 @@ window.FarmPilotApp = {
       alerts: 'Centralized Alert Center',
       reports: 'Executive Reports & Analytics',
       roles: 'Roles & Permissions Matrix',
+      settings: 'Settings & Farm Intelligence Integration',
       audit: 'Tamper-Evident Audit History',
       worker: "Field Worker Shift"
     };
@@ -465,17 +493,52 @@ window.FarmPilotApp = {
         </div>
       </div>
 
-      <!-- Right: Role Switcher & Profile Button (Replaces Search Bar) -->
+      <!-- Right: Install App, Language Switcher, Role Switcher & Profile Button -->
       <div style="display: flex; align-items: center; gap: 0.65rem;">
-        <!-- Demo Role Switcher Dropdown -->
-        <div style="display: flex; align-items: center; gap: 0.35rem; background: #FEF3C7; border: 1px solid #FCD34D; padding: 0.2rem 0.6rem; border-radius: var(--radius-md);" title="Switch Role Persona for Live Demo">
-          <span style="font-size: 0.6875rem; font-weight: 800; color: #92400E;">ROLE:</span>
-          <select id="role-persona-select" style="background: transparent; border: none; font-size: 0.75rem; font-weight: 800; color: #78350F; cursor: pointer; outline: none;" onchange="window.FarmPilotAuth.switchPersona(this.value)">
-            <option value="OWNER" ${role === 'OWNER' ? 'selected' : ''}>👑 Owner (Siddharth)</option>
-            <option value="MANAGER" ${role === 'MANAGER' ? 'selected' : ''}>👔 Manager (Rajesh)</option>
-            <option value="CONSULTANT" ${role === 'CONSULTANT' ? 'selected' : ''}>🔬 Consultant (Dr. Anita)</option>
-            <option value="WORKER" ${role === 'WORKER' ? 'selected' : ''}>🚜 Worker (Ravi)</option>
-          </select>
+        <!-- Install Web App Button -->
+        <button onclick="window.FarmPilotOffline ? window.FarmPilotOffline.promptInstall() : null" id="header-install-app-btn" style="display: flex; align-items: center; gap: 0.35rem; background: #ECFDF5; border: 1.5px solid #A7F3D0; padding: 0.28rem 0.65rem; border-radius: var(--radius-full); cursor: pointer; font-size: 0.75rem; font-weight: 800; color: #065F46; box-shadow: var(--shadow-sm); transition: all 0.2s;" title="Install FarmPilot as native desktop or mobile web app">
+          <span>📲</span>
+          <span>Install App</span>
+        </button>
+
+        <!-- Multilingual Language Selector (24 Languages Supported) -->
+        <div style="position: relative;" id="header-lang-wrapper">
+          <button id="header-lang-btn" onclick="FarmPilotApp.toggleLangMenu(event)" style="display: flex; align-items: center; gap: 0.35rem; background: var(--color-surface); border: 1.5px solid var(--color-border); padding: 0.28rem 0.65rem; border-radius: var(--radius-full); cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--color-text-primary); box-shadow: var(--shadow-sm); transition: all 0.2s;" title="Switch Language (24 Agricultural Languages)">
+            <span>${window.FarmPilotI18n ? window.FarmPilotI18n.getCurrentLanguage().flag : '🌐'}</span>
+            <span style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              ${window.FarmPilotI18n ? window.FarmPilotI18n.getCurrentLanguage().native : 'English'}
+            </span>
+            <span style="font-size: 0.625rem; color: var(--color-text-tertiary);">▾</span>
+          </button>
+
+          <!-- Floating Language Picker Dropdown -->
+          <div id="header-lang-dropdown" style="display: none; position: absolute; right: 0; top: calc(100% + 8px); width: 290px; max-height: 380px; overflow-y: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: 0 14px 30px -5px rgba(0,0,0,0.2); z-index: 99999; padding: 0.5rem;">
+            <div style="padding: 0.4rem 0.6rem; border-bottom: 1px solid #E2E8F0; margin-bottom: 0.35rem; font-size: 0.6875rem; font-weight: 800; color: var(--color-forest); display: flex; justify-content: space-between; align-items: center;">
+              <span>🌐 SELECT LANGUAGE (24)</span>
+              <a href="settings.html" style="color: #059669; text-decoration: none; font-weight: 700;">Settings ⚙️</a>
+            </div>
+            ${(window.FarmPilotI18n ? window.FarmPilotI18n.getLanguages() : []).map(l => {
+              const isCurrent = window.FarmPilotI18n && window.FarmPilotI18n.getCurrentLanguage().code === l.code;
+              return `
+                <button onclick="FarmPilotApp.switchLanguage('${l.code}')" style="display: flex; align-items: center; justify-content: space-between; width: 100%; text-align: left; padding: 0.45rem 0.6rem; border: none; background: ${isCurrent ? '#ECFDF5' : 'transparent'}; border-radius: 6px; cursor: pointer; font-size: 0.75rem; transition: background 0.15s;" onmouseover="if(!${isCurrent}) this.style.background='#F8FAFC'" onmouseout="if(!${isCurrent}) this.style.background='transparent'">
+                  <span style="display: flex; align-items: center; gap: 0.45rem; font-weight: ${isCurrent ? '800' : '600'}; color: ${isCurrent ? '#065F46' : '#1E293B'};">
+                    <span>${l.flag}</span>
+                    <span>${l.name}</span>
+                    <span style="color: #64748B; font-size: 0.7rem;">(${l.native})</span>
+                  </span>
+                  ${isCurrent ? '<span style="color: #059669; font-weight: 800;">✓</span>' : ''}
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- Locked Authentic Role Badge (Non-switchable from menu per RBAC security policy) -->
+        <div style="display: flex; align-items: center; gap: 0.4rem; background: ${role === 'OWNER' ? '#ECFDF5' : role === 'WORKER' ? '#FEF3C7' : role === 'MANAGER' ? '#EFF6FF' : '#FAF5FF'}; border: 1.5px solid ${role === 'OWNER' ? '#86EFAC' : role === 'WORKER' ? '#FCD34D' : role === 'MANAGER' ? '#93C5FD' : '#D8B4FE'}; padding: 0.22rem 0.65rem; border-radius: var(--radius-full);" title="Active Role: ${user.roleLabel || role}">
+          <span style="font-size: 0.8125rem;">${role === 'OWNER' ? '👑' : role === 'WORKER' ? '🚜' : role === 'MANAGER' ? '👔' : '🔬'}</span>
+          <span style="font-size: 0.6875rem; font-weight: 800; color: ${role === 'OWNER' ? '#047857' : role === 'WORKER' ? '#92400E' : role === 'MANAGER' ? '#1E40AF' : '#6B21A8'}; letter-spacing: 0.02em;">
+            ${role} ${user.username ? `(@${user.username})` : ''}
+          </span>
         </div>
 
         <!-- PROFILE BUTTON & COMPREHENSIVE USER MENU -->
@@ -555,6 +618,14 @@ window.FarmPilotApp = {
                 <span>🛡️</span>
                 <span>Security & Telemetry</span>
               </a>
+              <a href="settings.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; border-radius: 4px; color: var(--color-forest); text-decoration: none; font-weight: 800; font-size: 0.75rem; background: #F0FDF4;" onmouseover="this.style.background='#DCFCE7'" onmouseout="this.style.background='#F0FDF4'">
+                <span>⚙️</span>
+                <span>Settings & FarmPilot AI (24 Langs)</span>
+              </a>
+              <button onclick="window.FarmPilotOffline ? window.FarmPilotOffline.promptInstall() : null" style="display: flex; align-items: center; gap: 0.5rem; width: 100%; border: none; background: #ECFDF5; padding: 0.4rem 0.5rem; border-radius: 4px; color: #047857; font-weight: 800; font-size: 0.75rem; cursor: pointer; text-align: left; margin-top: 0.25rem;" onmouseover="this.style.background='#D1FAE5'" onmouseout="this.style.background='#ECFDF5'">
+                <span>📲</span>
+                <span>Install Offline Web App</span>
+              </button>
             </div>
 
             <!-- PROMINENT HEADER SIGN OUT BUTTON -->
@@ -578,14 +649,46 @@ window.FarmPilotApp = {
       });
     }
 
-    // Close profile dropdown on outside click
+    // Close profile & language dropdown on outside click
     document.addEventListener('click', (e) => {
       const wrapper = document.getElementById('header-profile-wrapper');
       const dropdown = document.getElementById('header-profile-dropdown');
       if (dropdown && wrapper && !wrapper.contains(e.target)) {
         dropdown.style.display = 'none';
       }
+
+      const langWrapper = document.getElementById('header-lang-wrapper');
+      const langDropdown = document.getElementById('header-lang-dropdown');
+      if (langDropdown && langWrapper && !langWrapper.contains(e.target)) {
+        langDropdown.style.display = 'none';
+      }
     });
+  },
+
+  toggleLangMenu(e) {
+    if (e) e.stopPropagation();
+    const dropdown = document.getElementById('header-lang-dropdown');
+    if (dropdown) {
+      const isVisible = dropdown.style.display === 'block';
+      dropdown.style.display = isVisible ? 'none' : 'block';
+    }
+  },
+
+  switchLanguage(code) {
+    let lang = null;
+    if (window.FarmPilotI18n) {
+      lang = window.FarmPilotI18n.setLanguage(code);
+    }
+    const dropdown = document.getElementById('header-lang-dropdown');
+    if (dropdown) dropdown.style.display = 'none';
+    this.renderHeader();
+    this.renderSidebar();
+    if (window.FarmPilotI18n) {
+      window.FarmPilotI18n.applyTranslations(code);
+    }
+    if (lang) {
+      this.showToast(`🌐 ${lang.name} (${lang.native})`, 'success');
+    }
   },
 
   toggleProfileMenu(e) {

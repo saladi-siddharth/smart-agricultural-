@@ -104,6 +104,7 @@ smart-agriculture/
 │   ├── config.js                 # App configuration & fallback datasets
 │   ├── mailer.js                 # Client-side SMTP email dispatch helper
 │   ├── supabase.js               # Multi-tenant data layer & business logic engine
+│   ├── collaboration.js          # Shared observations, issues, advisory and notifications contract
 │   └── icons.js                  # Feather icons integration
 │
 ├── css/
@@ -122,7 +123,10 @@ smart-agriculture/
 │       ├── 001_initial_schema.sql         # Base database schema
 │       ├── 002_rls_policies.sql           # Row Level Security policies
 │       ├── 003_database_functions.sql     # Database functions & aggregations
-│       └── 004_phase2_multi_tenant.sql    # Multi-tenant orgs, members & RBAC schema
+│       ├── 004_phase2_multi_tenant.sql    # Multi-tenant orgs, members & RBAC schema
+│       ├── 005_agricultural_intelligence.sql # Recommendations and farm memory
+│       ├── 006_user_roles_community.sql  # Role fields and operational notes
+│       └── 007_role_collaboration_security.sql # Farm/field scope, RLS, storage and workflows
 │
 ├── scripts/
 │   ├── migrate.js                # Migration runner with idempotent tracking (_migrations)
@@ -132,6 +136,23 @@ smart-agriculture/
 ├── .env.example                  # Environment variable template
 └── README.md                     # Technical documentation & walkthrough
 ```
+
+## Role-aware collaboration architecture
+
+FarmPilot uses one shared farm truth with four scoped experiences:
+
+- `OWNER` — portfolio, financial, organization, and approval oversight
+- `MANAGER` — operations, assignments, verification, budgets, and documents
+- `WORKER` — assigned work, observations, issues, notes, and evidence
+- `CONSULTANT` — permitted analytics, advisory notes, comments, and recommendations
+
+The browser permission contract in `js/auth.js` controls experience and demo mode. Supabase Auth, farm/field membership, and Row Level Security in migration 007 enforce access. Client-side role state is not a security boundary.
+
+The collaboration loop is modeled as:
+
+`Field observation → Issue → Advisory note → Manager decision → Activity → Worker submission → Verification → Farm memory`
+
+Private contextual files use the `farm-documents` Supabase Storage bucket and document metadata. Uploads are scoped by farm, field, crop, activity, visibility, and actor.
 
 ---
 

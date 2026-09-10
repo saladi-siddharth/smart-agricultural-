@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmPilot — Soil Health & Precision Nutrient Center</title>
+  <meta name="description" content="Precision agricultural soil health diagnostic center, ICAR Soil Health Card generator, NPK and micronutrient balance, and soil amendment recommendations.">
+
+  <!-- Progressive Web App & Offline Capabilities -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#064E3B">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
+
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <style>
+    .soil-hero-banner {
+      background: linear-gradient(135deg, #1C1917 0%, #292524 45%, #44403C 100%);
+      color: #FFFFFF;
+      border-radius: var(--radius-xl);
+      padding: 1.75rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 16px 36px rgba(28, 25, 23, 0.25);
+      border: 1px solid #57534E;
+      margin-bottom: 1.5rem;
+    }
+
+    .soil-hero-banner::after {
+      content: '';
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      right: -80px;
+      top: -120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(217, 119, 6, 0.18) 0%, rgba(217, 119, 6, 0) 70%);
+      pointer-events: none;
+    }
+
+    .soil-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .soil-kpi-card {
+      background: #FFFFFF;
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    .soil-kpi-card:hover {
+      border-color: #D97706;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .soil-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .nutrient-meter {
+      height: 8px;
+      border-radius: 999px;
+      background: #E2E8F0;
+      overflow: hidden;
+      margin-top: 0.4rem;
+    }
+
+    .nutrient-bar {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .shc-container {
+      background: #FFFFFF;
+      border: 2px solid #059669;
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.15);
+      position: relative;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-soil-health-card, #printable-soil-health-card * {
+        visibility: visible;
+      }
+      #printable-soil-health-card {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        border: 2px solid #000 !important;
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-layout">
+    <!-- Executive Sidebar Navigation -->
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <!-- Command Header -->
+      <header class="app-header" id="app-header"></header>
+
+      <!-- Main Soil Content -->
+      <main class="app-content">
+        <div class="app-content-inner animate-fade-in">
+
+          <!-- SOIL HERO BANNER -->
+          <section class="soil-hero-banner">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; position: relative; z-index: 2;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                  <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #FCD34D; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 0.72rem; font-weight: 800; text-transform: uppercase;">
+                    🧪 Certified Soil & Land Health Center
+                  </span>
+                  <span class="badge" style="background: rgba(255, 255, 255, 0.12); color: #FFFFFF; font-size: 0.6875rem;">
+                    ICAR Rating Standards Grounded
+                  </span>
+                </div>
+                <h1 style="font-size: clamp(1.35rem, 2.2vw, 1.85rem); font-weight: 800; margin: 0 0 0.35rem; color: #FFFFFF;">
+                  Soil Health Diagnostic & Precision Nutrient Matrix
+                </h1>
+                <p style="font-size: 0.8125rem; color: #E7E5E4; max-width: 680px; margin: 0; line-height: 1.5;">
+                  Comprehensive physical, chemical, and biological soil fertility monitoring across your demarcated farm parcels. Generate certified Soil Health Cards, prevent micronutrient chlorosis, and calibrate crop fertilizer prescriptions.
+                </p>
+              </div>
+
+              <!-- Top Parcel Selector & Actions -->
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.65rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; background: rgba(0, 0, 0, 0.4); padding: 0.35rem 0.75rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.15);">
+                  <span style="font-size: 0.75rem; color: #FCD34D; font-weight: 700;">Select Parcel:</span>
+                  <select id="soil-parcel-select" onchange="switchSoilParcel(this.value)" style="background: transparent; color: #FFFFFF; border: none; font-size: 0.8125rem; font-weight: 800; cursor: pointer; outline: none;">
+                    <option value="north-block" selected style="color:#000;">🌾 North Block (10.0 Ac • Clay Loam)</option>
+                    <option value="south-canal" style="color:#000;">💧 South Canal (5.5 Ac • Silt Loam)</option>
+                    <option value="east-terrace" style="color:#000;">🏞️ East River Terrace (3.0 Ac • Sandy Loam)</option>
+                    <option value="central-sector" style="color:#000;">🚜 Central Sector (6.5 Ac • Black Silt)</option>
+                  </select>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                  <button type="button" id="btn-log-sample" onclick="openSoilTestModal()" class="btn btn-sm" style="background: #F59E0B; color: #78350F; font-weight: 800; border: none; display: inline-flex; align-items: center; gap: 0.35rem; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);">
+                    <span>➕</span>
+                    <span>Log Soil Test</span>
+                  </button>
+                  <button type="button" onclick="window.print()" class="btn btn-sm" style="background: rgba(255,255,255,0.15); color: #FFFFFF; font-weight: 700; border: 1px solid rgba(255,255,255,0.3); display: inline-flex; align-items: center; gap: 0.35rem;">
+                    <span>🖨️</span>
+                    <span>Print Soil Card</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Parcel Telemetry Strip -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.15);">
+              <div>
+                <span style="font-size: 0.65rem; text-transform: uppercase; color: #FCD34D; font-weight: 800;">Texture & Series</span>
+                <div style="font-size: 0.95rem; font-weight: 800; color: #FFFFFF;" id="hero-soil-texture">Clay Loam (Heavy)</div>
+              </div>
+              <div>
+                <span style="font-size: 0.65rem; text-transform: uppercase; color: #FCD34D; font-weight: 800;">Reaction (pH)</span>
+                <div style="font-size: 0.95rem; font-weight: 800; color: #FFFFFF;" id="hero-soil-ph">6.80 (Neutral)</div>
+              </div>
+              <div>
+                <span style="font-size: 0.65rem; text-transform: uppercase; color: #FCD34D; font-weight: 800;">Organic Carbon</span>
+                <div style="font-size: 0.95rem; font-weight: 800; color: #FFFFFF;" id="hero-soil-oc">0.58% (Medium)</div>
+              </div>
+              <div>
+                <span style="font-size: 0.65rem; text-transform: uppercase; color: #FCD34D; font-weight: 800;">Zinc Status (Zn)</span>
+                <div style="font-size: 0.95rem; font-weight: 800; color: #EF4444;" id="hero-soil-zn">0.42 ppm (Deficient)</div>
+              </div>
+              <div>
+                <span style="font-size: 0.65rem; text-transform: uppercase; color: #FCD34D; font-weight: 800;">Field Water Depth</span>
+                <div style="font-size: 0.95rem; font-weight: 800; color: #10B981;" id="hero-soil-water">-4.0 cm (AWD Safe)</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 4 CORE SOIL HEALTH KPIS -->
+          <section class="soil-kpi-grid">
+            <div class="soil-kpi-card">
+              <div class="soil-card-header">
+                <span style="font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; color: #64748B;">Overall Fertility Index</span>
+                <span class="badge badge-warning" id="kpi-fertility-badge">MEDIUM (74/100)</span>
+              </div>
+              <div class="font-mono" style="font-size: 1.85rem; font-weight: 900; color: #B45309;" id="kpi-fertility-score">74 <span style="font-size: 0.85rem; color: #64748B;">/ 100</span></div>
+              <div class="nutrient-meter"><div id="kpi-fertility-bar" class="nutrient-bar" style="width: 74%; background: #F59E0B;"></div></div>
+              <span style="font-size: 0.72rem; color: #D97706; font-weight: 600; display: block; margin-top: 0.35rem;" id="kpi-fertility-sub">⚠️ Zinc Deficit Restricting Yield</span>
+            </div>
+
+            <div class="soil-kpi-card">
+              <div class="soil-card-header">
+                <span style="font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; color: #64748B;">Primary Nutrients (N-P-K)</span>
+                <span class="badge badge-primary">ICAR Standard</span>
+              </div>
+              <div class="font-mono" style="font-size: 1.25rem; font-weight: 900; color: #0F172A; margin: 0.2rem 0;">
+                <span id="kpi-n-val" style="color: #D97706;">265 N</span> • 
+                <span id="kpi-p-val" style="color: #059669;">18.5 P</span> • 
+                <span id="kpi-k-val" style="color: #059669;">310 K</span>
+              </div>
+              <span style="font-size: 0.7rem; color: #64748B;">Unit: Available kg/ha</span>
+              <span style="font-size: 0.72rem; color: #475569; font-weight: 600; display: block; margin-top: 0.25rem;">Nitrogen deficit: 15 kg/ha vs benchmark</span>
+            </div>
+
+            <div class="soil-kpi-card">
+              <div class="soil-card-header">
+                <span style="font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; color: #64748B;">Critical Micronutrient (Zinc)</span>
+                <span class="badge badge-danger">DEFICIENT</span>
+              </div>
+              <div class="font-mono" style="font-size: 1.85rem; font-weight: 900; color: #DC2626;" id="kpi-zn-val">0.42 <span style="font-size: 0.85rem; color: #64748B;">ppm</span></div>
+              <div class="nutrient-meter"><div id="kpi-zn-bar" class="nutrient-bar" style="width: 42%; background: #DC2626;"></div></div>
+              <span style="font-size: 0.72rem; color: #DC2626; font-weight: 700; display: block; margin-top: 0.35rem;">Critical: Below 0.60 ppm threshold</span>
+            </div>
+
+            <div class="soil-kpi-card">
+              <div class="soil-card-header">
+                <span style="font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; color: #64748B;">Moisture & Plant Water (PAW)</span>
+                <span class="badge badge-success">OPTIMAL</span>
+              </div>
+              <div class="font-mono" style="font-size: 1.85rem; font-weight: 900; color: #059669;" id="kpi-moisture-val">31.0% <span style="font-size: 0.85rem; color: #64748B;">Tension</span></div>
+              <div class="nutrient-meter"><div id="kpi-moisture-bar" class="nutrient-bar" style="width: 75%; background: #059669;"></div></div>
+              <span style="font-size: 0.72rem; color: #059669; font-weight: 700; display: block; margin-top: 0.35rem;">Field Capacity: 36% • Wilting Point: 16%</span>
+            </div>
+          </section>
+
+          <!-- 2-COLUMN MAIN DIAGNOSTIC WORKSPACE -->
+          <div style="display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr); gap: 1.5rem; margin-bottom: 1.5rem;">
+            
+            <!-- LEFT COLUMN: OFFICIAL CERTIFIED SOIL HEALTH CARD -->
+            <!-- Soil Health Card Container -->
+            <div class="shc-container" id="soil-health-card">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #059669; padding-bottom: 1rem; margin-bottom: 1.25rem;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.5rem;">📜</span>
+                    <div>
+                      <span style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: #059669; letter-spacing: 0.05em;">Ministry of Agriculture & Farmers Welfare • ICAR Format</span>
+                      <h2 style="font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0.15rem 0;" id="shc-title">Digital Soil Health Card — North Block (Plot A)</h2>
+                    </div>
+                  </div>
+                  <div style="font-size: 0.75rem; color: #64748B; margin-top: 0.25rem;">
+                    Sample ID: <strong id="shc-sample-id" class="font-mono">SHC-2026-AP-001</strong> • Date: <strong id="shc-sample-date">15 Aug 2026</strong> • Depth: <strong>0-15 cm</strong>
+                  </div>
+                </div>
+
+                <div style="text-align: right;">
+                  <button type="button" id="btn-print-shc" onclick="window.print()" class="btn btn-sm btn-primary" style="background: #059669; font-size: 0.75rem; font-weight: 800;">
+                    <span>🖨️ Export PDF</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Parameter Testing Results Table -->
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.78rem; margin-bottom: 1.25rem;">
+                <thead>
+                  <tr style="background: #F8FAFC; border-bottom: 2px solid #E2E8F0; text-align: left;">
+                    <th style="padding: 0.6rem 0.75rem; font-weight: 800; color: #475569;">Nutrient / Parameter</th>
+                    <th style="padding: 0.6rem 0.75rem; font-weight: 800; color: #475569;">Test Value</th>
+                    <th style="padding: 0.6rem 0.75rem; font-weight: 800; color: #475569;">Standard Range</th>
+                    <th style="padding: 0.6rem 0.75rem; font-weight: 800; color: #475569;">Rating</th>
+                  </tr>
+                </thead>
+                <tbody id="shc-table-body">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+
+              <!-- Actionable Fertilizer & Amendment Advisory -->
+              <div style="background: #F0FDF4; border: 1.5px solid #A7F3D0; border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem;">
+                <h4 style="margin: 0 0 0.5rem; color: #064E3B; font-size: 0.875rem; font-weight: 800;">
+                  🌾 ICAR Fertilizer & Soil Amendment Prescription (Target Yield: 5.0 T/Ac Paddy)
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.65rem; margin-bottom: 0.75rem;">
+                  <div style="background: #FFFFFF; padding: 0.5rem 0.65rem; border-radius: 6px; border: 1px solid #A7F3D0;">
+                    <div style="font-size: 0.65rem; color: #64748B; font-weight: 700;">Urea (46% N)</div>
+                    <strong class="font-mono" style="font-size: 0.95rem; color: #064E3B;" id="shc-presc-urea">55 kg / Ac</strong>
+                  </div>
+                  <div style="background: #FFFFFF; padding: 0.5rem 0.65rem; border-radius: 6px; border: 1px solid #A7F3D0;">
+                    <div style="font-size: 0.65rem; color: #64748B; font-weight: 700;">SSP (16% P2O5)</div>
+                    <strong class="font-mono" style="font-size: 0.95rem; color: #064E3B;" id="shc-presc-ssp">75 kg / Ac</strong>
+                  </div>
+                  <div style="background: #FFFFFF; padding: 0.5rem 0.65rem; border-radius: 6px; border: 1px solid #A7F3D0;">
+                    <div style="font-size: 0.65rem; color: #64748B; font-weight: 700;">MOP (60% K2O)</div>
+                    <strong class="font-mono" style="font-size: 0.95rem; color: #064E3B;" id="shc-presc-mop">35 kg / Ac</strong>
+                  </div>
+                  <div style="background: #FEF2F2; padding: 0.5rem 0.65rem; border-radius: 6px; border: 1px solid #FCA5A5;">
+                    <div style="font-size: 0.65rem; color: #991B1B; font-weight: 700;">Zinc Sulfate 21%</div>
+                    <strong class="font-mono" style="font-size: 0.95rem; color: #DC2626;" id="shc-presc-zn">10 kg / Ac</strong>
+                  </div>
+                </div>
+                <div style="font-size: 0.75rem; color: #065F46; line-height: 1.5;" id="shc-amendment-text">
+                  • Soil Amendment: Apply 4.5 Tonnes/Acre Farm Yard Manure (FYM) to build organic carbon from 0.58% towards 0.75%.<br>
+                  • Green Manuring: Sow Dhaincha (Sesbania aculeata) at 20 kg/Ac before next Kharif transplantation.
+                </div>
+              </div>
+
+              <!-- Lab Certification Footer -->
+              <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #E2E8F0; padding-top: 0.75rem; font-size: 0.72rem; color: #64748B;">
+                <div>
+                  Authorized Testing Lab: <strong>Regional Agricultural Testing Laboratory (NABL Accredited)</strong><br>
+                  Report Issued Under National Soil Health Mission • Verified by Supabase PostgreSQL
+                </div>
+                <div style="text-align: right;">
+                  <strong style="color: #0F172A;">Dr. P. R. Rao</strong><br>
+                  Senior Soil Chemist & Agronomist
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT COLUMN: INTERACTIVE SOIL SIMULATOR & DEFICIENCY ALERTS -->
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+              
+              <!-- Quick Nutrient Deficiencies Alert Card -->
+              <div class="card" style="padding: 1.25rem; border: 1.5px solid #FCD34D; background: #FFFBEB;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.65rem;">
+                  <span style="font-size: 1.25rem;">⚠️</span>
+                  <h3 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #92400E;">Active Soil Deficiencies Detected</h3>
+                </div>
+                <div id="soil-deficiencies-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.78rem; color: #78350F;">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+
+              <!-- Interactive Soil Chemistry Tuning Controls -->
+              <div class="card" style="padding: 1.25rem;">
+                <h3 style="margin: 0 0 0.25rem; font-size: 0.95rem; font-weight: 800; color: #0F172A;">Interactive Soil Tuning Studio</h3>
+                <p style="font-size: 0.75rem; color: #64748B; margin: 0 0 1rem;">Simulate adjustments in soil test results and recalculate fertility index.</p>
+
+                <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                  <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 700; color: #334155;">
+                      <span>Soil pH:</span>
+                      <span id="sim-ph-val" class="font-mono">6.80</span>
+                    </div>
+                    <input type="range" id="sim-ph" min="5.0" max="9.0" step="0.1" value="6.8" style="width: 100%; accent-color: #059669; cursor: pointer;" oninput="handleSoilSimulation()">
+                  </div>
+
+                  <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 700; color: #334155;">
+                      <span>Organic Carbon (OC %):</span>
+                      <span id="sim-oc-val" class="font-mono">0.58%</span>
+                    </div>
+                    <input type="range" id="sim-oc" min="0.20" max="1.50" step="0.05" value="0.58" style="width: 100%; accent-color: #D97706; cursor: pointer;" oninput="handleSoilSimulation()">
+                  </div>
+
+                  <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 700; color: #334155;">
+                      <span>Available Nitrogen (kg/ha):</span>
+                      <span id="sim-n-val" class="font-mono">265 kg/ha</span>
+                    </div>
+                    <input type="range" id="sim-n" min="150" max="500" step="5" value="265" style="width: 100%; accent-color: #2563EB; cursor: pointer;" oninput="handleSoilSimulation()">
+                  </div>
+
+                  <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 700; color: #334155;">
+                      <span>DTPA Zinc Level (ppm):</span>
+                      <span id="sim-zn-val" class="font-mono" style="color:#DC2626;">0.42 ppm</span>
+                    </div>
+                    <input type="range" id="sim-zn" min="0.10" max="1.80" step="0.02" value="0.42" style="width: 100%; accent-color: #DC2626; cursor: pointer;" oninput="handleSoilSimulation()">
+                  </div>
+
+                  <button type="button" onclick="resetSoilSimulation()" class="btn btn-secondary btn-sm" style="margin-top: 0.5rem; font-size: 0.75rem; font-weight: 700;">
+                    ↺ Reset to Audited Lab Values
+                  </button>
+                </div>
+              </div>
+
+              <!-- Soil AWD Percolation Correlation Card -->
+              <div class="card" style="padding: 1.25rem; background: #F0F9FF; border: 1.5px solid #BAE6FD;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.45rem;">
+                  <span style="font-size: 1.2rem;">💧</span>
+                  <strong style="font-size: 0.875rem; color: #0369A1;">AWD Water Percolation Coupling</strong>
+                </div>
+                <p style="font-size: 0.75rem; color: #0C4A6E; line-height: 1.5; margin: 0;">
+                  Clay Loam subsoil provides high water holding capacity (36% FC) with an 8.5 mm/hr percolation rate, making it ideal for Alternating Wetting and Drying (AWD). Current perched water tube (-4.0 cm) maintains root moisture safely above the 16% wilting point.
+                </p>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- SOIL TEST LOGGING MODAL -->
+  <div class="dossier-modal-overlay" id="soil-test-modal">
+    <div class="dossier-modal-container" style="max-width: 680px;">
+      <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: #1C1917; color: #FFFFFF;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.25rem;">🧪</span>
+          <strong style="font-size: 1rem; color: #FFFFFF;">Log Official Soil Test Laboratory Report</strong>
+        </div>
+        <button type="button" onclick="closeSoilTestModal()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: #D6D3D1;">✕</button>
+      </div>
+
+      <form id="soil-test-form" onsubmit="handleSoilTestSubmit(event)" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div>
+            <label class="form-label" style="font-size: 0.75rem; font-weight: 700;">Parcel Target</label>
+            <select id="modal-soil-parcel" class="form-select" style="width: 100%; font-size: 0.8125rem; padding: 0.5rem;">
+              <option value="north-block">North Block (Plot A • 10.0 Ac)</option>
+              <option value="south-canal">South Canal (Plot B • 5.5 Ac)</option>
+              <option value="east-terrace">East River Terrace (3.0 Ac)</option>
+              <option value="central-sector">Central Sector (6.5 Ac)</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.75rem; font-weight: 700;">Sample Date</label>
+            <input type="date" id="modal-soil-date" class="form-input" style="width: 100%; font-size: 0.8125rem; padding: 0.45rem;" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
+          <div>
+            <label class="form-label" style="font-size: 0.75rem; font-weight: 700;">Soil pH</label>
+            <input type="number" step="0.1" id="modal-soil-ph" class="form-input" value="6.8" style="width: 100%;" required>
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.75rem; font-weight: 700;">EC (dS/m)</label>
+            <input type="number" step="0.01" id="modal-soil-ec" class="form-input" value="0.45" style="width: 100%;" required>
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.75rem; font-weight: 700;">Organic Carbon %</label>
+            <input type="number" step="0.01" id="modal-soil-oc" class="form-input" value="0.58" style="width: 100%;" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
+          <div>
+            <label class="form-label" style="font-size: 0.75rem; font-weight: 700;">Available N (kg/ha)</label>
+            <input type="number" id="modal-soil-n" class="form-input" value="265" style="width: 100%;" required>
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.75rem; font-weight: 700;">Available P (kg/ha)</label>
+            <input type="number" step="0.1" id="modal-soil-p" class="form-input" value="18.5" style="width: 100%;" required>
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.75rem; font-weight: 700;">Available K (kg/ha)</label>
+            <input type="number" id="modal-soil-k" class="form-input" value="310" style="width: 100%;" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+          <div>
+            <label class="form-label" style="font-size: 0.75rem; font-weight: 700;">DTPA Zinc (ppm)</label>
+            <input type="number" step="0.01" id="modal-soil-zn" class="form-input" value="0.42" style="width: 100%;" required>
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.75rem; font-weight: 700;">Soil Texture</label>
+            <select id="modal-soil-texture" class="form-select" style="width: 100%;">
+              <option value="Clay Loam">Clay Loam</option>
+              <option value="Clay">Clay</option>
+              <option value="Silt Loam">Silt Loam</option>
+              <option value="Sandy Loam">Sandy Loam</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.75rem; font-weight: 700;">Testing Laboratory Name</label>
+          <input type="text" id="modal-soil-lab" class="form-input" value="Regional Agricultural Testing Laboratory (NABL Accredited)" style="width: 100%;">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; border-top: 1px solid var(--color-border); padding-top: 0.75rem;">
+          <button type="button" onclick="closeSoilTestModal()" class="btn btn-secondary btn-sm">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm" style="background: #059669; font-weight: 800;">
+            ✓ Commit Soil Test to Supabase
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/intelligence/soil-health-engine.js"></script>
+
+  <script>
+    // Parcel Soil Database Cache
+    const PARCEL_SOIL_DATA = {
+      'north-block': {
+        name: 'North Block (Plot A)',
+        area: 10.0,
+        sample_id: 'SHC-2026-AP-001',
+        sample_date: '15 Aug 2026',
+        soil_texture: 'Clay Loam',
+        ph: 6.80,
+        ec_ds_m: 0.45,
+        organic_carbon_pct: 0.58,
+        nitrogen_kg_ha: 265.00,
+        phosphorus_kg_ha: 18.50,
+        potassium_kg_ha: 310.00,
+        zinc_ppm: 0.42,
+        iron_ppm: 5.80,
+        boron_ppm: 0.65,
+        manganese_ppm: 4.10,
+        copper_ppm: 1.20,
+        sulphur_ppm: 14.50,
+        current_moisture_pct: 31.00,
+        water_depth_cm: -4.0
+      },
+      'south-canal': {
+        name: 'South Canal (Plot B)',
+        area: 5.5,
+        sample_id: 'SHC-2026-AP-002',
+        sample_date: '16 Aug 2026',
+        soil_texture: 'Silt Loam',
+        ph: 7.20,
+        ec_ds_m: 0.38,
+        organic_carbon_pct: 0.64,
+        nitrogen_kg_ha: 290.00,
+        phosphorus_kg_ha: 24.00,
+        potassium_kg_ha: 340.00,
+        zinc_ppm: 0.72,
+        iron_ppm: 7.20,
+        boron_ppm: 0.80,
+        manganese_ppm: 5.50,
+        copper_ppm: 1.45,
+        sulphur_ppm: 18.00,
+        current_moisture_pct: 34.50,
+        water_depth_cm: +2.0
+      },
+      'east-terrace': {
+        name: 'East River Terrace',
+        area: 3.0,
+        sample_id: 'SHC-2026-AP-003',
+        sample_date: '18 Aug 2026',
+        soil_texture: 'Sandy Loam',
+        ph: 6.50,
+        ec_ds_m: 0.30,
+        organic_carbon_pct: 0.45,
+        nitrogen_kg_ha: 210.00,
+        phosphorus_kg_ha: 14.00,
+        potassium_kg_ha: 220.00,
+        zinc_ppm: 0.55,
+        iron_ppm: 4.80,
+        boron_ppm: 0.45,
+        manganese_ppm: 3.80,
+        copper_ppm: 0.95,
+        sulphur_ppm: 11.00,
+        current_moisture_pct: 22.00,
+        water_depth_cm: -8.0
+      },
+      'central-sector': {
+        name: 'Central Sector',
+        area: 6.5,
+        sample_id: 'SHC-2026-AP-004',
+        sample_date: '20 Aug 2026',
+        soil_texture: 'Black Delta Silt',
+        ph: 7.40,
+        ec_ds_m: 0.50,
+        organic_carbon_pct: 0.72,
+        nitrogen_kg_ha: 310.00,
+        phosphorus_kg_ha: 26.00,
+        potassium_kg_ha: 360.00,
+        zinc_ppm: 0.85,
+        iron_ppm: 8.50,
+        boron_ppm: 0.90,
+        manganese_ppm: 6.20,
+        copper_ppm: 1.60,
+        sulphur_ppm: 20.00,
+        current_moisture_pct: 38.00,
+        water_depth_cm: +4.0
+      }
+    };
+
+    let currentParcelKey = 'north-block';
+    let simulatedSoil = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      FarmPilotApp.init('soil');
+      const todayStr = new Date().toISOString().split('T')[0];
+      const dateIn = document.getElementById('modal-soil-date');
+      if (dateIn) dateIn.value = todayStr;
+      renderCurrentParcelSoil();
+    });
+
+    function switchSoilParcel(key) {
+      currentParcelKey = key;
+      simulatedSoil = null;
+      renderCurrentParcelSoil();
+    }
+
+    function renderCurrentParcelSoil() {
+      const data = simulatedSoil || PARCEL_SOIL_DATA[currentParcelKey];
+      if (!data || !window.FarmPilotSoilEngine) return;
+
+      const evalRes = window.FarmPilotSoilEngine.evaluateSoilHealth(data);
+      const prescRes = window.FarmPilotSoilEngine.calculateFertilizerPrescription('Paddy BPT-5204', data.area, data);
+
+      // 1. Hero Strip
+      document.getElementById('hero-soil-texture').textContent = data.soil_texture;
+      document.getElementById('hero-soil-ph').textContent = `${data.ph.toFixed(2)} (${data.ph < 6.5 ? 'Acidic' : data.ph > 7.5 ? 'Alkaline' : 'Neutral'})`;
+      document.getElementById('hero-soil-oc').textContent = `${data.organic_carbon_pct.toFixed(2)}% (${data.organic_carbon_pct < 0.5 ? 'Low' : data.organic_carbon_pct > 0.75 ? 'High' : 'Medium'})`;
+      
+      const znEl = document.getElementById('hero-soil-zn');
+      znEl.textContent = `${data.zinc_ppm.toFixed(2)} ppm (${data.zinc_ppm < 0.6 ? 'Deficient' : 'Adequate'})`;
+      znEl.style.color = data.zinc_ppm < 0.6 ? '#EF4444' : '#10B981';
+
+      document.getElementById('hero-soil-water').textContent = `${data.water_depth_cm >= 0 ? '+' : ''}${data.water_depth_cm.toFixed(1)} cm (AWD)`;
+
+      // 2. KPIs
+      document.getElementById('kpi-fertility-score').innerHTML = `${evalRes.score} <span style="font-size: 0.85rem; color: #64748B;">/ 100</span>`;
+      document.getElementById('kpi-fertility-badge').textContent = `${evalRes.rating} (${evalRes.score}/100)`;
+      document.getElementById('kpi-fertility-badge').className = `badge ${evalRes.ratingBadge}`;
+      document.getElementById('kpi-fertility-bar').style.width = `${evalRes.score}%`;
+      document.getElementById('kpi-fertility-bar').style.background = evalRes.score >= 80 ? '#059669' : evalRes.score >= 60 ? '#F59E0B' : '#DC2626';
+
+      document.getElementById('kpi-n-val').textContent = `${Math.round(data.nitrogen_kg_ha)} N`;
+      document.getElementById('kpi-p-val').textContent = `${data.phosphorus_kg_ha.toFixed(1)} P`;
+      document.getElementById('kpi-k-val').textContent = `${Math.round(data.potassium_kg_ha)} K`;
+
+      document.getElementById('kpi-zn-val').innerHTML = `${data.zinc_ppm.toFixed(2)} <span style="font-size: 0.85rem; color: #64748B;">ppm</span>`;
+      document.getElementById('kpi-zn-bar').style.width = `${Math.min(100, (data.zinc_ppm / 1.0) * 100)}%`;
+
+      document.getElementById('kpi-moisture-val').innerHTML = `${data.current_moisture_pct.toFixed(1)}% <span style="font-size: 0.85rem; color: #64748B;">Tension</span>`;
+      document.getElementById('kpi-moisture-bar').style.width = `${Math.min(100, data.current_moisture_pct * 2)}%`;
+
+      // 3. Soil Health Card Table
+      document.getElementById('shc-title').textContent = `Digital Soil Health Card — ${data.name}`;
+      document.getElementById('shc-sample-id').textContent = data.sample_id;
+      document.getElementById('shc-sample-date').textContent = data.sample_date;
+
+      const rows = [
+        { name: 'Soil pH (Reaction)', val: data.ph.toFixed(2), range: '6.5 - 7.5', rating: data.ph < 6.0 ? 'Acidic' : data.ph > 8.0 ? 'Alkaline' : 'Optimal' },
+        { name: 'Electrical Conductivity (EC)', val: `${data.ec_ds_m.toFixed(2)} dS/m`, range: '< 1.0 dS/m', rating: data.ec_ds_m < 1.0 ? 'Non-Saline (Safe)' : 'Saline Alert' },
+        { name: 'Organic Carbon (OC %)', val: `${data.organic_carbon_pct.toFixed(2)} %`, range: '0.50 - 0.75 %', rating: data.organic_carbon_pct < 0.5 ? 'Low' : data.organic_carbon_pct > 0.75 ? 'High' : 'Medium' },
+        { name: 'Available Nitrogen (N)', val: `${Math.round(data.nitrogen_kg_ha)} kg/ha`, range: '280 - 560 kg/ha', rating: data.nitrogen_kg_ha < 280 ? 'Low' : 'Adequate' },
+        { name: 'Available Phosphorus (P2O5)', val: `${data.phosphorus_kg_ha.toFixed(1)} kg/ha`, range: '11 - 22 kg/ha', rating: data.phosphorus_kg_ha < 11 ? 'Low' : 'Adequate' },
+        { name: 'Available Potassium (K2O)', val: `${Math.round(data.potassium_kg_ha)} kg/ha`, range: '120 - 280 kg/ha', rating: data.potassium_kg_ha < 120 ? 'Low' : 'High' },
+        { name: 'Available Zinc (Zn)', val: `${data.zinc_ppm.toFixed(2)} ppm`, range: '> 0.60 ppm', rating: data.zinc_ppm < 0.6 ? 'DEFICIENT' : 'Adequate', danger: data.zinc_ppm < 0.6 },
+        { name: 'Available Iron (Fe)', val: `${data.iron_ppm.toFixed(2)} ppm`, range: '> 4.50 ppm', rating: data.iron_ppm < 4.5 ? 'Low' : 'Adequate' },
+        { name: 'Available Sulphur (S)', val: `${data.sulphur_ppm.toFixed(2)} ppm`, range: '> 10.0 ppm', rating: data.sulphur_ppm < 10 ? 'Low' : 'Adequate' },
+        { name: 'Field Capacity (FC)', val: `${evalRes.waterRetention.fieldCapacityPct.toFixed(1)} %`, range: '30 - 40 %', rating: 'Optimal' },
+        { name: 'Permanent Wilting Point (PWP)', val: `${evalRes.waterRetention.permanentWiltingPointPct.toFixed(1)} %`, range: '14 - 18 %', rating: 'Critical Line' }
+      ];
+
+      document.getElementById('shc-table-body').innerHTML = rows.map(r => `
+        <tr style="border-bottom: 1px solid #F1F5F9;">
+          <td style="padding: 0.5rem 0.75rem; font-weight: 700; color: #1E293B;">${r.name}</td>
+          <td style="padding: 0.5rem 0.75rem; font-family: var(--font-mono); font-weight: 800; color: ${r.danger ? '#DC2626' : '#059669'};">${r.val}</td>
+          <td style="padding: 0.5rem 0.75rem; color: #64748B;">${r.range}</td>
+          <td style="padding: 0.5rem 0.75rem;">
+            <span class="badge ${r.danger ? 'badge-danger' : r.rating === 'Low' ? 'badge-warning' : 'badge-success'}" style="font-size: 0.65rem;">${r.rating}</span>
+          </td>
+        </tr>
+      `).join('');
+
+      // 4. Prescriptions
+      document.getElementById('shc-presc-urea').textContent = `${prescRes.perAcreRates.urea_kg} kg / Ac`;
+      document.getElementById('shc-presc-ssp').textContent = `${prescRes.perAcreRates.ssp_kg} kg / Ac`;
+      document.getElementById('shc-presc-mop').textContent = `${prescRes.perAcreRates.mop_kg} kg / Ac`;
+      document.getElementById('shc-presc-zn').textContent = `${prescRes.perAcreRates.zinc_sulfate_kg} kg / Ac`;
+
+      // 5. Deficiencies list
+      const defListEl = document.getElementById('soil-deficiencies-list');
+      if (evalRes.deficiencies.length === 0) {
+        defListEl.innerHTML = `<div style="color: #059669; font-weight: 700;">✓ No critical deficiencies. Soil in excellent condition!</div>`;
+      } else {
+        defListEl.innerHTML = evalRes.deficiencies.map(d => `
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <span style="color: #DC2626;">•</span>
+            <strong>${d}</strong>
+          </div>
+        `).join('');
+      }
+
+      // Sync simulator inputs with current data
+      document.getElementById('sim-ph').value = data.ph;
+      document.getElementById('sim-ph-val').textContent = data.ph.toFixed(2);
+      document.getElementById('sim-oc').value = data.organic_carbon_pct;
+      document.getElementById('sim-oc-val').textContent = `${data.organic_carbon_pct.toFixed(2)}%`;
+      document.getElementById('sim-n').value = Math.round(data.nitrogen_kg_ha);
+      document.getElementById('sim-n-val').textContent = `${Math.round(data.nitrogen_kg_ha)} kg/ha`;
+      document.getElementById('sim-zn').value = data.zinc_ppm;
+      document.getElementById('sim-zn-val').textContent = `${data.zinc_ppm.toFixed(2)} ppm`;
+    }
+
+    function handleSoilSimulation() {
+      const base = PARCEL_SOIL_DATA[currentParcelKey];
+      simulatedSoil = {
+        ...base,
+        ph: parseFloat(document.getElementById('sim-ph').value),
+        organic_carbon_pct: parseFloat(document.getElementById('sim-oc').value),
+        nitrogen_kg_ha: parseFloat(document.getElementById('sim-n').value),
+        zinc_ppm: parseFloat(document.getElementById('sim-zn').value)
+      };
+
+      document.getElementById('sim-ph-val').textContent = simulatedSoil.ph.toFixed(2);
+      document.getElementById('sim-oc-val').textContent = `${simulatedSoil.organic_carbon_pct.toFixed(2)}%`;
+      document.getElementById('sim-n-val').textContent = `${Math.round(simulatedSoil.nitrogen_kg_ha)} kg/ha`;
+      document.getElementById('sim-zn-val').textContent = `${simulatedSoil.zinc_ppm.toFixed(2)} ppm`;
+
+      renderCurrentParcelSoil();
+    }
+
+    function resetSoilSimulation() {
+      simulatedSoil = null;
+      renderCurrentParcelSoil();
+    }
+
+    function openSoilTestModal() {
+      document.getElementById('soil-test-modal').classList.add('active');
+    }
+
+    function closeSoilTestModal() {
+      document.getElementById('soil-test-modal').classList.remove('active');
+    }
+
+    async function handleSoilTestSubmit(e) {
+      e.preventDefault();
+      const parcelKey = document.getElementById('modal-soil-parcel').value;
+      const ph = parseFloat(document.getElementById('modal-soil-ph').value);
+      const ec = parseFloat(document.getElementById('modal-soil-ec').value);
+      const oc = parseFloat(document.getElementById('modal-soil-oc').value);
+      const n = parseFloat(document.getElementById('modal-soil-n').value);
+      const p = parseFloat(document.getElementById('modal-soil-p').value);
+      const k = parseFloat(document.getElementById('modal-soil-k').value);
+      const zn = parseFloat(document.getElementById('modal-soil-zn').value);
+      const texture = document.getElementById('modal-soil-texture').value;
+      const lab = document.getElementById('modal-soil-lab').value;
+      const sampleDate = document.getElementById('modal-soil-date').value;
+
+      PARCEL_SOIL_DATA[parcelKey] = {
+        ...PARCEL_SOIL_DATA[parcelKey],
+        sample_id: `SHC-2026-AP-${Math.floor(100 + Math.random() * 900)}`,
+        sample_date: sampleDate,
+        ph,
+        ec_ds_m: ec,
+        organic_carbon_pct: oc,
+        nitrogen_kg_ha: n,
+        phosphorus_kg_ha: p,
+        potassium_kg_ha: k,
+        zinc_ppm: zn,
+        soil_texture: texture,
+        lab_name: lab
+      };
+
+      currentParcelKey = parcelKey;
+      simulatedSoil = null;
+      closeSoilTestModal();
+      renderCurrentParcelSoil();
+
+      if (window.FarmPilotApp && window.FarmPilotApp.showToast) {
+        window.FarmPilotApp.showToast('✓ Soil Test recorded successfully! Health scores & fertilizer prescriptions recalculated.', 'success');
+      }
+    }
+  </script>
+</body>
+</html>

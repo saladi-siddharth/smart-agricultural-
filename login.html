@@ -124,119 +124,196 @@
           </p>
         </div>
 
-        <!-- Google Sign-In Section -->
-        <div style="margin-bottom: 1.25rem;">
-          <div id="google-signin-btn-container" style="display: flex; justify-content: center; margin-bottom: 0.5rem; min-height: 40px;"></div>
-          
-          <button type="button" id="btn-google-custom" class="btn btn-secondary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.65rem; padding: 0.65rem; border-color: #CBD5E1; background: #FFFFFF; font-weight: 700; color: #1E293B;">
-            <svg width="18" height="18" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-            </svg>
-            <span>Sign in with Google</span>
+        <!-- Tab Switcher: Sign In vs Create Account (Username) -->
+        <div style="display: flex; background: var(--color-surface-secondary); padding: 0.25rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); margin-bottom: 1.5rem;">
+          <button type="button" id="tab-btn-signin" style="flex: 1; padding: 0.6rem; font-size: 0.8125rem; font-weight: 800; border: none; border-radius: var(--radius-sm); cursor: pointer; background: #FFFFFF; color: var(--color-forest); box-shadow: var(--shadow-sm); transition: all 0.2s;">
+            <span>🔑 Sign In</span>
+          </button>
+          <button type="button" id="tab-btn-signup" style="flex: 1; padding: 0.6rem; font-size: 0.8125rem; font-weight: 700; border: none; border-radius: var(--radius-sm); cursor: pointer; background: transparent; color: var(--color-text-secondary); transition: all 0.2s;">
+            <span>✨ Create Account (@Username)</span>
           </button>
         </div>
 
-        <!-- 4 1-Click Role Login Cards for Hackathon Evaluation -->
-        <div style="margin-bottom: 1.5rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-            <span style="font-size: 0.75rem; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.04em;">
-              Select Role Persona (Green Valley Agri Ltd)
-            </span>
-            <span style="font-size: 0.6875rem; color: #059669; font-weight: 700;">1-Click Instant Login</span>
-          </div>
-          
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-            <!-- Owner Card -->
-            <button type="button" onclick="window.FarmPilotAuth.switchPersona('OWNER')" class="role-login-card" style="text-align: left; padding: 0.65rem 0.75rem; border-radius: var(--radius-md); background: #F0FDF4; border: 1.5px solid #86EFAC; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#10B981'; this.style.transform='translateY(-1px)'" onmouseout="this.style.borderColor='#86EFAC'; this.style.transform='none'">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 1.1rem;">👑</span>
-                <span style="font-size: 0.5625rem; font-weight: 800; background: #DCFCE7; color: #166534; padding: 0.1rem 0.35rem; border-radius: 4px;">FULL ACCESS</span>
-              </div>
-              <div style="font-size: 0.8125rem; font-weight: 800; color: #14532D; margin-top: 0.25rem;">Farm Owner</div>
-              <div style="font-size: 0.625rem; color: #166534; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Siddharth Saladi</div>
-            </button>
-
-            <!-- Manager Card -->
-            <button type="button" onclick="window.FarmPilotAuth.switchPersona('MANAGER')" class="role-login-card" style="text-align: left; padding: 0.65rem 0.75rem; border-radius: var(--radius-md); background: #EFF6FF; border: 1.5px solid #93C5FD; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#3B82F6'; this.style.transform='translateY(-1px)'" onmouseout="this.style.borderColor='#93C5FD'; this.style.transform='none'">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 1.1rem;">👔</span>
-                <span style="font-size: 0.5625rem; font-weight: 800; background: #DBEAFE; color: #1E40AF; padding: 0.1rem 0.35rem; border-radius: 4px;">OPERATIONS</span>
-              </div>
-              <div style="font-size: 0.8125rem; font-weight: 800; color: #1E3A8A; margin-top: 0.25rem;">Field Manager</div>
-              <div style="font-size: 0.625rem; color: #1E40AF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Rajesh Patel</div>
-            </button>
-
-            <!-- Labour / Worker Card -->
-            <button type="button" onclick="window.FarmPilotAuth.switchPersona('WORKER')" class="role-login-card" style="text-align: left; padding: 0.65rem 0.75rem; border-radius: var(--radius-md); background: #FFFBEB; border: 1.5px solid #FCD34D; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#F59E0B'; this.style.transform='translateY(-1px)'" onmouseout="this.style.borderColor='#FCD34D'; this.style.transform='none'">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 1.1rem;">🚜</span>
-                <span style="font-size: 0.5625rem; font-weight: 800; background: #FEF3C7; color: #92400E; padding: 0.1rem 0.35rem; border-radius: 4px;">FIELD TASKS</span>
-              </div>
-              <div style="font-size: 0.8125rem; font-weight: 800; color: #78350F; margin-top: 0.25rem;">Field Labour</div>
-              <div style="font-size: 0.625rem; color: #92400E; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Ravi Kumar</div>
-            </button>
-
-            <!-- Consultant Card -->
-            <button type="button" onclick="window.FarmPilotAuth.switchPersona('CONSULTANT')" class="role-login-card" style="text-align: left; padding: 0.65rem 0.75rem; border-radius: var(--radius-md); background: #FAF5FF; border: 1.5px solid #D8B4FE; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#A855F7'; this.style.transform='translateY(-1px)'" onmouseout="this.style.borderColor='#D8B4FE'; this.style.transform='none'">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 1.1rem;">🔬</span>
-                <span style="font-size: 0.5625rem; font-weight: 800; background: #F3E8FF; color: #6B21A8; padding: 0.1rem 0.35rem; border-radius: 4px;">ADVISORY</span>
-              </div>
-              <div style="font-size: 0.8125rem; font-weight: 800; color: #581C87; margin-top: 0.25rem;">Consultant</div>
-              <div style="font-size: 0.625rem; color: #6B21A8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Dr. Anita Rao</div>
+        <!-- PANE 1: SIGN IN -->
+        <div id="pane-signin">
+          <!-- Google Sign-In Section -->
+          <div style="margin-bottom: 1.25rem;">
+            <div id="google-signin-btn-container" style="display: flex; justify-content: center; margin-bottom: 0.5rem; min-height: 40px;"></div>
+            
+            <button type="button" id="btn-google-custom" class="btn btn-secondary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.65rem; padding: 0.65rem; border-color: #CBD5E1; background: #FFFFFF; font-weight: 700; color: #1E293B;">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Sign in with Google</span>
             </button>
           </div>
-        </div>
 
-        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
-          <span style="flex: 1; height: 1px; background-color: var(--color-border);"></span>
-          <span style="font-size: 0.6875rem; font-weight: 700; color: var(--color-text-tertiary); text-transform: uppercase;">Or Sign In with Credentials</span>
-          <span style="flex: 1; height: 1px; background-color: var(--color-border);"></span>
-        </div>
-
-        <!-- 1-Click Demo Credentials Quick-Fill Button -->
-        <div style="margin-bottom: 1rem;">
-          <button type="button" id="btn-demo-fill" class="btn btn-secondary" style="width: 100%; border-color: #34D399; background: #F0FDF4; color: #143D30; padding: 0.65rem; font-size: 0.8125rem;">
-            <span style="font-size: 1rem;">⚡</span>
-            <span>Fill Owner Credentials (farmer@greenvalley.in)</span>
-          </button>
-        </div>
-
-        <!-- Error Message -->
-        <div id="login-error" style="display: none; padding: 0.75rem; border-radius: var(--radius-md); background-color: var(--color-red-subtle); border: 1px solid var(--color-red-light); color: var(--color-red-dark); font-size: 0.75rem; font-weight: 600; margin-bottom: 1rem;">
-        </div>
-
-        <form id="login-form">
-          <div class="form-group">
-            <label class="form-label" for="login-email">Email Address</label>
-            <input type="email" id="login-email" class="form-input" required placeholder="farmer@greenvalley.in" autocomplete="email">
-          </div>
-
-          <div class="form-group" style="margin-bottom: 1.25rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-              <label class="form-label" for="login-password" style="margin-bottom: 0;">Password</label>
-              <button type="button" id="btn-forgot-password-trigger" style="background: none; border: none; font-size: 0.75rem; font-weight: 700; color: #059669; cursor: pointer; text-decoration: underline; padding: 0;">
-                Forgot password?
-              </button>
+          <!-- 4 1-Click Role Login Cards for Hackathon Evaluation -->
+          <div style="margin-bottom: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.75rem; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.04em;">
+                1-Click Instant Persona Access
+              </span>
+              <span style="font-size: 0.6875rem; color: #059669; font-weight: 700;">Hackathon Demo</span>
             </div>
             
-            <!-- Password with Eye Visibility Toggle -->
-            <div style="position: relative;">
-              <input type="password" id="login-password" class="form-input" required placeholder="••••••••" autocomplete="current-password" style="padding-right: 2.75rem;">
-              <button type="button" id="toggle-password-visibility" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.1rem; color: #64748B; padding: 0; line-height: 1;" title="Toggle password visibility">
-                👁️
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+              <!-- Owner Card -->
+              <button type="button" onclick="window.FarmPilotAuth.switchPersona('OWNER')" class="role-login-card" style="text-align: left; padding: 0.65rem 0.75rem; border-radius: var(--radius-md); background: #F0FDF4; border: 1.5px solid #86EFAC; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#10B981'; this.style.transform='translateY(-1px)'" onmouseout="this.style.borderColor='#86EFAC'; this.style.transform='none'">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 1.1rem;">👑</span>
+                  <span style="font-size: 0.5625rem; font-weight: 800; background: #DCFCE7; color: #166534; padding: 0.1rem 0.35rem; border-radius: 4px;">FULL ACCESS</span>
+                </div>
+                <div style="font-size: 0.8125rem; font-weight: 800; color: #14532D; margin-top: 0.25rem;">Owner (@siddharth)</div>
+                <div style="font-size: 0.625rem; color: #166534; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Siddharth Saladi</div>
+              </button>
+
+              <!-- Manager Card -->
+              <button type="button" onclick="window.FarmPilotAuth.switchPersona('MANAGER')" class="role-login-card" style="text-align: left; padding: 0.65rem 0.75rem; border-radius: var(--radius-md); background: #EFF6FF; border: 1.5px solid #93C5FD; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#3B82F6'; this.style.transform='translateY(-1px)'" onmouseout="this.style.borderColor='#93C5FD'; this.style.transform='none'">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 1.1rem;">👔</span>
+                  <span style="font-size: 0.5625rem; font-weight: 800; background: #DBEAFE; color: #1E40AF; padding: 0.1rem 0.35rem; border-radius: 4px;">OPERATIONS</span>
+                </div>
+                <div style="font-size: 0.8125rem; font-weight: 800; color: #1E3A8A; margin-top: 0.25rem;">Manager (@rajesh)</div>
+                <div style="font-size: 0.625rem; color: #1E40AF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Rajesh Patel</div>
+              </button>
+
+              <!-- Labour / Worker Card -->
+              <button type="button" onclick="window.FarmPilotAuth.switchPersona('WORKER')" class="role-login-card" style="text-align: left; padding: 0.65rem 0.75rem; border-radius: var(--radius-md); background: #FFFBEB; border: 1.5px solid #FCD34D; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#F59E0B'; this.style.transform='translateY(-1px)'" onmouseout="this.style.borderColor='#FCD34D'; this.style.transform='none'">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 1.1rem;">🚜</span>
+                  <span style="font-size: 0.5625rem; font-weight: 800; background: #FEF3C7; color: #92400E; padding: 0.1rem 0.35rem; border-radius: 4px;">FIELD SHIFT</span>
+                </div>
+                <div style="font-size: 0.8125rem; font-weight: 800; color: #78350F; margin-top: 0.25rem;">Worker (@ramu)</div>
+                <div style="font-size: 0.625rem; color: #92400E; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Ravi Kumar • PIN 1234</div>
+              </button>
+
+              <!-- Consultant Card -->
+              <button type="button" onclick="window.FarmPilotAuth.switchPersona('CONSULTANT')" class="role-login-card" style="text-align: left; padding: 0.65rem 0.75rem; border-radius: var(--radius-md); background: #FAF5FF; border: 1.5px solid #D8B4FE; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#A855F7'; this.style.transform='translateY(-1px)'" onmouseout="this.style.borderColor='#D8B4FE'; this.style.transform='none'">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 1.1rem;">🔬</span>
+                  <span style="font-size: 0.5625rem; font-weight: 800; background: #F3E8FF; color: #6B21A8; padding: 0.1rem 0.35rem; border-radius: 4px;">ADVISORY</span>
+                </div>
+                <div style="font-size: 0.8125rem; font-weight: 800; color: #581C87; margin-top: 0.25rem;">Consultant (@anita)</div>
+                <div style="font-size: 0.625rem; color: #6B21A8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Dr. Anita Rao</div>
               </button>
             </div>
           </div>
 
-          <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 0.875rem;">
-            <span>Sign In to Dashboard</span>
-            <span>→</span>
-          </button>
-        </form>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+            <span style="flex: 1; height: 1px; background-color: var(--color-border);"></span>
+            <span style="font-size: 0.6875rem; font-weight: 700; color: var(--color-text-tertiary); text-transform: uppercase;">Or Sign In by Username / PIN</span>
+            <span style="flex: 1; height: 1px; background-color: var(--color-border);"></span>
+          </div>
+
+          <!-- Quick Fill Bar for Owner vs Worker -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
+            <button type="button" id="btn-fill-owner" class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.75rem; border-color: #86EFAC; background: #F0FDF4; color: #166534; font-weight: 700;">
+              <span>👑 Fill @siddharth</span>
+            </button>
+            <button type="button" id="btn-fill-worker" class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.75rem; border-color: #FCD34D; background: #FFFBEB; color: #92400E; font-weight: 700;">
+              <span>🚜 Fill @ramu (1234)</span>
+            </button>
+          </div>
+
+          <!-- Error Message -->
+          <div id="login-error" style="display: none; padding: 0.75rem; border-radius: var(--radius-md); background-color: var(--color-red-subtle); border: 1px solid var(--color-red-light); color: var(--color-red-dark); font-size: 0.75rem; font-weight: 600; margin-bottom: 1rem;">
+          </div>
+
+          <form id="login-form">
+            <div class="form-group">
+              <label class="form-label" for="login-email">Username or Email</label>
+              <div style="position: relative;">
+                <input type="text" id="login-email" class="form-input" required placeholder="e.g. ramu or farmer@greenvalley.in" autocomplete="username">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="form-label" for="login-password" style="margin-bottom: 0;">Password or PIN</label>
+                <button type="button" id="btn-forgot-password-trigger" style="background: none; border: none; font-size: 0.75rem; font-weight: 700; color: #059669; cursor: pointer; text-decoration: underline; padding: 0;">
+                  Forgot password?
+                </button>
+              </div>
+              
+              <!-- Password with Eye Visibility Toggle -->
+              <div style="position: relative;">
+                <input type="password" id="login-password" class="form-input font-mono" required placeholder="•••••••• or PIN" autocomplete="current-password" style="padding-right: 2.75rem;">
+                <button type="button" id="toggle-password-visibility" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.1rem; color: #64748B; padding: 0; line-height: 1;" title="Toggle password visibility">
+                  👁️
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 0.875rem;">
+              <span>Sign In to System</span>
+              <span>→</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- PANE 2: SIGN UP (@USERNAME REGISTRATION) -->
+        <div id="pane-signup" style="display: none;">
+          <div style="margin-bottom: 1rem;">
+            <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin: 0;">
+              Create your farmer or team identity with a unique <strong>@username</strong> for community communication.
+            </p>
+          </div>
+
+          <!-- Sign Up Error -->
+          <div id="signup-error" style="display: none; padding: 0.75rem; border-radius: var(--radius-md); background-color: var(--color-red-subtle); border: 1px solid var(--color-red-light); color: var(--color-red-dark); font-size: 0.75rem; font-weight: 600; margin-bottom: 1rem;"></div>
+
+          <form id="signup-form">
+            <div class="form-group">
+              <label class="form-label" for="signup-fullname">Full Name</label>
+              <input type="text" id="signup-fullname" class="form-input" required placeholder="e.g. Siddharth Saladi">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="signup-username">Choose Username</label>
+              <div style="position: relative; display: flex; align-items: center;">
+                <span style="position: absolute; left: 0.85rem; font-weight: 800; color: #059669; font-size: 0.9rem;">@</span>
+                <input type="text" id="signup-username" class="form-input font-mono" required placeholder="siddharth" style="padding-left: 2rem;">
+              </div>
+              <span style="font-size: 0.6875rem; color: var(--color-text-tertiary); margin-top: 0.2rem; display: block;">
+                This @handle will be displayed on the Community Ag Exchange and field task logs.
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="signup-email">Email Address</label>
+              <input type="email" id="signup-email" class="form-input" required placeholder="siddharth@greenvalley.in">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="signup-password">Password or Direct PIN</label>
+              <input type="password" id="signup-password" class="form-input" required placeholder="At least 6 characters or 4-digit PIN" minlength="4">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="signup-farm">Farm / Organization Name</label>
+              <input type="text" id="signup-farm" class="form-input" required placeholder="Green Valley Farm" value="Green Valley Farm">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <label class="form-label" for="signup-role">Your Role</label>
+              <select id="signup-role" class="form-select" style="font-weight: 700;">
+                <option value="OWNER" selected>👑 Farm Owner & Executive (Full Control & Financials)</option>
+                <option value="MANAGER">👔 Field Operations Manager</option>
+                <option value="WORKER">🚜 Mobile Field Operator / Worker (Shift Tasks & Notes)</option>
+                <option value="CONSULTANT">🔬 Agronomy Consultant & Advisor</option>
+              </select>
+            </div>
+
+            <button type="submit" id="btn-signup-submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 0.875rem;">
+              <span>Create Account & Launch FarmPilot</span>
+              <span>🚀</span>
+            </button>
+          </form>
+        </div>
 
         <div style="margin-top: 1.5rem; text-align: center;">
           <a href="index.html" style="font-size: 0.8125rem; font-weight: 600; color: var(--color-text-secondary); text-decoration: none;">
@@ -331,6 +408,7 @@
   <script src="js/auth.js"></script>
   <script src="js/audit.js"></script>
   <script src="js/weather.js"></script>
+  <script src="js/i18n.js"></script>
   <script>
     const GOOGLE_CLIENT_ID = '502673401378-6vieatqhs9cp0s9oo9ga5tpnb7rpkvng.apps.googleusercontent.com';
 
@@ -354,10 +432,41 @@
       const emailInput = document.getElementById('login-email');
       const passwordInput = document.getElementById('login-password');
       const togglePwdBtn = document.getElementById('toggle-password-visibility');
-      const demoBtn = document.getElementById('btn-demo-fill');
+      const fillOwnerBtn = document.getElementById('btn-fill-owner');
+      const fillWorkerBtn = document.getElementById('btn-fill-worker');
       const form = document.getElementById('login-form');
       const errorBox = document.getElementById('login-error');
       const submitBtn = document.getElementById('btn-submit');
+
+      const tabSignIn = document.getElementById('tab-btn-signin');
+      const tabSignUp = document.getElementById('tab-btn-signup');
+      const paneSignIn = document.getElementById('pane-signin');
+      const paneSignUp = document.getElementById('pane-signup');
+
+      // 0. Tabs Navigation (Sign In vs Create Account)
+      if (tabSignIn && tabSignUp) {
+        tabSignIn.addEventListener('click', () => {
+          paneSignIn.style.display = 'block';
+          paneSignUp.style.display = 'none';
+          tabSignIn.style.background = '#FFFFFF';
+          tabSignIn.style.color = 'var(--color-forest)';
+          tabSignIn.style.boxShadow = 'var(--shadow-sm)';
+          tabSignUp.style.background = 'transparent';
+          tabSignUp.style.color = 'var(--color-text-secondary)';
+          tabSignUp.style.boxShadow = 'none';
+        });
+
+        tabSignUp.addEventListener('click', () => {
+          paneSignIn.style.display = 'none';
+          paneSignUp.style.display = 'block';
+          tabSignUp.style.background = '#FFFFFF';
+          tabSignUp.style.color = 'var(--color-forest)';
+          tabSignUp.style.boxShadow = 'var(--shadow-sm)';
+          tabSignIn.style.background = 'transparent';
+          tabSignIn.style.color = 'var(--color-text-secondary)';
+          tabSignIn.style.boxShadow = 'none';
+        });
+      }
 
       // 1. Password Visibility Eye Toggle
       if (togglePwdBtn && passwordInput) {
@@ -374,14 +483,26 @@
         });
       }
 
-      // 2. 1-Click Demo Auto-Fill
-      demoBtn.addEventListener('click', () => {
-        emailInput.value = 'farmer@greenvalley.in';
-        passwordInput.value = 'Password@123';
-        errorBox.style.display = 'none';
-        emailInput.style.borderColor = '#059669';
-        passwordInput.style.borderColor = '#059669';
-      });
+      // 2. Demo Auto-Fill Buttons
+      if (fillOwnerBtn) {
+        fillOwnerBtn.addEventListener('click', () => {
+          emailInput.value = 'siddharth';
+          passwordInput.value = 'farmer123';
+          errorBox.style.display = 'none';
+          emailInput.style.borderColor = '#059669';
+          passwordInput.style.borderColor = '#059669';
+        });
+      }
+
+      if (fillWorkerBtn) {
+        fillWorkerBtn.addEventListener('click', () => {
+          emailInput.value = 'ramu';
+          passwordInput.value = '1234';
+          errorBox.style.display = 'none';
+          emailInput.style.borderColor = '#D97706';
+          passwordInput.style.borderColor = '#D97706';
+        });
+      }
 
       // 3. Google Sign-In Setup with provided Client ID
       function initGoogleSignIn() {
@@ -410,7 +531,6 @@
 
       function handleGoogleCredentialResponse(response) {
         try {
-          // Decode JWT payload
           const base64Url = response.credential.split('.')[1];
           const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
           const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
@@ -439,42 +559,92 @@
         window.location.href = 'dashboard.html';
       }
 
-      document.getElementById('btn-google-custom').addEventListener('click', () => {
-        if (window.google && window.google.accounts && window.google.accounts.id) {
-          window.google.accounts.id.prompt((notification) => {
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-              fallbackGoogleLogin();
-            }
-          });
-        } else {
-          fallbackGoogleLogin();
-        }
-      });
+      const btnGoogleCustom = document.getElementById('btn-google-custom');
+      if (btnGoogleCustom) {
+        btnGoogleCustom.addEventListener('click', () => {
+          if (window.google && window.google.accounts && window.google.accounts.id) {
+            window.google.accounts.id.prompt((notification) => {
+              if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                fallbackGoogleLogin();
+              }
+            });
+          } else {
+            fallbackGoogleLogin();
+          }
+        });
+      }
 
-      // Try initializing Google GIS
       setTimeout(initGoogleSignIn, 300);
 
-      // 4. Standard Form Submit Handler
+      // 4. Sign In Form Submit Handler
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = emailInput.value.trim();
+        const identifier = emailInput.value.trim();
         const password = passwordInput.value;
 
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span>Verifying...</span>';
         errorBox.style.display = 'none';
 
-        const result = await window.FarmPilotAuth.login(email, password);
+        const result = await window.FarmPilotAuth.login(identifier, password);
 
         if (result.success) {
-          window.location.href = 'dashboard.html';
+          const role = window.FarmPilotAuth.getEffectiveRole();
+          if (role === 'WORKER') {
+            window.location.href = 'worker.html';
+          } else {
+            window.location.href = 'dashboard.html';
+          }
         } else {
           errorBox.textContent = result.error || 'Failed to authenticate.';
           errorBox.style.display = 'block';
           submitBtn.disabled = false;
-          submitBtn.innerHTML = '<span>Sign In to Dashboard</span><span>→</span>';
+          submitBtn.innerHTML = '<span>Sign In to System</span><span>→</span>';
         }
       });
+
+      // 5. Sign Up Form Handler (@username Registration)
+      const signupForm = document.getElementById('signup-form');
+      const signupError = document.getElementById('signup-error');
+      const signupSubmit = document.getElementById('btn-signup-submit');
+
+      if (signupForm) {
+        signupForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const fullName = document.getElementById('signup-fullname').value.trim();
+          const username = document.getElementById('signup-username').value.trim();
+          const email = document.getElementById('signup-email').value.trim();
+          const password = document.getElementById('signup-password').value;
+          const farmName = document.getElementById('signup-farm').value.trim();
+          const role = document.getElementById('signup-role').value;
+
+          signupSubmit.disabled = true;
+          signupSubmit.innerHTML = '<span>Creating Profile...</span>';
+          signupError.style.display = 'none';
+
+          const res = await window.FarmPilotAuth.signUp({
+            fullName,
+            username,
+            email,
+            password,
+            farmName,
+            role
+          });
+
+          if (res.success) {
+            if (role === 'WORKER') {
+              window.location.href = 'worker.html';
+            } else {
+              window.location.href = 'dashboard.html';
+            }
+          } else {
+            signupError.textContent = res.error || 'Failed to register account.';
+            signupError.style.display = 'block';
+            signupSubmit.disabled = false;
+            signupSubmit.innerHTML = '<span>Create Account & Launch FarmPilot</span><span>🚀</span>';
+          }
+        });
+      }
 
       // --- 5. FORGOT PASSWORD & 6-DIGIT OTP VIA SMTP SUITE ---
       const forgotModal = document.getElementById('forgot-password-modal');

@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmPilot — Community Ag Exchange & Cooperative Wall</title>
+  <meta name="description" content="Open Agricultural Exchange, regional mandi prices, pest alerts, equipment sharing, and field notes network.">
+  
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <style>
+    .mandi-ticker-wrap {
+      width: 100%;
+      overflow: hidden;
+      background: #0D2820;
+      color: #FFFFFF;
+      padding: 0.6rem 0;
+      border-radius: var(--radius-md);
+      margin-bottom: 1.5rem;
+      border: 1px solid #164E3D;
+      box-shadow: var(--shadow-sm);
+    }
+    .mandi-ticker-track {
+      display: flex;
+      gap: 2rem;
+      white-space: nowrap;
+      animation: tickerScroll 30s linear infinite;
+    }
+    .mandi-ticker-track:hover {
+      animation-play-state: paused;
+    }
+    @keyframes tickerScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .mandi-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+    }
+    .price-up { color: #34D399; font-weight: 800; }
+    .price-down { color: #F87171; font-weight: 800; }
+
+    .category-filter-chip {
+      padding: 0.4rem 0.85rem;
+      border-radius: var(--radius-full);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-secondary);
+      transition: all 0.2s ease;
+    }
+    .category-filter-chip:hover {
+      border-color: #10B981;
+      color: var(--color-forest);
+    }
+    .category-filter-chip.active {
+      background: var(--color-forest);
+      color: #FFFFFF;
+      border-color: var(--color-forest);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .community-post-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+    .community-post-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: #CBD5E1;
+    }
+    .community-post-card.highlight-pest {
+      border-left: 4px solid #DC2626;
+    }
+    .community-post-card.highlight-mandi {
+      border-left: 4px solid #059669;
+    }
+    .community-post-card.highlight-note {
+      border-left: 4px solid #D97706;
+    }
+    .community-post-card.highlight-equip {
+      border-left: 4px solid #2563EB;
+    }
+
+    .like-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--color-surface-secondary);
+      border: 1px solid var(--color-border);
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .like-btn:hover {
+      background: #FEE2E2;
+      border-color: #FCA5A5;
+      color: #B91C1C;
+    }
+    .like-btn.liked {
+      background: #FEF2F2;
+      border-color: #F87171;
+      color: #DC2626;
+    }
+
+    /* Messaging Platform & User Search Styles */
+    .user-search-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-md);
+      transition: all 0.15s ease;
+      cursor: pointer;
+      border-bottom: 1px solid #F1F5F9;
+    }
+    .user-search-item:last-child {
+      border-bottom: none;
+    }
+    .user-search-item:hover {
+      background: #F0FDF4;
+    }
+
+    .messaging-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      padding: 1rem;
+    }
+    .messaging-modal-overlay.active {
+      display: flex;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .messaging-modal-container {
+      background: #FFFFFF;
+      border-radius: var(--radius-xl);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      width: 100%;
+      max-width: 960px;
+      height: 640px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+    }
+
+    .messaging-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      height: calc(100% - 65px);
+      overflow: hidden;
+    }
+
+    @media (max-width: 768px) {
+      .messaging-layout {
+        grid-template-columns: 1fr;
+      }
+      .messaging-sidebar {
+        display: none;
+      }
+      .messaging-sidebar.mobile-open {
+        display: flex;
+      }
+    }
+
+    .contact-card {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #F1F5F9;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .contact-card:hover {
+      background: #F8FAFC;
+    }
+    .contact-card.active {
+      background: #ECFDF5;
+      border-left: 4px solid #059669;
+    }
+
+    .msg-bubble {
+      max-width: 75%;
+      padding: 0.65rem 0.95rem;
+      border-radius: 14px;
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      position: relative;
+      word-wrap: break-word;
+    }
+    .msg-mine {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: #FFFFFF;
+      border-bottom-right-radius: 2px;
+      box-shadow: 0 2px 6px rgba(5, 150, 105, 0.2);
+    }
+    .msg-theirs {
+      align-self: flex-start;
+      background: #F1F5F9;
+      color: #1E293B;
+      border-bottom-left-radius: 2px;
+      border: 1px solid #E2E8F0;
+    }
+    .msg-system {
+      align-self: center;
+      background: #EFF6FF;
+      color: #1E40AF;
+      border: 1px solid #BFDBFE;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 0.25rem 0.75rem;
+      text-align: center;
+    }
+
+    .permission-request-banner {
+      background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+      border: 1.5px solid #FCD34D;
+      border-radius: var(--radius-md);
+      padding: 1rem 1.15rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <!-- Main Content Area -->
+    <div class="app-main">
+      <!-- Universal Header Shell -->
+      <header class="app-header" id="app-header"></header>
+
+      <main class="app-content">
+        <div class="app-content-inner animate-fade-in" style="max-width: 960px; margin: 0 auto;">
+
+          <!-- Top Live Mandi Rates Ticker -->
+          <div class="mandi-ticker-wrap">
+            <div class="mandi-ticker-track" id="mandi-ticker">
+              <div class="mandi-item">🌾 <strong>Paddy (BPT-5204 Samba Mahsuri):</strong> ₹2,480/qtl <span class="price-up">▲ +₹40 (Machilipatnam)</span></div>
+              <div class="mandi-item">🌿 <strong>Cotton (Shankar-6):</strong> ₹7,150/qtl <span class="price-down">▼ -₹50 (Guntur)</span></div>
+              <div class="mandi-item">🌽 <strong>Maize (Commercial):</strong> ₹2,180/qtl <span class="price-up">▲ +₹25 (Vijayawada)</span></div>
+              <div class="mandi-item">🌶️ <strong>Guntur Teja Chilli:</strong> ₹18,400/qtl <span class="price-up">▲ +₹300 (Guntur Yard)</span></div>
+              <div class="mandi-item">🌾 <strong>Black Gram (Minapa):</strong> ₹7,400/qtl <span class="price-up">▲ +₹80 (Tenali)</span></div>
+              <!-- Repeated for seamless loop -->
+              <div class="mandi-item">🌾 <strong>Paddy (BPT-5204 Samba Mahsuri):</strong> ₹2,480/qtl <span class="price-up">▲ +₹40 (Machilipatnam)</span></div>
+              <div class="mandi-item">🌿 <strong>Cotton (Shankar-6):</strong> ₹7,150/qtl <span class="price-down">▼ -₹50 (Guntur)</span></div>
+              <div class="mandi-item">🌽 <strong>Maize (Commercial):</strong> ₹2,180/qtl <span class="price-up">▲ +₹25 (Vijayawada)</span></div>
+              <div class="mandi-item">🌶️ <strong>Guntur Teja Chilli:</strong> ₹18,400/qtl <span class="price-up">▲ +₹300 (Guntur Yard)</span></div>
+            </div>
+          </div>
+
+          <!-- Page Header -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                <span style="font-size: 1.5rem;">🌐</span>
+                <h1 style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); letter-spacing: -0.02em; margin: 0;">
+                  Community Ag Exchange & Cooperative Wall
+                </h1>
+                <span class="badge badge-success" style="font-size: 0.6875rem;">Live Regional Network</span>
+              </div>
+              <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin: 0;">
+                Share verified Mandi auction rates, regional pest outbreak alerts, task field notes, and machinery hiring across farms.
+              </p>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <button onclick="document.getElementById('new-post-card').scrollIntoView({ behavior: 'smooth' })" class="btn btn-primary" style="background: #059669; font-size: 0.8125rem;">
+                <span>✍️ Post Update / Mandi Rate</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- ========================================================================= -->
+          <!-- COMMUNITY USER DIRECTORY & DIRECT MESSAGING SEARCH BAR                    -->
+          <!-- ========================================================================= -->
+          <div class="card" style="margin-bottom: 1.5rem; background: #FFFFFF; border: 1.5px solid var(--color-border); box-shadow: 0 4px 14px rgba(0,0,0,0.03); padding: 1.1rem; border-radius: var(--radius-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.85rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.25rem;">🔍</span>
+                <span style="font-size: 0.95rem; font-weight: 800; color: var(--color-text-primary);">Search Farmers, Agronomists & Operators</span>
+                <span class="badge badge-success" style="font-size: 0.65rem;">Direct Messaging</span>
+              </div>
+
+              <!-- Direct Messages Platform Drawer Trigger with Notification Badge -->
+              <button type="button" onclick="openMessagingDrawer()" id="btn-open-messaging-drawer" class="btn btn-sm" style="background: #ECFDF5; color: #047857; border: 1.5px solid #A7F3D0; font-weight: 800; display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; border-radius: var(--radius-full); padding: 0.35rem 0.85rem; box-shadow: var(--shadow-sm);">
+                <span>💬</span>
+                <span>Direct Messages</span>
+                <span id="header-unread-msg-badge" style="background: #DC2626; color: #FFFFFF; font-size: 0.65rem; font-weight: 800; padding: 0.1rem 0.45rem; border-radius: 999px;">1 Pending</span>
+              </button>
+            </div>
+
+            <!-- Search Input Field with Instant Dropdown -->
+            <div style="position: relative;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="position: relative; flex: 1;">
+                  <input type="text" id="user-search-input" class="form-input" placeholder="Search by name, @username, farm name, or crop (e.g. 'Anita', 'Venkat', 'Cotton', 'BPT-5204')..." style="padding-left: 2.5rem; font-size: 0.875rem; border-radius: var(--radius-md);" oninput="handleUserSearchInput(this.value)" onfocus="handleUserSearchFocus()">
+                  <span style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: #94A3B8; font-size: 1rem;">🔍</span>
+                  <button id="user-search-clear-btn" type="button" onclick="clearUserSearch()" style="display: none; position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 0.875rem; color: #94A3B8; cursor: pointer;">✕</button>
+                </div>
+                <button type="button" onclick="performUserSearch()" class="btn btn-primary" style="background: #059669; padding: 0.55rem 1.15rem; font-size: 0.8125rem; font-weight: 800;">
+                  Search Directory
+                </button>
+              </div>
+
+              <!-- Live User Search Results Panel -->
+              <div id="user-search-results-panel" style="display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #FFFFFF; border: 1.5px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: 0 16px 32px -6px rgba(0,0,0,0.15); z-index: 9999; max-height: 400px; overflow-y: auto; padding: 0.65rem;">
+                <!-- Dynamic results filled by JS -->
+              </div>
+            </div>
+
+            <!-- Quick Connect Chips -->
+            <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.65rem; flex-wrap: wrap;">
+              <span style="font-size: 0.72rem; color: #64748B; font-weight: 700;">Quick Connect:</span>
+              <button type="button" class="badge badge-neutral" style="cursor: pointer; border: 1px solid var(--color-border);" onclick="openMessagingWith('venkat')">🌾 Venkat Reddy (1 Request ⏳)</button>
+              <button type="button" class="badge badge-neutral" style="cursor: pointer; border: 1px solid var(--color-border);" onclick="openMessagingWith('anita')">🔬 Dr. Anita (Agronomist)</button>
+              <button type="button" class="badge badge-neutral" style="cursor: pointer; border: 1px solid var(--color-border);" onclick="openMessagingWith('kiran')">🚜 Kiran (Machinery Hire)</button>
+              <button type="button" class="badge badge-neutral" style="cursor: pointer; border: 1px solid var(--color-border);" onclick="openMessagingWith('rajesh')">👔 Rajesh (Operations Lead)</button>
+              <button type="button" class="badge badge-neutral" style="cursor: pointer; border: 1px solid var(--color-border);" onclick="openMessagingWith('ramu')">🚜 Ramu (Field Operator)</button>
+            </div>
+          </div>
+
+          <!-- Category Filter Bar -->
+          <div style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+            <button class="category-filter-chip active" onclick="filterCategory('ALL', this)">All Topics</button>
+            <button class="category-filter-chip" onclick="filterCategory('MANDI_RATES', this)">💰 Mandi Rates</button>
+            <button class="category-filter-chip" onclick="filterCategory('PEST_ALERT', this)">⚠️ Pest & Disease Alerts</button>
+            <button class="category-filter-chip" onclick="filterCategory('FIELD_NOTES', this)">📝 Task Field Notes</button>
+            <button class="category-filter-chip" onclick="filterCategory('EQUIPMENT', this)">🚜 Equipment Sharing</button>
+            <button class="category-filter-chip" onclick="filterCategory('AGRONOMY_QA', this)">❓ Agronomy Q&A</button>
+          </div>
+
+          <!-- NEW POST CREATOR CARD -->
+          <div class="card" id="new-post-card" style="margin-bottom: 2rem; border: 1.5px solid #A7F3D0; background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: #059669; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9375rem;" id="creator-avatar">
+                  S
+                </div>
+                <div>
+                  <span style="font-size: 0.875rem; font-weight: 800; color: var(--color-text-primary);" id="creator-name">Siddharth Saladi</span>
+                  <div style="display: flex; align-items: center; gap: 0.35rem;">
+                    <span class="font-mono" style="font-size: 0.75rem; color: #059669; font-weight: 700;" id="creator-handle">@siddharth</span>
+                    <span style="font-size: 0.6875rem; color: var(--color-text-tertiary);">•</span>
+                    <span style="font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 600;" id="creator-farm">Green Valley Farm</span>
+                  </div>
+                </div>
+              </div>
+
+              <span class="badge" style="background: #DCFCE7; color: #166534; font-weight: 700; font-size: 0.6875rem;">Verified Farm Profile</span>
+            </div>
+
+            <form id="new-post-form" onsubmit="handleCreatePost(event)">
+              <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                <input type="text" id="post-title" class="form-input" required placeholder="Topic Title (e.g. BPT-5204 rate at Machilipatnam Yard or Zinc deficiency notice)" style="font-weight: 700;">
+                <select id="post-category" class="form-select" style="font-weight: 700;">
+                  <option value="MANDI_RATES">💰 Mandi Rates</option>
+                  <option value="PEST_ALERT">⚠️ Pest & Disease Alert</option>
+                  <option value="FIELD_NOTES">📝 Field Note / AWD Observation</option>
+                  <option value="EQUIPMENT">🚜 Equipment & Custom Hire</option>
+                  <option value="AGRONOMY_QA">❓ Agronomy Question</option>
+                </select>
+              </div>
+
+              <div style="margin-bottom: 0.875rem;">
+                <textarea id="post-content" class="form-input" rows="3" required placeholder="Provide details, lot prices, observations, or questions for regional growers..." style="resize: vertical;"></textarea>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="submit" class="btn btn-primary" style="background: #059669; padding: 0.6rem 1.25rem;">
+                  <span>Post to Cooperative Exchange</span>
+                  <span>🚀</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- COMMUNITY FEED CARDS CONTAINER -->
+          <div id="community-feed-container">
+            <!-- Populated dynamically by JS -->
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 1-ON-1 DIRECT MESSAGING PLATFORM MODAL & PERMISSION GATEWAY               -->
+  <!-- ========================================================================= -->
+  <div class="messaging-modal-overlay" id="messaging-modal">
+    <div class="messaging-modal-container">
+      
+      <!-- Modal Top Navigation Bar -->
+      <div style="padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: #F8FAFC;">
+        <div style="display: flex; align-items: center; gap: 0.65rem;">
+          <span style="font-size: 1.35rem;">💬</span>
+          <div>
+            <h3 style="font-size: 1.05rem; font-weight: 800; margin: 0; color: var(--color-text-primary);">
+              FarmPilot Community Direct Messaging
+            </h3>
+            <span style="font-size: 0.6875rem; color: var(--color-text-secondary);">
+              Secure agronomic communication with first-time permission gateway
+            </span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.85rem;">
+          <!-- Persona Switcher for Instant Simulation of Sender/Recipient -->
+          <div style="display: flex; align-items: center; gap: 0.35rem; background: #FFFFFF; border: 1px solid var(--color-border); padding: 0.2rem 0.5rem; border-radius: var(--radius-md);">
+            <span style="font-size: 0.6875rem; color: #64748B; font-weight: 700;">Simulate As:</span>
+            <select id="chat-persona-select" onchange="handleSwitchChatPersona(this.value)" style="border: none; background: transparent; font-size: 0.72rem; font-weight: 800; color: #047857; cursor: pointer; outline: none;">
+              <option value="siddharth" selected>👑 Siddharth (@siddharth)</option>
+              <option value="venkat">🌾 Venkat Reddy (@venkat)</option>
+              <option value="anita">🔬 Dr. Anita (@anita)</option>
+              <option value="rajesh">👔 Rajesh Patel (@rajesh)</option>
+              <option value="ramu">🚜 Ravi Kumar (@ramu)</option>
+            </select>
+          </div>
+
+          <button type="button" onclick="closeMessagingModal()" style="background: none; border: none; font-size: 1.35rem; cursor: pointer; color: #64748B; line-height: 1;" title="Close Messaging">✕</button>
+        </div>
+      </div>
+
+      <!-- Two-Column Messaging Body -->
+      <div class="messaging-layout">
+        
+        <!-- LEFT COLUMN: CONVERSATIONS & INCOMING REQUESTS -->
+        <div class="messaging-sidebar" style="border-right: 1px solid var(--color-border); display: flex; flex-direction: column; background: #FAFAFA;">
+          
+          <!-- Filter Tabs -->
+          <div style="display: flex; border-bottom: 1px solid var(--color-border); background: #FFFFFF;">
+            <button type="button" id="tab-all-chats" onclick="switchChatTab('ALL')" style="flex: 1; padding: 0.65rem; border: none; background: transparent; font-size: 0.75rem; font-weight: 800; color: #059669; border-bottom: 2px solid #059669; cursor: pointer;">
+              All Chats
+            </button>
+            <button type="button" id="tab-requests" onclick="switchChatTab('REQUESTS')" style="flex: 1; padding: 0.65rem; border: none; background: transparent; font-size: 0.75rem; font-weight: 700; color: #64748B; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+              <span>Requests</span>
+              <span id="requests-tab-badge" style="background: #D97706; color: #FFFFFF; font-size: 0.625rem; font-weight: 800; padding: 0.1rem 0.4rem; border-radius: 999px;">1</span>
+            </button>
+          </div>
+
+          <!-- Quick Search in Chats -->
+          <div style="padding: 0.5rem 0.75rem; background: #FFFFFF; border-bottom: 1px solid #F1F5F9;">
+            <input type="text" id="chat-filter-input" class="form-input" placeholder="Filter conversations..." style="font-size: 0.75rem; padding: 0.35rem 0.6rem;" oninput="filterConversationsList(this.value)">
+          </div>
+
+          <!-- Conversation List -->
+          <div id="conversation-list-container" style="flex: 1; overflow-y: auto;">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: ACTIVE CONVERSATION & PERMISSION GATEWAY -->
+        <div style="display: flex; flex-direction: column; height: 100%; background: #FFFFFF;">
+          
+          <!-- Active Contact Header -->
+          <div id="chat-header-bar" style="padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: #FFFFFF;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div id="active-contact-avatar" style="width: 38px; height: 38px; border-radius: 50%; background: #059669; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem;">
+                V
+              </div>
+              <div>
+                <div style="display: flex; align-items: center; gap: 0.45rem;">
+                  <strong style="font-size: 0.9375rem; color: var(--color-text-primary);" id="active-contact-name">Venkat Reddy</strong>
+                  <span class="font-mono" style="font-size: 0.75rem; color: #059669; font-weight: 800;" id="active-contact-handle">@venkat</span>
+                  <span class="badge badge-success" style="font-size: 0.625rem;" id="active-contact-role">OWNER</span>
+                </div>
+                <div style="font-size: 0.6875rem; color: #64748B;" id="active-contact-meta">
+                  🚜 Krishna Delta Farm • Tenali • 🟢 Online
+                </div>
+              </div>
+            </div>
+
+            <div id="active-conversation-status-pill">
+              <!-- Rendered by JS: Pending / Active pill -->
+            </div>
+          </div>
+
+          <!-- Messages Scroll Viewport -->
+          <div id="chat-messages-viewport" style="flex: 1; overflow-y: auto; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; background: #F8FAFC;">
+            
+            <!-- Dynamic Permission Request Banner (Inserted here when PENDING) -->
+            <div id="permission-request-container"></div>
+
+            <!-- Message bubbles rendered by JS -->
+            <div id="chat-messages-list" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+          </div>
+
+          <!-- Bottom Message Composer -->
+          <div id="chat-composer-area" style="padding: 0.85rem 1.25rem; border-top: 1px solid var(--color-border); background: #FFFFFF;">
+            
+            <!-- Agronomic Quick Reply Chips -->
+            <div id="chat-quick-chips" style="display: flex; gap: 0.35rem; margin-bottom: 0.5rem; overflow-x: auto; padding-bottom: 0.2rem;">
+              <button type="button" class="badge badge-neutral" style="cursor: pointer; border: 1px solid var(--color-border); font-size: 0.6875rem;" onclick="insertQuickChip('🌾 What is your latest Mandi rate at the local yard?')">🌾 Mandi Rate?</button>
+              <button type="button" class="badge badge-neutral" style="cursor: pointer; border: 1px solid var(--color-border); font-size: 0.6875rem;" onclick="insertQuickChip('🚜 Do you have equipment available for custom hire?')">🚜 Custom Hire?</button>
+              <button type="button" class="badge badge-neutral" style="cursor: pointer; border: 1px solid var(--color-border); font-size: 0.6875rem;" onclick="insertQuickChip('💧 How is your AWD water depth holding up in the clay block?')">💧 AWD Check?</button>
+              <button type="button" class="badge badge-neutral" style="cursor: pointer; border: 1px solid var(--color-border); font-size: 0.6875rem;" onclick="insertQuickChip('🔬 Could you verify the recommended Zinc Sulfate dosage?')">🔬 Zinc Dosage?</button>
+            </div>
+
+            <!-- Input & Send Button -->
+            <form id="chat-send-form" onsubmit="handleChatSubmit(event)" style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="text" id="chat-message-input" class="form-input" placeholder="Type direct agricultural message..." style="font-size: 0.8125rem;" autocomplete="off">
+              <button type="submit" id="chat-send-btn" class="btn btn-primary" style="background: #059669; padding: 0.55rem 1.2rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.35rem; flex-shrink: 0;">
+                <span>Send</span>
+                <span>➤</span>
+              </button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/audit.js"></script>
+  <script src="js/weather.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/messaging.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let currentCategory = 'ALL';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      FarmPilotApp.init('community');
+      
+      const user = window.FarmPilotAuth.getUser() || window.FARMPILOT_CONFIG.PERSONAS.OWNER;
+      const avatarEl = document.getElementById('creator-avatar');
+      const nameEl = document.getElementById('creator-name');
+      const handleEl = document.getElementById('creator-handle');
+      const farmEl = document.getElementById('creator-farm');
+
+      if (avatarEl) avatarEl.textContent = (user.full_name || 'F').charAt(0).toUpperCase();
+      if (nameEl) nameEl.textContent = user.full_name || 'Farm User';
+      if (handleEl) handleEl.textContent = `@${user.username || 'farmer'}`;
+      if (farmEl) farmEl.textContent = user.farm_name || 'Green Valley Farm';
+
+      await loadCommunityFeed();
+    });
+
+    async function loadCommunityFeed() {
+      const container = document.getElementById('community-feed-container');
+      if (!container) return;
+
+      container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--color-text-tertiary);">Loading community discussions...</div>';
+
+      const posts = await window.FarmPilotDB.getCommunityPosts(currentCategory);
+
+      if (!posts || posts.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="text-align: center; padding: 3rem; background: var(--color-surface);">
+            <span style="font-size: 2.5rem;">🌾</span>
+            <h3 style="font-size: 1.125rem; font-weight: 800; margin-top: 0.5rem;">No Posts in this Category</h3>
+            <p style="font-size: 0.8125rem; color: var(--color-text-secondary);">Be the first farmer or agronomist to share an update!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = posts.map(post => {
+        const catConfig = getCategoryMeta(post.category);
+        const cardHighlight = post.category === 'PEST_ALERT' ? 'highlight-pest' :
+                              post.category === 'MANDI_RATES' ? 'highlight-mandi' :
+                              post.category === 'FIELD_NOTES' ? 'highlight-note' : 'highlight-equip';
+
+        const timeStr = formatTimeAgo(post.created_at);
+
+        return `
+          <div class="community-post-card ${cardHighlight}" id="post-card-${post.id}">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: ${catConfig.bg}; border: 1.5px solid ${catConfig.border}; color: ${catConfig.color}; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem;">
+                  ${(post.author_name || 'F').charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                    <strong style="color: var(--color-text-primary); font-size: 0.9375rem;">${post.author_name}</strong>
+                    <span class="font-mono" style="font-size: 0.75rem; color: #059669; font-weight: 800; cursor: pointer; text-decoration: underline;" onclick="openMessagingWith('${post.username}')" title="Direct Message @${post.username}">@${post.username}</span>
+                    <span class="badge" style="font-size: 0.625rem; background: ${post.role === 'OWNER' ? '#DCFCE7' : post.role === 'WORKER' ? '#FEF3C7' : '#EFF6FF'}; color: ${post.role === 'OWNER' ? '#166534' : post.role === 'WORKER' ? '#92400E' : '#1E40AF'};">
+                      ${post.role || 'FARMER'}
+                    </span>
+                  </div>
+                  <div style="font-size: 0.75rem; color: var(--color-text-tertiary); margin-top: 0.15rem;">
+                    🚜 <strong>${post.farm_name || 'Green Valley Farm'}</strong> • <span>${timeStr}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="badge" style="background: ${catConfig.bg}; color: ${catConfig.color}; border: 1px solid ${catConfig.border}; font-size: 0.6875rem; font-weight: 800;">
+                  ${catConfig.icon} ${catConfig.label}
+                </span>
+                <button type="button" onclick="openMessagingWith('${post.username}')" class="btn btn-sm" style="background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; font-weight: 800; font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: var(--radius-full); cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem;" title="Send Direct Message to @${post.username}">
+                  <span>💬</span>
+                  <span>Message</span>
+                </button>
+              </div>
+            </div>
+
+            <h3 style="font-size: 1.0625rem; font-weight: 800; color: var(--color-text-primary); margin: 0.5rem 0 0.4rem; line-height: 1.35;">
+              ${post.title}
+            </h3>
+
+            <p style="font-size: 0.875rem; color: var(--color-text-secondary); line-height: 1.6; margin: 0 0 1rem;">
+              ${post.content}
+            </p>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--color-border); padding-top: 0.75rem; font-size: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <button class="like-btn" id="like-btn-${post.id}" onclick="handleLikePost('${post.id}')">
+                  <span>❤️</span>
+                  <span id="like-count-${post.id}">${post.likes || 0}</span>
+                  <span>Agreed</span>
+                </button>
+
+                <span style="color: var(--color-text-tertiary);">
+                  💬 <strong>${post.replies_count || 0}</strong> Responses
+                </span>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <button onclick="openMessagingWith('${post.username}')" style="background: none; border: none; color: #047857; font-weight: 700; cursor: pointer; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.25rem;">
+                  <span>💬 Direct Message</span>
+                </button>
+                <button onclick="handleReplyPrompt('${post.id}')" style="background: none; border: none; color: #059669; font-weight: 700; cursor: pointer; text-decoration: underline; font-size: 0.75rem;">
+                  + Add Operational Note
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function getCategoryMeta(category) {
+      switch(category) {
+        case 'MANDI_RATES':
+          return { label: 'Mandi Rates', icon: '💰', color: '#047857', bg: '#ECFDF5', border: '#A7F3D0' };
+        case 'PEST_ALERT':
+          return { label: 'Pest Outbreak Alert', icon: '⚠️', color: '#B91C1C', bg: '#FEF2F2', border: '#FCA5A5' };
+        case 'FIELD_NOTES':
+          return { label: 'Task Field Note', icon: '📝', color: '#B45309', bg: '#FFFBEB', border: '#FDE68A' };
+        case 'EQUIPMENT':
+          return { label: 'Equipment & Labour', icon: '🚜', color: '#1D4ED8', bg: '#EFF6FF', border: '#BFDBFE' };
+        default:
+          return { label: 'Agronomy Q&A', icon: '❓', color: '#6B21A8', bg: '#FAF5FF', border: '#E9D5FF' };
+      }
+    }
+
+    function formatTimeAgo(isoString) {
+      if (!isoString) return 'Just now';
+      const diffMs = Date.now() - new Date(isoString).getTime();
+      const mins = Math.floor(diffMs / 60000);
+      if (mins < 1) return 'Just now';
+      if (mins < 60) return `${mins}m ago`;
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) return `${hours}h ago`;
+      const days = Math.floor(hours / 24);
+      return `${days}d ago`;
+    }
+
+    window.filterCategory = function(category, btn) {
+      currentCategory = category;
+      document.querySelectorAll('.category-filter-chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      loadCommunityFeed();
+    };
+
+    window.handleCreatePost = async function(e) {
+      e.preventDefault();
+      const title = document.getElementById('post-title').value.trim();
+      const category = document.getElementById('post-category').value;
+      const content = document.getElementById('post-content').value.trim();
+
+      const newPost = await window.FarmPilotDB.createCommunityPost({
+        title,
+        category,
+        content
+      });
+
+      document.getElementById('post-title').value = '';
+      document.getElementById('post-content').value = '';
+
+      window.FarmPilotApp.showToast('Published to Community Ag Exchange! 🌾');
+      await loadCommunityFeed();
+    };
+
+    window.handleLikePost = async function(postId) {
+      const btn = document.getElementById(`like-btn-${postId}`);
+      const countEl = document.getElementById(`like-count-${postId}`);
+      
+      const newCount = await window.FarmPilotDB.likeCommunityPost(postId);
+      if (countEl) countEl.textContent = newCount;
+      if (btn) btn.classList.add('liked');
+    };
+
+    window.handleReplyPrompt = function(postId) {
+      const note = prompt('Add your field note or response:');
+      if (note && note.trim()) {
+        window.FarmPilotApp.showToast('Operational response logged to community thread! ✓');
+      }
+    };
+
+    // =========================================================================
+    // COMMUNITY DIRECT MESSAGING & USER SEARCH PLATFORM CONTROLLER
+    // =========================================================================
+    let activeConversation = null;
+    let activeChatTab = 'ALL'; // 'ALL' or 'REQUESTS'
+    let activeDraftContact = null;
+
+    function getLoggedInUsername() {
+      const user = window.FarmPilotAuth ? window.FarmPilotAuth.getUser() : null;
+      return (user?.username || 'siddharth').replace(/^@/, '').toLowerCase();
+    }
+
+    // 1. User Directory Search Bar Logic
+    window.handleUserSearchInput = function(query) {
+      const panel = document.getElementById('user-search-results-panel');
+      const clearBtn = document.getElementById('user-search-clear-btn');
+      if (!panel) return;
+
+      if (!query || !query.trim()) {
+        panel.style.display = 'none';
+        if (clearBtn) clearBtn.style.display = 'none';
+        return;
+      }
+
+      if (clearBtn) clearBtn.style.display = 'block';
+
+      const results = window.FarmPilotMessaging.getUsers(query);
+      renderUserSearchResults(results, query);
+    };
+
+    window.handleUserSearchFocus = function() {
+      const input = document.getElementById('user-search-input');
+      const panel = document.getElementById('user-search-results-panel');
+      if (!panel) return;
+
+      const q = input?.value?.trim() || '';
+      const results = window.FarmPilotMessaging.getUsers(q);
+      renderUserSearchResults(results, q);
+    };
+
+    window.clearUserSearch = function() {
+      const input = document.getElementById('user-search-input');
+      const panel = document.getElementById('user-search-results-panel');
+      const clearBtn = document.getElementById('user-search-clear-btn');
+      if (input) input.value = '';
+      if (panel) panel.style.display = 'none';
+      if (clearBtn) clearBtn.style.display = 'none';
+    };
+
+    window.performUserSearch = function() {
+      const input = document.getElementById('user-search-input');
+      if (input) handleUserSearchInput(input.value);
+    };
+
+    window.quickSearchTag = function(tag) {
+      const input = document.getElementById('user-search-input');
+      if (input) {
+        input.value = tag;
+        handleUserSearchInput(tag);
+      }
+    };
+
+    function renderUserSearchResults(users, query) {
+      const panel = document.getElementById('user-search-results-panel');
+      if (!panel) return;
+
+      if (!users || users.length === 0) {
+        panel.innerHTML = `
+          <div style="text-align: center; padding: 1.5rem; color: #64748B;">
+            <span style="font-size: 1.5rem;">🔍</span>
+            <p style="margin: 0.4rem 0 0; font-size: 0.8125rem;">No farmers found matching "${query}". Try searching by crop, name, or role.</p>
+          </div>
+        `;
+        panel.style.display = 'block';
+        return;
+      }
+
+      const myUser = getLoggedInUsername();
+
+      panel.innerHTML = `
+        <div style="font-size: 0.6875rem; font-weight: 800; color: #64748B; text-transform: uppercase; padding: 0.25rem 0.5rem 0.5rem; border-bottom: 1px solid #F1F5F9; display: flex; justify-content: space-between;">
+          <span>Community Farmers & Agronomists (${users.length})</span>
+          <span>Click to Message</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.35rem;">
+          ${users.map(u => {
+            const isMe = u.username.toLowerCase() === myUser;
+            const roleBadgeClass = u.role === 'OWNER' ? 'badge-success' : u.role === 'WORKER' ? 'badge-warning' : u.role === 'MANAGER' ? 'badge-primary' : 'badge-neutral';
+            return `
+              <div class="user-search-item" onclick="openMessagingWith('${u.username}')">
+                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                  <div style="width: 36px; height: 36px; border-radius: 50%; background: ${u.avatar_bg || '#059669'}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9375rem; flex-shrink: 0;">
+                    ${u.avatar || u.full_name.charAt(0)}
+                  </div>
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                      <strong style="font-size: 0.875rem; color: var(--color-text-primary);">${u.full_name}</strong>
+                      <span class="font-mono" style="font-size: 0.72rem; color: #059669; font-weight: 800;">@${u.username}</span>
+                      <span class="badge ${roleBadgeClass}" style="font-size: 0.625rem;">${u.role}</span>
+                      ${isMe ? '<span class="badge" style="background:#F1F5F9; color:#475569; font-size:0.6rem;">You</span>' : ''}
+                    </div>
+                    <div style="font-size: 0.72rem; color: #64748B; margin-top: 0.1rem;">
+                      🚜 ${u.farm_name} • ${u.location} • <span style="color:#059669;">${u.crop}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button type="button" class="btn btn-sm btn-primary" style="background: #059669; font-size: 0.72rem; padding: 0.3rem 0.75rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.3rem;">
+                  <span>💬</span>
+                  <span>Message</span>
+                </button>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+
+      panel.style.display = 'block';
+    }
+
+    // Close search panel on outside click
+    document.addEventListener('click', (e) => {
+      const panel = document.getElementById('user-search-results-panel');
+      const input = document.getElementById('user-search-input');
+      if (panel && input && !panel.contains(e.target) && !input.contains(e.target)) {
+        panel.style.display = 'none';
+      }
+    });
+
+    // 2. Messaging Modal & Drawer Management
+    window.openMessagingDrawer = function() {
+      const modal = document.getElementById('messaging-modal');
+      if (modal) modal.classList.add('active');
+
+      syncPersonaSelect();
+      renderConversationsList();
+
+      const convs = window.FarmPilotMessaging.getConversations(getLoggedInUsername());
+      const pendingReqs = window.FarmPilotMessaging.getPendingRequests(getLoggedInUsername());
+
+      if (pendingReqs.length > 0) {
+        // If there's an incoming pending request, open it first for immediate decision
+        switchChatTab('REQUESTS');
+        selectConversation(pendingReqs[0].id);
+      } else if (convs.length > 0) {
+        selectConversation(convs[0].id);
+      } else {
+        openMessagingWith('venkat');
+      }
+
+      updateMessageBadges();
+    };
+
+    window.closeMessagingModal = function() {
+      const modal = document.getElementById('messaging-modal');
+      if (modal) modal.classList.remove('active');
+    };
+
+    window.openMessagingWith = function(targetUsername) {
+      if (!window.FarmPilotMessaging) return;
+      const modal = document.getElementById('messaging-modal');
+      if (modal) modal.classList.add('active');
+
+      const panel = document.getElementById('user-search-results-panel');
+      if (panel) panel.style.display = 'none';
+
+      syncPersonaSelect();
+
+      const me = getLoggedInUsername();
+      const targetClean = targetUsername.replace(/^@/, '').toLowerCase();
+
+      // Check if conversation exists
+      const existingConv = window.FarmPilotMessaging.getConversationBetween(me, targetClean);
+
+      if (existingConv) {
+        activeDraftContact = null;
+        renderConversationsList();
+        selectConversation(existingConv.id);
+      } else {
+        // Open a draft conversation state
+        const targetUser = window.FarmPilotMessaging.getUser(targetClean);
+        activeDraftContact = targetUser;
+        activeConversation = null;
+        renderConversationsList();
+        renderDraftConversationView(targetUser);
+      }
+
+      updateMessageBadges();
+    };
+
+    function syncPersonaSelect() {
+      const select = document.getElementById('chat-persona-select');
+      if (select) {
+        select.value = getLoggedInUsername();
+      }
+    }
+
+    window.handleSwitchChatPersona = function(newUsername) {
+      window.FarmPilotMessaging.setSimulatedUser(newUsername);
+      if (window.FarmPilotApp && window.FarmPilotApp.showToast) {
+        window.FarmPilotApp.showToast(`Simulating active persona as @${newUsername}`, 'info');
+      }
+      syncPersonaSelect();
+      renderConversationsList();
+
+      // Select first available conversation for this persona
+      const myConvs = window.FarmPilotMessaging.getConversations(newUsername);
+      const pendingReqs = window.FarmPilotMessaging.getPendingRequests(newUsername);
+
+      if (pendingReqs.length > 0) {
+        switchChatTab('REQUESTS');
+        selectConversation(pendingReqs[0].id);
+      } else if (myConvs.length > 0) {
+        switchChatTab('ALL');
+        selectConversation(myConvs[0].id);
+      } else {
+        openMessagingWith('siddharth');
+      }
+
+      updateMessageBadges();
+    };
+
+    window.switchChatTab = function(tab) {
+      activeChatTab = tab;
+      const tabAll = document.getElementById('tab-all-chats');
+      const tabReq = document.getElementById('tab-requests');
+
+      if (tab === 'ALL') {
+        tabAll.style.color = '#059669';
+        tabAll.style.borderBottom = '2px solid #059669';
+        tabAll.style.fontWeight = '800';
+        tabReq.style.color = '#64748B';
+        tabReq.style.borderBottom = 'none';
+        tabReq.style.fontWeight = '700';
+      } else {
+        tabReq.style.color = '#D97706';
+        tabReq.style.borderBottom = '2px solid #D97706';
+        tabReq.style.fontWeight = '800';
+        tabAll.style.color = '#64748B';
+        tabAll.style.borderBottom = 'none';
+        tabAll.style.fontWeight = '700';
+      }
+
+      renderConversationsList();
+    };
+
+    window.filterConversationsList = function(q) {
+      renderConversationsList(q);
+    };
+
+    function renderConversationsList(filterText = '') {
+      const container = document.getElementById('conversation-list-container');
+      if (!container) return;
+
+      const me = getLoggedInUsername();
+      let convs = (activeChatTab === 'REQUESTS') 
+        ? window.FarmPilotMessaging.getPendingRequests(me)
+        : window.FarmPilotMessaging.getConversations(me);
+
+      if (filterText && filterText.trim()) {
+        const q = filterText.toLowerCase();
+        convs = convs.filter(c => {
+          const other = (c.initiator_username.toLowerCase() === me) ? c.recipient_username : c.initiator_username;
+          const u = window.FarmPilotMessaging.getUser(other);
+          return other.toLowerCase().includes(q) || u?.full_name.toLowerCase().includes(q) || c.last_message?.toLowerCase().includes(q);
+        });
+      }
+
+      if (convs.length === 0 && !activeDraftContact) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 2rem 1rem; color: #64748B; font-size: 0.78rem;">
+            <span>💬</span>
+            <p style="margin: 0.35rem 0 0;">${activeChatTab === 'REQUESTS' ? 'No pending message requests.' : 'No conversations yet. Use the search bar above to connect with farmers.'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+
+      // If there's an active draft
+      if (activeDraftContact) {
+        html += `
+          <div class="contact-card active" style="background: #ECFDF5; border-left: 4px solid #059669;">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: ${activeDraftContact.avatar_bg || '#059669'}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9375rem; flex-shrink: 0;">
+              ${activeDraftContact.avatar || activeDraftContact.full_name.charAt(0)}
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                <strong style="font-size: 0.8125rem; color: #1E293B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${activeDraftContact.full_name}</strong>
+                <span class="badge badge-warning" style="font-size: 0.6rem;">New Contact</span>
+              </div>
+              <div style="font-size: 0.6875rem; color: #059669; font-weight: 700;">@${activeDraftContact.username}</div>
+              <div style="font-size: 0.72rem; color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Drafting first message...</div>
+            </div>
+          </div>
+        `;
+      }
+
+      html += convs.map(c => {
+        const otherUsername = (c.initiator_username.toLowerCase() === me) ? c.recipient_username : c.initiator_username;
+        const otherUser = window.FarmPilotMessaging.getUser(otherUsername);
+        const isActive = activeConversation && activeConversation.id === c.id;
+
+        let statusBadge = '';
+        if (c.status === 'PENDING') {
+          if (c.recipient_username.toLowerCase() === me) {
+            statusBadge = '<span class="badge" style="background:#FEF3C7; color:#B45309; font-size:0.6rem; font-weight:800;">Action Req</span>';
+          } else {
+            statusBadge = '<span class="badge" style="background:#F1F5F9; color:#64748B; font-size:0.6rem;">Pending Req</span>';
+          }
+        } else if (c.status === 'REJECTED') {
+          statusBadge = '<span class="badge badge-danger" style="font-size:0.6rem;">Declined</span>';
+        }
+
+        return `
+          <div class="contact-card ${isActive ? 'active' : ''}" onclick="selectConversation('${c.id}')">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: ${otherUser.avatar_bg || '#059669'}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9375rem; flex-shrink: 0;">
+              ${otherUser.avatar || otherUser.full_name.charAt(0)}
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                <strong style="font-size: 0.8125rem; color: #1E293B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${otherUser.full_name}</strong>
+                <span style="font-size: 0.625rem; color: #94A3B8;">${formatTimeAgo(c.last_message_at)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.1rem;">
+                <span class="font-mono" style="font-size: 0.6875rem; color: #059669; font-weight: 700;">@${otherUser.username}</span>
+                ${statusBadge}
+              </div>
+              <div style="font-size: 0.72rem; color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.15rem;">
+                ${c.last_message || 'No messages yet'}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = html;
+    }
+
+    // 3. Conversation View Controller & The Core Accept/Reject Gateway
+    window.selectConversation = function(convId) {
+      activeDraftContact = null;
+      const convs = window.FarmPilotMessaging.getConversations();
+      const conv = convs.find(c => c.id === convId);
+      if (!conv) return;
+
+      activeConversation = conv;
+      renderConversationsList();
+
+      const me = getLoggedInUsername();
+      const otherUsername = (conv.initiator_username.toLowerCase() === me) ? conv.recipient_username : conv.initiator_username;
+      const otherUser = window.FarmPilotMessaging.getUser(otherUsername);
+
+      // Update Contact Header
+      const avatarEl = document.getElementById('active-contact-avatar');
+      const nameEl = document.getElementById('active-contact-name');
+      const handleEl = document.getElementById('active-contact-handle');
+      const roleEl = document.getElementById('active-contact-role');
+      const metaEl = document.getElementById('active-contact-meta');
+      const statusPill = document.getElementById('active-conversation-status-pill');
+
+      if (avatarEl) {
+        avatarEl.textContent = otherUser.avatar || otherUser.full_name.charAt(0);
+        avatarEl.style.background = otherUser.avatar_bg || '#059669';
+      }
+      if (nameEl) nameEl.textContent = otherUser.full_name;
+      if (handleEl) handleEl.textContent = `@${otherUser.username}`;
+      if (roleEl) {
+        roleEl.textContent = otherUser.role;
+        roleEl.className = otherUser.role === 'OWNER' ? 'badge badge-success' : otherUser.role === 'WORKER' ? 'badge badge-warning' : otherUser.role === 'MANAGER' ? 'badge badge-primary' : 'badge badge-neutral';
+      }
+      if (metaEl) {
+        metaEl.innerHTML = `🚜 ${otherUser.farm_name} • ${otherUser.location} • <span style="color:#059669;">${otherUser.crop}</span> • 🟢 Online`;
+      }
+
+      // Status Pill
+      if (statusPill) {
+        if (conv.status === 'ACCEPTED') {
+          statusPill.innerHTML = '<span class="badge badge-success" style="font-size:0.6875rem;">✓ Active Flow</span>';
+        } else if (conv.status === 'PENDING') {
+          statusPill.innerHTML = '<span class="badge badge-warning" style="font-size:0.6875rem;">⏳ Pending Authorization</span>';
+        } else {
+          statusPill.innerHTML = '<span class="badge badge-danger" style="font-size:0.6875rem;">✕ Request Declined</span>';
+        }
+      }
+
+      // Render Permission Gateway Banner (THE CORE REQUIREMENT)
+      const permContainer = document.getElementById('permission-request-container');
+      const inputEl = document.getElementById('chat-message-input');
+      const sendBtn = document.getElementById('chat-send-btn');
+      const chipsArea = document.getElementById('chat-quick-chips');
+
+      if (permContainer) {
+        if (conv.status === 'PENDING') {
+          // If current user is the recipient of a pending request: SHOW ACCEPT OR REJECT BUTTONS
+          if (conv.recipient_username.toLowerCase() === me) {
+            permContainer.innerHTML = `
+              <div class="permission-request-banner">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem;">
+                  <div>
+                    <div style="font-size: 0.72rem; font-weight: 800; color: #B45309; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem;">
+                      🔔 Incoming Direct Message Request
+                    </div>
+                    <div style="font-size: 0.95rem; font-weight: 800; color: #1E293B;">
+                      @${conv.initiator_username} (${otherUser.full_name}) wants to message you
+                    </div>
+                    <p style="font-size: 0.8125rem; color: #475569; margin: 0.35rem 0 0.75rem; line-height: 1.45;">
+                      Because this is their first time communicating with you, you must decide whether to <strong>Accept</strong> or <strong>Reject</strong> this request. The communication flow will only unlock after you accept.
+                    </p>
+                  </div>
+                  <span class="badge" style="background: #FDE68A; color: #92400E; font-size: 0.65rem; font-weight: 800;">Decision Required</span>
+                </div>
+                <div style="display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap;">
+                  <button type="button" onclick="handleAcceptRequest('${conv.id}')" class="btn btn-sm" style="background: #059669; color: #FFFFFF; font-weight: 800; border: none; padding: 0.45rem 1.15rem; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; box-shadow: 0 2px 5px rgba(5,150,105,0.3);">
+                    <span>✓</span>
+                    <span>Accept Message Request</span>
+                  </button>
+                  <button type="button" onclick="handleRejectRequest('${conv.id}')" class="btn btn-sm" style="background: #FEF2F2; color: #DC2626; border: 1.5px solid #FECACA; font-weight: 800; padding: 0.45rem 0.95rem; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
+                    <span>✕</span>
+                    <span>Decline / Reject</span>
+                  </button>
+                </div>
+              </div>
+            `;
+
+            // Lock input until decision
+            if (inputEl) {
+              inputEl.disabled = true;
+              inputEl.placeholder = 'Accept message request above to unlock reply...';
+            }
+            if (sendBtn) sendBtn.disabled = true;
+            if (chipsArea) chipsArea.style.display = 'none';
+
+          } else {
+            // Current user is the initiator: show waiting message
+            permContainer.innerHTML = `
+              <div style="background: #FFFBEB; border: 1px solid #FCD34D; border-radius: var(--radius-md); padding: 0.85rem 1rem; text-align: center; font-size: 0.8125rem; color: #92400E; margin-bottom: 0.75rem;">
+                ⏳ <strong>Message Request Pending Approval:</strong> You sent a message to <strong>@${conv.recipient_username}</strong>. They must Accept your request before two-way communication is unlocked.
+              </div>
+            `;
+            if (inputEl) {
+              inputEl.disabled = true;
+              inputEl.placeholder = 'Waiting for recipient to accept request...';
+            }
+            if (sendBtn) sendBtn.disabled = true;
+            if (chipsArea) chipsArea.style.display = 'none';
+          }
+        } else if (conv.status === 'REJECTED') {
+          permContainer.innerHTML = `
+            <div style="background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: var(--radius-md); padding: 0.85rem 1rem; text-align: center; font-size: 0.8125rem; color: #991B1B; margin-bottom: 0.75rem;">
+              🚫 <strong>Message Request Declined:</strong> Direct communication with @${otherUsername} is closed.
+            </div>
+          `;
+          if (inputEl) {
+            inputEl.disabled = true;
+            inputEl.placeholder = 'Communication closed.';
+          }
+          if (sendBtn) sendBtn.disabled = true;
+          if (chipsArea) chipsArea.style.display = 'none';
+        } else {
+          // ACCEPTED
+          permContainer.innerHTML = `
+            <div style="text-align: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.7rem; font-weight: 700; color: #047857; background: #ECFDF5; border: 1px solid #A7F3D0; padding: 0.2rem 0.65rem; border-radius: 999px;">
+                ✓ Communication Flow Active • Direct Farm Channel
+              </span>
+            </div>
+          `;
+          if (inputEl) {
+            inputEl.disabled = false;
+            inputEl.placeholder = `Message @${otherUsername} about crops, rates, or machinery...`;
+          }
+          if (sendBtn) sendBtn.disabled = false;
+          if (chipsArea) chipsArea.style.display = 'flex';
+        }
+      }
+
+      // Render Messages
+      renderChatMessages(conv.id);
+    };
+
+    function renderDraftConversationView(targetUser) {
+      const avatarEl = document.getElementById('active-contact-avatar');
+      const nameEl = document.getElementById('active-contact-name');
+      const handleEl = document.getElementById('active-contact-handle');
+      const roleEl = document.getElementById('active-contact-role');
+      const metaEl = document.getElementById('active-contact-meta');
+      const statusPill = document.getElementById('active-conversation-status-pill');
+      const permContainer = document.getElementById('permission-request-container');
+      const msgsList = document.getElementById('chat-messages-list');
+      const inputEl = document.getElementById('chat-message-input');
+      const sendBtn = document.getElementById('chat-send-btn');
+      const chipsArea = document.getElementById('chat-quick-chips');
+
+      if (avatarEl) {
+        avatarEl.textContent = targetUser.avatar || targetUser.full_name.charAt(0);
+        avatarEl.style.background = targetUser.avatar_bg || '#059669';
+      }
+      if (nameEl) nameEl.textContent = targetUser.full_name;
+      if (handleEl) handleEl.textContent = `@${targetUser.username}`;
+      if (roleEl) {
+        roleEl.textContent = targetUser.role;
+        roleEl.className = 'badge badge-primary';
+      }
+      if (metaEl) {
+        metaEl.innerHTML = `🚜 ${targetUser.farm_name} • ${targetUser.location} • <span style="color:#059669;">${targetUser.crop}</span> • 🟢 Online`;
+      }
+      if (statusPill) {
+        statusPill.innerHTML = '<span class="badge badge-warning" style="font-size:0.6875rem;">New Request</span>';
+      }
+
+      if (permContainer) {
+        permContainer.innerHTML = `
+          <div style="background: #EFF6FF; border: 1.5px solid #BFDBFE; border-radius: var(--radius-md); padding: 0.85rem 1rem; text-align: center; font-size: 0.8125rem; color: #1E40AF; margin-bottom: 0.75rem;">
+            ℹ️ <strong>First-Time Message:</strong> Sending your first message to <strong>@${targetUser.username}</strong> will create a <strong>Message Request</strong>. They will be prompted to Accept or Reject your request before the communication flow unlocks.
+          </div>
+        `;
+      }
+
+      if (msgsList) {
+        msgsList.innerHTML = `
+          <div style="text-align: center; padding: 2.5rem 1rem; color: #94A3B8;">
+            <span style="font-size: 2rem;">🌾</span>
+            <h4 style="margin: 0.5rem 0 0.2rem; color: #475569; font-size: 0.95rem;">Start a conversation with ${targetUser.full_name}</h4>
+            <p style="margin: 0; font-size: 0.78rem;">Ask about Mandi rates, pest symptoms, or equipment hiring in their region.</p>
+          </div>
+        `;
+      }
+
+      if (inputEl) {
+        inputEl.disabled = false;
+        inputEl.placeholder = `Send your first message to @${targetUser.username}...`;
+      }
+      if (sendBtn) sendBtn.disabled = false;
+      if (chipsArea) chipsArea.style.display = 'flex';
+    }
+
+    function renderChatMessages(convId) {
+      const list = document.getElementById('chat-messages-list');
+      if (!list) return;
+
+      const msgs = window.FarmPilotMessaging.getMessages(convId);
+      const me = getLoggedInUsername();
+
+      if (msgs.length === 0) {
+        list.innerHTML = '<div style="text-align:center; padding:2rem; color:#94A3B8;">No messages yet.</div>';
+        return;
+      }
+
+      list.innerHTML = msgs.map(m => {
+        if (m.is_system || m.sender_username === 'system') {
+          return `<div class="msg-system">${m.content}</div>`;
+        }
+
+        const isMine = m.sender_username.toLowerCase() === me;
+        const timeStr = formatTimeAgo(m.created_at);
+
+        return `
+          <div class="msg-bubble ${isMine ? 'msg-mine' : 'msg-theirs'}">
+            <div style="font-size: 0.6875rem; font-weight: 700; opacity: 0.8; margin-bottom: 0.2rem;">
+              ${isMine ? 'You' : `@${m.sender_username}`}
+            </div>
+            <div>${m.content}</div>
+            <div style="font-size: 0.625rem; text-align: right; opacity: 0.75; margin-top: 0.25rem;">
+              ${timeStr}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Auto scroll to bottom
+      const viewport = document.getElementById('chat-messages-viewport');
+      if (viewport) {
+        setTimeout(() => {
+          viewport.scrollTop = viewport.scrollHeight;
+        }, 50);
+      }
+    }
+
+    // 4. Message Submit Handler
+    window.handleChatSubmit = function(e) {
+      e.preventDefault();
+      const input = document.getElementById('chat-message-input');
+      const text = input?.value?.trim();
+      if (!text) return;
+
+      const me = getLoggedInUsername();
+      let targetUser = null;
+
+      if (activeConversation) {
+        targetUser = (activeConversation.initiator_username.toLowerCase() === me) 
+          ? activeConversation.recipient_username 
+          : activeConversation.initiator_username;
+      } else if (activeDraftContact) {
+        targetUser = activeDraftContact.username;
+      } else {
+        return;
+      }
+
+      try {
+        const res = window.FarmPilotMessaging.sendMessage({
+          from: me,
+          to: targetUser,
+          content: text
+        });
+
+        input.value = '';
+        activeDraftContact = null;
+        activeConversation = res.conversation;
+
+        if (res.isFirstTime) {
+          window.FarmPilotApp.showToast(`Message request sent to @${targetUser}! Waiting for them to accept.`, 'info');
+        }
+
+        renderConversationsList();
+        selectConversation(res.conversation.id);
+        updateMessageBadges();
+      } catch (err) {
+        alert(err.message);
+      }
+    };
+
+    // 5. Accept & Reject Handlers
+    window.handleAcceptRequest = function(convId) {
+      try {
+        const updated = window.FarmPilotMessaging.respondToRequest(convId, 'ACCEPT');
+        if (window.FarmPilotApp && window.FarmPilotApp.showToast) {
+          window.FarmPilotApp.showToast(`✓ Request accepted! You can now message @${updated.initiator_username}.`, 'success');
+        }
+        if (window.triggerConfetti) window.triggerConfetti();
+
+        renderConversationsList();
+        selectConversation(convId);
+        updateMessageBadges();
+      } catch (err) {
+        alert(err.message);
+      }
+    };
+
+    window.handleRejectRequest = function(convId) {
+      try {
+        const updated = window.FarmPilotMessaging.respondToRequest(convId, 'REJECT');
+        if (window.FarmPilotApp && window.FarmPilotApp.showToast) {
+          window.FarmPilotApp.showToast(`Message request from @${updated.initiator_username} was declined.`, 'info');
+        }
+
+        renderConversationsList();
+        selectConversation(convId);
+        updateMessageBadges();
+      } catch (err) {
+        alert(err.message);
+      }
+    };
+
+    window.insertQuickChip = function(text) {
+      const input = document.getElementById('chat-message-input');
+      if (input && !input.disabled) {
+        input.value = text;
+        input.focus();
+      }
+    };
+
+    function updateMessageBadges() {
+      const me = getLoggedInUsername();
+      const pending = window.FarmPilotMessaging.getPendingRequests(me);
+      const headerBadge = document.getElementById('header-unread-msg-badge');
+      const tabBadge = document.getElementById('requests-tab-badge');
+
+      if (headerBadge) {
+        if (pending.length > 0) {
+          headerBadge.textContent = `${pending.length} Request${pending.length > 1 ? 's' : ''}`;
+          headerBadge.style.display = 'inline-block';
+        } else {
+          headerBadge.style.display = 'none';
+        }
+      }
+
+      if (tabBadge) {
+        tabBadge.textContent = pending.length;
+        tabBadge.style.display = pending.length > 0 ? 'inline-block' : 'none';
+      }
+    }
+
+    // Initialize badges on load
+    window.addEventListener('farmpilot:message-sent', () => {
+      updateMessageBadges();
+      renderConversationsList();
+    });
+    window.addEventListener('farmpilot:message-request-responded', () => {
+      updateMessageBadges();
+      renderConversationsList();
+    });
+    window.addEventListener('farmpilot:active-user-switched', () => {
+      updateMessageBadges();
+      renderConversationsList();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(updateMessageBadges, 200);
+    });
+  </script>
+</body>
+</html>

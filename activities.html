@@ -460,6 +460,7 @@
   <script src="js/trash-animation.js"></script>
   <script src="js/mailer.js"></script>
   <script src="js/weather.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/app.js"></script>
 
   <script>
@@ -559,7 +560,27 @@
                     📍 <strong>${a.field_name || 'North Block (Plot A)'}</strong> • Due: <strong class="font-mono" style="color: ${isOverdue ? 'var(--color-danger)' : 'var(--color-text-primary)'};">${a.due_date}</strong>
                   </p>
 
-                  ${a.notes ? `
+                  ${a.target_quantity ? `
+                    <div style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.6875rem; font-weight: 800; color: #047857; background: #ECFDF5; border: 1px solid #A7F3D0; padding: 0.15rem 0.55rem; border-radius: 4px; margin-top: 0.35rem;">
+                      <span>📦 Target:</span>
+                      <span class="font-mono">${a.target_quantity}</span>
+                    </div>
+                  ` : ''}
+
+                  ${a.field_note ? `
+                    <div style="margin-top: 0.5rem; padding: 0.5rem 0.75rem; background: #FFFBEB; border-radius: var(--radius-sm); border: 1px solid #FCD34D;">
+                      <span style="font-size: 0.6875rem; font-weight: 800; color: #92400E; display: flex; align-items: center; gap: 0.35rem; text-transform: uppercase;">
+                        <span>📝 Field Note from Worker</span>
+                        <span class="font-mono" style="color: #059669;">(@ramu)</span>:
+                      </span>
+                      <p style="font-size: 0.75rem; color: #78350F; margin: 0.15rem 0 0; line-height: 1.4;">
+                        "${a.field_note}"
+                      </p>
+                      ${a.actual_quantity ? `<span style="font-size: 0.6875rem; color: #B45309; font-weight: 700; margin-top: 0.2rem; display: block;">Dosage Applied: ${a.actual_quantity} (${a.hours_worked || 2.5} hrs)</span>` : ''}
+                    </div>
+                  ` : ''}
+
+                  ${a.notes && !a.field_note ? `
                     <div style="margin-top: 0.5rem; padding: 0.5rem 0.75rem; background: var(--color-surface-secondary); border-radius: var(--radius-sm); border-left: 2px solid var(--color-border-strong);">
                       <p style="font-size: 0.75rem; color: var(--color-text-secondary); line-height: 1.5;">
                         📋 ${a.notes}

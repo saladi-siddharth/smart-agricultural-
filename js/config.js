@@ -23,50 +23,62 @@ window.FARMPILOT_CONFIG = {
     created_at: '2026-06-01T00:00:00.000Z'
   },
 
-  // Phase 2 Demo Personas (Role Switcher)
+  // Phase 2 Demo Personas (Role Switcher & Authentication)
   PERSONAS: {
     OWNER: {
       id: '33dd8f01-e3c5-42a8-9194-a92504a75246',
       email: 'farmer@greenvalley.in',
+      username: 'siddharth',
       full_name: 'Siddharth Saladi',
       role: 'OWNER',
       roleLabel: 'Farm Owner & Executive',
+      farm_name: 'Green Valley Farm',
       badge: 'Owner',
       badgeClass: 'badge-success',
       avatar: 'S',
+      pin: '1234',
       permissions: ['financials', 'org_settings', 'all_farms', 'reports', 'alerts', 'manage_members']
     },
     MANAGER: {
       id: 'usr-mgr-02',
       email: 'manager@greenvalley.in',
+      username: 'rajesh',
       full_name: 'Rajesh Patel',
       role: 'MANAGER',
       roleLabel: 'Estate Operations Manager',
+      farm_name: 'Green Valley Farm',
       badge: 'Manager',
       badgeClass: 'badge-primary',
       avatar: 'R',
+      pin: '1234',
       permissions: ['operations', 'task_assignment', 'fields', 'crops', 'inputs', 'expenses', 'irrigation', 'alerts']
     },
     WORKER: {
       id: '12f2a103-05d5-498f-b187-406bf7f634cd',
       email: 'worker@greenvalley.in',
+      username: 'ramu',
       full_name: 'Ravi Kumar',
       role: 'WORKER',
       roleLabel: 'Field Operations Operator',
+      farm_name: 'Green Valley Farm',
       badge: 'Worker',
       badgeClass: 'badge-warning',
       avatar: 'K',
+      pin: '1234',
       permissions: ['today_tasks', 'start_task', 'complete_task', 'view_field']
     },
     CONSULTANT: {
       id: 'usr-con-04',
       email: 'consultant@greenvalley.in',
+      username: 'anita',
       full_name: 'Dr. Anita Rao',
       role: 'CONSULTANT',
       roleLabel: 'Principal Agronomist & Advisor',
+      farm_name: 'Delta Agronomy Advisory',
       badge: 'Consultant',
       badgeClass: 'badge-neutral',
       avatar: 'A',
+      pin: '1234',
       permissions: ['farm_health', 'crop_analytics', 'advisory', 'recommendations', 'read_reports']
     }
   },
@@ -407,8 +419,261 @@ window.FARMPILOT_CONFIG = {
       amount: 1200,
       date: '2026-07-20'
     }
+  ],
+
+  // Phase 2 Agricultural Crop Templates & Stage Definitions
+  DEFAULT_CROP_TEMPLATES: [
+    {
+      id: 'tmpl-paddy',
+      crop_name: 'Paddy (Rice)',
+      variety: 'BPT-5204 (Samba Mahsuri)',
+      season: 'Kharif',
+      typical_duration_days: 140,
+      target_yield_per_acre: 4.2,
+      yield_unit: 'tonnes',
+      benchmark_cost_per_acre: 5000,
+      description: 'Slender superfine high-milling grain rice with high water requirement and AWD protocol compatibility.',
+      stages: [
+        { order: 1, name: 'Land Preparation', start_day: 1, end_day: 15, key_op: 'Puddling & Laser Leveling', risk: 'Improper leveling creates uneven submersion' },
+        { order: 2, name: 'Nursery / Establishment', start_day: 16, end_day: 35, key_op: 'Wet Nursery Raising & Zinc Priming', risk: 'Seedling blight if drainage fails' },
+        { order: 3, name: 'Transplanting', start_day: 36, end_day: 50, key_op: '2-3 Seedlings/Hill (20x15cm)', risk: 'Root shock or delayed establishment' },
+        { order: 4, name: 'Vegetative / Active Tillering', start_day: 51, end_day: 80, key_op: 'Nitrogen Top-Dressing & Zinc Foliar Spray', risk: 'Zinc chlorosis, stem borer infestation' },
+        { order: 5, name: 'Panicle Initiation', start_day: 81, end_day: 95, key_op: 'Potash Application & Water Ponding (2-3cm)', risk: 'Moisture stress aborts spikelet count' },
+        { order: 6, name: 'Flowering / Anthesis', start_day: 96, end_day: 110, key_op: 'Pest Scouting & Brown Planthopper Check', risk: 'Extreme heat (>35°C) or rain causes pollen sterility' },
+        { order: 7, name: 'Grain Filling (Milky to Dough)', start_day: 111, end_day: 125, key_op: 'Shallow Intermittent Wetting', risk: 'False smut or blast on neck' },
+        { order: 8, name: 'Maturity & Field Drying', start_day: 126, end_day: 135, key_op: 'Canal Cut-Off & Pre-Harvest Drainage', risk: 'Lodging in unseasonal cyclonic rain' },
+        { order: 9, name: 'Harvest & Threshing', start_day: 136, end_day: 140, key_op: 'Combine Harvester at 20-22% Moisture', risk: 'Shattering loss if delayed' }
+      ]
+    },
+    {
+      id: 'tmpl-cotton',
+      crop_name: 'Cotton',
+      variety: 'RCH-659 BG-II',
+      season: 'Kharif',
+      typical_duration_days: 160,
+      target_yield_per_acre: 1.2,
+      yield_unit: 'tonnes',
+      benchmark_cost_per_acre: 5800,
+      description: 'Long staple transgenic cotton demanding high nutrient balance and pink bollworm threshold monitoring.',
+      stages: [
+        { order: 1, name: 'Field Prep & Ridging', start_day: 1, end_day: 15, key_op: 'Deep Summer Ploughing', risk: 'Hardpan soil restricts taproot' },
+        { order: 2, name: 'Emergence & Square Formation', start_day: 16, end_day: 45, key_op: 'First Intercultivation & Thinning', risk: 'Thrips and jassids sucking sap' },
+        { order: 3, name: 'Peak Flowering & Boll Development', start_day: 46, end_day: 110, key_op: 'Potassium Nitrate Spray & Drip Fertigation', risk: 'Pink bollworm entry, square drop' },
+        { order: 4, name: 'Boll Bursting & Multiple Pickings', start_day: 111, end_day: 160, key_op: 'Staggered Manual Cotton Picking', risk: 'Unseasonal rain discolors lint' }
+      ]
+    },
+    {
+      id: 'tmpl-maize',
+      crop_name: 'Maize (Corn)',
+      variety: 'Pioneer 3396',
+      season: 'Rabi',
+      typical_duration_days: 105,
+      target_yield_per_acre: 3.5,
+      yield_unit: 'tonnes',
+      benchmark_cost_per_acre: 3800,
+      description: 'High-yielding hybrid yellow grain maize with rapid vegetative development and critical tasseling moisture.',
+      stages: [
+        { order: 1, name: 'Bed Preparation', start_day: 1, end_day: 12, key_op: 'Ridge & Furrow Sowing', risk: 'Water stagnation impairs germination' },
+        { order: 2, name: 'Knee-High Stage', start_day: 13, end_day: 40, key_op: 'First Nitrogen Split & Earthing Up', risk: 'Fall Armyworm whorl feeding' },
+        { order: 3, name: 'Tasseling & Silking', start_day: 41, end_day: 65, key_op: 'Critical Irrigation & Boron Spray', risk: 'Drought during silking causes poor seed set' },
+        { order: 4, name: 'Cob Maturity & Harvest', start_day: 66, end_day: 105, key_op: 'Harvest at Black Layer Formation', risk: 'Cob rot if moisture > 25%' }
+      ]
+    }
+  ],
+
+  // Phase 2 Historical Agricultural Benchmarks (For Farm Memory & Benchmarking)
+  HISTORICAL_BENCHMARKS: {
+    previous_cycle: {
+      cycle_id: 'crop-paddy-kharif-2025',
+      crop_name: 'Paddy (Rice)',
+      variety: 'BPT-5204',
+      season: 'Kharif 2025',
+      field_name: 'North Block (Plot A)',
+      total_cost: 42300,
+      actual_yield: 3.9,
+      selling_price: 26500,
+      revenue: 103350,
+      profit: 61050,
+      fertilizer_spend: 6800,
+      overdue_operations_count: 3,
+      duration_days: 142
+    },
+    district_averages: {
+      district: 'Krishna',
+      crop: 'Paddy (Rice)',
+      average_yield_acre: 3.8,
+      average_cost_acre: 4800,
+      typical_margin_pct: 54.0
+    }
+  },
+
+  // Phase 2 Initial Seed Recommendations for Demo Decision-to-Action Loop
+  DEFAULT_RECOMMENDATIONS: [
+    {
+      id: 'rec-1',
+      title: 'Complete Zinc Sulfate Foliar Spray (0.5%)',
+      priority: 'CRITICAL',
+      category: 'NUTRITION',
+      crop_name: 'Paddy',
+      field_name: 'North Block (Plot A)',
+      crop_stage: 'Active Tillering',
+      activity_id: 'act-1',
+      trigger_reason: 'Activity is 2 days overdue and soil test shows 0.4 ppm Zn (threshold <0.6 ppm).',
+      agricultural_context: 'Paddy in active tillering phase requires immediate zinc co-factor synthesis to avert interveinal chlorosis and stunted tiller counts.',
+      data_considered: {
+        planned_date: '2026-09-08',
+        current_date: '2026-09-10',
+        soil_zinc_ppm: 0.4,
+        threshold_ppm: 0.6,
+        crop_stage: 'Estimated Active Tillering',
+        estimated_cost: 1400
+      },
+      why_explanation: 'North Block (Plot A) soil test confirms severe zinc deficiency (0.4 ppm). Active tillering is the critical physiological window where zinc drives indole-3-acetic acid (IAA) enzyme activation. Delaying past this week causes permanent reduction in productive panicles.',
+      impact_explanation: 'Schedule disruption risk is elevated. Potential tillering loss of 15-20% if interveinal chlorosis spreads across the 10.0 acre stand.',
+      recommended_action: 'Complete scheduled foliar spray of 0.5% Zinc Sulfate + 0.25% lime today and record actual chemical inputs consumed.',
+      status: 'NEW',
+      feedback: null
+    },
+    {
+      id: 'rec-2',
+      title: 'Prepare Nitrogen Top-Dressing Split',
+      priority: 'HIGH',
+      category: 'FERTILIZATION',
+      crop_name: 'Paddy',
+      field_name: 'North Block (Plot A)',
+      crop_stage: 'Active Tillering',
+      activity_id: 'act-2',
+      trigger_reason: 'Planned nitrogen top-dressing is due tomorrow in the operational calendar.',
+      agricultural_context: 'Split application of Urea (45 kg/ha) at maximum tillering stage optimizes panicle number per square meter without vegetative lodging.',
+      data_considered: {
+        planned_date: '2026-09-12',
+        crop_stage: 'Active Tillering',
+        planned_cost: 2800,
+        fertilizer_utilization_pct: 114
+      },
+      why_explanation: 'Urea applied in split doses during active tillering prevents volatilization and matches plant nitrogen uptake curves before panicle initiation.',
+      impact_explanation: 'Maintains scheduled vegetative tillering density at 24-28 tillers/hill.',
+      recommended_action: 'Verify field moisture status (drain standing water before application) and dispatch 45kg/ha urea application.',
+      status: 'NEW',
+      feedback: null
+    },
+    {
+      id: 'rec-3',
+      title: 'Review Fertilizer Budget Variance (+14.3%)',
+      priority: 'MEDIUM',
+      category: 'FINANCIAL',
+      crop_name: 'Paddy',
+      field_name: 'North Block (Plot A)',
+      crop_stage: 'Active Tillering',
+      trigger_reason: 'Actual fertilizer expenditure of ₹8,100 + ₹1,400 allocated exceeds planned ₹8,300 benchmark.',
+      agricultural_context: 'Unplanned micronutrient spray has added ₹1,400 to the nutrition outlay. Contingency reallocation required to safeguard 58% profit margin.',
+      data_considered: {
+        spent_fertilizer: 8100,
+        planned_benchmark: 8300,
+        pending_outlay: 2800,
+        variance_pct: 14.3
+      },
+      why_explanation: 'Fertilizer expenses are tracking 14.3% above plan due to upfront basal DAP purchases and corrective zinc spray.',
+      impact_explanation: 'Current spend is ₹18,500 against ₹50,000 budget. Projected final cost may touch ₹52,400 without contingency adjustment.',
+      recommended_action: 'Reallocate ₹1,400 from weed management contingency to fertilizer ledger in financial settings.',
+      status: 'NEW',
+      feedback: null
+    }
+  ],
+
+  // Phase 2 Initial Operational Journal Records (Farm Memory)
+  DEFAULT_JOURNAL: [
+    {
+      id: 'jrn-1',
+      date: '2026-06-15',
+      event_type: 'ACTIVITY_COMPLETED',
+      title: 'Basal Land Preparation & Laser Leveling Completed',
+      description: 'North Block (Plot A - 10.0 Ac) puddled with double disc pass and laser leveled board for AWD water conservation.',
+      metadata: { cost: 6200, field: 'North Block (Plot A)', operator: 'Ravi Kumar' }
+    },
+    {
+      id: 'jrn-2',
+      date: '2026-06-22',
+      event_type: 'INPUT_APPLIED',
+      title: 'Basal DAP & Urea Nutrients Batch 1 Applied',
+      description: 'Incorporated 300 kg DAP and 200 kg Urea into topsoil prior to seedling transplantation.',
+      metadata: { cost: 8100, category: 'FERTILIZER' }
+    },
+    {
+      id: 'jrn-3',
+      date: '2026-07-04',
+      event_type: 'ACTIVITY_COMPLETED',
+      title: 'Seedling Transplanting Completed',
+      description: '14 workers transplanted 25-day old BPT-5204 nursery stock at 20x15cm spacing across 10.0 acres.',
+      metadata: { cost: 5600, workers: 14, days: 2 }
+    },
+    {
+      id: 'jrn-4',
+      date: '2026-09-08',
+      event_type: 'RISK_DETECTED',
+      title: 'Schedule Risk: Zinc Sulfate Spray Overdue',
+      description: 'Foliar spray operation missed scheduled date of Sep 8 due to canal sluice maintenance priority.',
+      metadata: { priority: 'HIGH', stage: 'Active Tillering' }
+    }
+  ],
+
+  // Phase 2 Community Ag Exchange Posts (Cooperative Wall)
+  DEFAULT_COMMUNITY_POSTS: [
+    {
+      id: 'comm-1',
+      username: 'siddharth',
+      author_name: 'Siddharth Saladi',
+      farm_name: 'Green Valley Farm',
+      role: 'OWNER',
+      category: 'MANDI_RATES',
+      title: 'Machilipatnam Mandi Paddy Rates Today (BPT-5204)',
+      content: 'Mandi auction opened strong at ₹2,450 - ₹2,520/quintal for Grade A BPT-5204 (Samba Mahsuri). Moisture content requirement strictly below 14%. Direct millers paying ₹2,550 for spot delivery.',
+      likes: 14,
+      replies_count: 3,
+      created_at: '2026-09-10T14:30:00.000Z'
+    },
+    {
+      id: 'comm-2',
+      username: 'anita',
+      author_name: 'Dr. Anita Rao',
+      farm_name: 'Delta Agronomy Advisory',
+      role: 'CONSULTANT',
+      category: 'PEST_ALERT',
+      title: 'Brown Plant Hopper (BPH) Pre-Alert in Coastal Paddy Belts',
+      content: 'Noticeable BPH nymph concentrations detected in water-stagnated plots. Maintain strict Alternate Wetting and Drying (AWD) cycle to drain fields for 36 hours. Avoid synthetic pyrethroid sprays to preserve natural mirid bug predators.',
+      likes: 28,
+      replies_count: 7,
+      created_at: '2026-09-10T11:15:00.000Z'
+    },
+    {
+      id: 'comm-3',
+      username: 'rajesh',
+      author_name: 'Rajesh Patel',
+      farm_name: 'Green Valley Farm',
+      role: 'MANAGER',
+      category: 'EQUIPMENT',
+      title: 'Laser Land Leveler & 8-Row Paddy Transplanter Available for Custom Hiring',
+      content: 'Kubota 8-row walk-behind mechanical transplanter and Trimble GPS laser leveler available for custom hire in Diviseema region starting next Monday. Contact for tractor operator bookings.',
+      likes: 9,
+      replies_count: 2,
+      created_at: '2026-09-09T18:45:00.000Z'
+    },
+    {
+      id: 'comm-4',
+      username: 'ramu',
+      author_name: 'Ravi Kumar',
+      farm_name: 'Green Valley Farm',
+      role: 'WORKER',
+      category: 'FIELD_NOTES',
+      title: 'North Block AWD Observation: Soil drying rate faster on sand ridge',
+      content: 'Perforated AWD pipe reached 6cm depth below soil on the ridge 1 day faster than clay basin. Opening sluice gate for Plot A2 today.',
+      likes: 6,
+      replies_count: 1,
+      created_at: '2026-09-09T09:20:00.000Z'
+    }
   ]
 };
 
 // Aliases for compatibility
 window.FARMPILOT_CONFIG.DEFAULT_FARM = window.FARMPILOT_CONFIG.DEFAULT_FARMS[0];
+

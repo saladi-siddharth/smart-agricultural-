@@ -69,6 +69,7 @@ async function runMigrations() {
       '002_rls_policies.sql',
       '003_database_functions.sql',
       '004_phase2_multi_tenant.sql',
+      '005_agricultural_intelligence.sql',
     ];
 
     for (const file of files) {

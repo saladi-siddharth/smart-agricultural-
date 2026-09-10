@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="bgGrad192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064E3B" />
+      <stop offset="50%" stop-color="#0D2820" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="leafGrad192" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#6EE7B7" />
+    </linearGradient>
+  </defs>
+
+  <rect width="192" height="192" rx="42" fill="url(#bgGrad192)" />
+  <circle cx="96" cy="96" r="70" fill="none" stroke="rgba(167, 243, 208, 0.18)" stroke-width="1.5" />
+
+  <!-- Central Sprout -->
+  <path d="M96 135 C98 100 140 85 144 55 C112 55 94 90 96 135 Z" fill="url(#leafGrad192)" />
+  <path d="M96 135 C94 105 60 92 52 66 C78 62 95 95 96 135 Z" fill="#059669" />
+  <circle cx="144" cy="55" r="5" fill="#FCD34D" />
+</svg>

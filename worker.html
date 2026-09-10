@@ -6,6 +6,12 @@
   <title>FarmPilot — Field Worker Shift View</title>
   <meta name="description" content="Mobile-first, distraction-free operational interface for field laborers and estate workers.">
   
+  <!-- Progressive Web App & Offline Capabilities -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#064E3B">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
+
   <link rel="stylesheet" href="css/design-system.css">
   <link rel="stylesheet" href="css/components.css">
   <style>
@@ -128,9 +134,12 @@
   <script src="js/config.js"></script>
   <script src="js/supabase.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/collaboration.js"></script>
   <script src="js/confetti.js"></script>
   <script src="js/mailer.js"></script>
   <script src="js/weather.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/offline-sync.js"></script>
   <script src="js/app.js"></script>
 
   <script>
@@ -173,10 +182,14 @@
           return;
         }
 
+        const user = window.FarmPilotAuth.getUser() || window.FARMPILOT_CONFIG.PERSONAS.WORKER;
+        const workerHandle = user.username ? `@${user.username}` : '@ramu';
+
         container.innerHTML = pendingOrActive.map(task => {
           const isOverdue = task.status === 'OVERDUE';
           const isInProgress = task.status === 'IN_PROGRESS';
           const cardClass = isOverdue ? 'overdue' : isInProgress ? 'in-progress' : 'pending';
+          const targetQty = task.target_quantity || (task.category === 'FERTILIZATION' ? '45 kg Urea' : 'Standard Dosage Protocol');
 
           return `
             <div class="worker-task-card ${cardClass}" id="worker-card-${task.id}">
@@ -193,7 +206,7 @@
                       ${task.category}
                     </span>
                   </div>
-                  <h2 style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); margin: 0.5rem 0 0.25rem;">
+                  <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--color-text-primary); margin: 0.5rem 0 0.25rem;">
                     ${task.title}
                   </h2>
                   <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin: 0;">
@@ -202,23 +215,64 @@
                 </div>
               </div>
 
+              <!-- Target Input Quantity Badge -->
+              <div style="background: #F0FDF4; border: 1.5px solid #86EFAC; border-radius: var(--radius-md); padding: 0.75rem 1rem; margin-bottom: 0.875rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="font-size: 1.25rem;">📦</span>
+                  <div>
+                    <span style="font-size: 0.6875rem; font-weight: 800; color: #166534; text-transform: uppercase;">Prescribed Target Input:</span>
+                    <div style="font-size: 0.9375rem; font-weight: 800; color: #14532D;" class="font-mono">${targetQty}</div>
+                  </div>
+                </div>
+                <span class="badge" style="background: #DCFCE7; color: #166534; font-weight: 700; font-size: 0.6875rem;">Agronomic Top-Dressing</span>
+              </div>
+
               ${task.notes ? `
-                <div style="background: rgba(255,255,255,0.7); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 0.75rem; margin-bottom: 1rem;">
+                <div style="background: rgba(248,250,252,0.9); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 0.75rem; margin-bottom: 1rem;">
                   <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0; line-height: 1.5;">
                     📋 <strong>Field Protocol:</strong> ${task.notes}
                   </p>
                 </div>
               ` : ''}
 
-              <div style="display: grid; grid-template-columns: ${isInProgress ? '1fr' : '1fr 1fr'}; gap: 0.75rem; margin-top: 1rem;">
+              <!-- WORKER OPERATIONAL REPORTING FORM (Actuals & Field Note) -->
+              <div style="background: #FFFFFF; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem;">
+                <h4 style="font-size: 0.8125rem; font-weight: 800; color: var(--color-text-primary); margin: 0 0 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">
+                  Field Execution Report (${workerHandle})
+                </h4>
+
+                <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                  <div>
+                    <label style="font-size: 0.6875rem; font-weight: 800; color: var(--color-text-secondary); display: block; margin-bottom: 0.25rem;">
+                      Actual Quantity Applied
+                    </label>
+                    <input type="text" id="actual-qty-${task.id}" class="form-input font-mono" value="${task.actual_quantity || targetQty}" placeholder="e.g. 45 kg Urea" style="font-size: 0.8125rem; font-weight: 700;">
+                  </div>
+                  <div>
+                    <label style="font-size: 0.6875rem; font-weight: 800; color: var(--color-text-secondary); display: block; margin-bottom: 0.25rem;">
+                      Hours Worked
+                    </label>
+                    <input type="number" step="0.5" id="hours-worked-${task.id}" class="form-input font-mono" value="${task.hours_worked || 2.5}" placeholder="2.5" style="font-size: 0.8125rem; font-weight: 700;">
+                  </div>
+                </div>
+
+                <div>
+                  <label style="font-size: 0.6875rem; font-weight: 800; color: var(--color-text-secondary); display: block; margin-bottom: 0.25rem;">
+                    📝 Task-Level Field Note (Instantly visible to Owner & Manager)
+                  </label>
+                  <textarea id="field-note-${task.id}" class="form-input" rows="2" placeholder="e.g. North corner flooded, skipped last 2 rows. Sluice gate calibrated." style="font-size: 0.75rem; resize: vertical;">${task.field_note || 'North corner flooded, skipped last 2 rows.'}</textarea>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: ${isInProgress ? '1fr' : '1fr 1.5fr'}; gap: 0.75rem;">
                 ${!isInProgress ? `
                   <button class="worker-action-btn btn-start" onclick="startTask('${task.id}')">
-                    <span>▶ Start Task</span>
+                    <span>▶ In Progress</span>
                   </button>
                 ` : ''}
 
                 <button class="worker-action-btn btn-complete" onclick="finishTask('${task.id}', event)">
-                  <span>✓ Mark Completed</span>
+                  <span>✓ Mark Complete & Log Actuals</span>
                 </button>
               </div>
             </div>
@@ -238,9 +292,40 @@
           window.triggerConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
         }
 
-        const res = await window.FarmPilotDB.completeActivity(id);
+        const user = window.FarmPilotAuth.getUser() || window.FARMPILOT_CONFIG.PERSONAS.WORKER;
+        const actualQtyEl = document.getElementById(`actual-qty-${id}`);
+        const hoursEl = document.getElementById(`hours-worked-${id}`);
+        const noteEl = document.getElementById(`field-note-${id}`);
+
+        const actualQuantity = actualQtyEl ? actualQtyEl.value.trim() : '45 kg Urea';
+        const hoursWorked = hoursEl ? hoursEl.value : 2.5;
+        const fieldNote = noteEl ? noteEl.value.trim() : 'Applied full 45 kg dosage.';
+
+        if (window.FarmPilotOffline && !window.FarmPilotOffline.isOnline()) {
+          window.FarmPilotOffline.queueAction({
+            type: 'COMPLETE_ACTIVITY',
+            payload: {
+              id,
+              actual_quantity: actualQuantity,
+              hours_worked: hoursWorked,
+              field_note: fieldNote,
+              worker_username: user.username || 'ramu',
+              worker_name: user.full_name || 'Ravi Kumar'
+            }
+          });
+        }
+
+        const res = await window.FarmPilotDB.completeActivity(id, {
+          actual_quantity: actualQuantity,
+          hours_worked: hoursWorked,
+          field_note: fieldNote,
+          worker_username: user.username || 'ramu',
+          worker_name: user.full_name || 'Ravi Kumar'
+        });
+
         const score = res?.health?.score || 94;
-        window.FarmPilotApp.showToast(`🎉 Task completed and verified! Farm Health recalculated to ${score}/100!`);
+        const offlineNote = window.FarmPilotOffline && !window.FarmPilotOffline.isOnline() ? ' (Queued for Cloud Sync)' : '';
+        window.FarmPilotApp.showToast(`🎉 Done! Dosage "${actualQuantity}" logged${offlineNote}. Farm Health: ${score}/100!`);
         await loadTasks();
       };
 
