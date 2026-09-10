@@ -5,7 +5,8 @@ import { cropService } from '@/services/cropService';
 import type { Input as FarmInput, InputInsert, Farm, CropCycle } from '@/types/database';
 import { INPUT_TYPE_LABELS } from '@/types/database';
 import { formatCurrency } from '@/services/intelligenceService';
-import { Plus, Package, Trash2, X, Loader2 } from 'lucide-react';
+import { Plus, Package, Trash2, X, Loader2, Calendar } from 'lucide-react';
+import { showToast } from '@/components/common/ToastNotification';
 
 export default function InputsPage() {
   const [inputs, setInputs] = useState<FarmInput[]>([]);
@@ -29,22 +30,21 @@ export default function InputsPage() {
   const loadData = async () => {
     try {
       const [inps, frms] = await Promise.all([inputService.getAll(), farmService.getAll()]);
-      setInputs(inps); setFarms(frms);
+      setInputs(inps);
+      setFarms(frms);
       if (frms.length > 0 && !farmId) {
         setFarmId(frms[0].id);
         const cycles = await cropService.getByFarm(frms[0].id);
         setCropCycles(cycles);
       }
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { loadData(); }, []);
-
-  const handleFarmChange = async (fId: string) => {
-    setFarmId(fId); setCropCycleId('');
-    if (fId) { const cycles = await cropService.getByFarm(fId); setCropCycles(cycles); }
-  };
 
   const resetForm = () => {
     setName(''); setInputType('OTHER'); setQuantity(''); setUnit('kg');
@@ -54,157 +54,263 @@ export default function InputsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !farmId) { setError('Name and farm are required'); return; }
-    setSaving(true); setError('');
+    if (!name.trim() || !farmId) {
+      setError('Input name and farm are required');
+      return;
+    }
+    setSaving(true);
+    setError('');
     try {
       const payload: InputInsert = {
-        farm_id: farmId, field_id: null, crop_cycle_id: cropCycleId || null,
-        name: name.trim(), input_type: inputType as InputInsert['input_type'],
-        quantity: parseFloat(quantity) || 0, unit, cost: parseFloat(cost) || 0,
-        used_date: usedDate, supplier: supplier.trim(), notes: '',
+        farm_id: farmId,
+        field_id: null,
+        crop_cycle_id: cropCycleId || null,
+        name: name.trim(),
+        input_type: inputType as InputInsert['input_type'],
+        quantity: parseFloat(quantity) || 0,
+        unit,
+        cost: parseFloat(cost) || 0,
+        used_date: usedDate,
+        supplier: supplier.trim(),
+        notes: '',
       };
       await inputService.create(payload);
-      resetForm(); await loadData();
+      showToast.success('Input Recorded', `"${name.trim()}" added to inventory & expense ledger.`);
+      resetForm();
+      await loadData();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to save');
-    } finally { setSaving(false); }
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this input record?')) return;
-    try { await inputService.delete(id); await loadData(); }
-    catch (err) { console.error(err); }
+  const handleDelete = async (id: string, inpName: string) => {
+    if (!confirm(`Delete input voucher for "${inpName}"?`)) return;
+    try {
+      await inputService.delete(id);
+      showToast.info('Input Removed', 'Voucher deleted.');
+      await loadData();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const totalInputCost = inputs.reduce((sum, i) => sum + i.cost, 0);
 
-  if (loading) return <div className="space-y-4"><div className="skeleton h-8 w-48" />{[1,2,3].map(i => <div key={i} className="skeleton h-14 rounded-xl" />)}</div>;
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="h-8 w-48 bg-slate-200 animate-pulse rounded-lg" />
+        {[1, 2, 3].map(i => <div key={i} className="h-14 rounded-xl bg-slate-100 animate-pulse" />)}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">Inputs</h1>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">Track agricultural inputs — seeds, fertilizers, pesticides</p>
+          <h1 className="text-xl font-bold text-[var(--color-text-title)]">Resource & Input Consumption</h1>
+          <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+            Procurement records for seeds, fertilizers, pesticides, and bio-nutrients
+          </p>
         </div>
-        <button onClick={() => { resetForm(); setShowForm(true); }}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl gradient-primary text-white text-sm font-medium shadow-sm hover:shadow-md transition-all">
-          <Plus className="w-4 h-4" /> Add Input
+        <button
+          onClick={() => { resetForm(); setShowForm(true); }}
+          className="stitch-btn-primary px-4 py-2 text-xs gap-1.5 self-start sm:self-auto cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Record Input</span>
         </button>
       </div>
 
-      <div className="glass-card p-4 inline-flex items-center gap-3">
-        <Package className="w-5 h-5 text-[var(--color-primary-600)]" />
-        <div>
-          <p className="text-xs text-[var(--color-text-muted)]">Total Input Cost</p>
-          <p className="text-lg font-bold">{formatCurrency(totalInputCost)}</p>
+      {/* KPI Overview Pill */}
+      <div className="stitch-card p-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-100">
+            <Package className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-[var(--color-text-faint)] uppercase tracking-wider">Total Input Expenditure</p>
+            <p className="text-lg font-extrabold text-[var(--color-text-title)] tabular-nums">{formatCurrency(totalInputCost)}</p>
+          </div>
         </div>
+
+        <span className="stitch-badge stitch-badge-success">
+          {inputs.length} Batches Logged
+        </span>
       </div>
 
-      {inputs.length === 0 ? (
-        <div className="glass-card p-12 text-center">
-          <Package className="w-12 h-12 mx-auto mb-3 text-[var(--color-text-muted)]" />
-          <p className="text-sm text-[var(--color-text-secondary)]">No inputs recorded yet</p>
-        </div>
-      ) : (
-        <div className="glass-card overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[var(--color-border-light)] bg-[var(--color-surface-secondary)]">
-                <th className="text-left py-3 px-4 font-medium text-[var(--color-text-secondary)]">Date</th>
-                <th className="text-left py-3 px-4 font-medium text-[var(--color-text-secondary)]">Name</th>
-                <th className="text-left py-3 px-4 font-medium text-[var(--color-text-secondary)]">Type</th>
-                <th className="text-left py-3 px-4 font-medium text-[var(--color-text-secondary)]">Qty</th>
-                <th className="text-right py-3 px-4 font-medium text-[var(--color-text-secondary)]">Cost</th>
-                <th className="text-left py-3 px-4 font-medium text-[var(--color-text-secondary)]">Supplier</th>
-                <th className="py-3 px-4 w-12"></th>
+      {/* Table */}
+      <div className="stitch-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-slate-50/70 border-b border-[var(--color-border-subtle)] text-[var(--color-text-muted)] uppercase text-[10px] tracking-wider">
+              <tr>
+                <th className="py-3 px-4 font-bold">Input Item</th>
+                <th className="py-3 px-4 font-bold">Category</th>
+                <th className="py-3 px-4 font-bold">Quantity</th>
+                <th className="py-3 px-4 font-bold">Total Cost</th>
+                <th className="py-3 px-4 font-bold">Application Date</th>
+                <th className="py-3 px-4 font-bold">Supplier</th>
+                <th className="py-3 px-4 font-bold text-right">Action</th>
               </tr>
             </thead>
-            <tbody>
-              {inputs.map((input, i) => (
-                <tr key={input.id} className="border-b border-[var(--color-border-light)] last:border-0 hover:bg-[var(--color-surface-hover)] transition-colors animate-slide-up" style={{ animationDelay: `${i * 0.02}s` }}>
-                  <td className="py-3 px-4 text-[var(--color-text-muted)]">{new Date(input.used_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</td>
-                  <td className="py-3 px-4 font-medium">{input.name}</td>
-                  <td className="py-3 px-4"><span className="text-xs px-2 py-0.5 rounded-full bg-[var(--color-surface-tertiary)]">{INPUT_TYPE_LABELS[input.input_type]}</span></td>
-                  <td className="py-3 px-4">{input.quantity} {input.unit}</td>
-                  <td className="py-3 px-4 text-right font-semibold">{formatCurrency(input.cost)}</td>
-                  <td className="py-3 px-4 text-[var(--color-text-muted)]">{input.supplier || '-'}</td>
-                  <td className="py-3 px-4">
-                    <button onClick={() => handleDelete(input.id)} className="p-1 rounded-lg hover:bg-red-50 text-[var(--color-text-muted)] hover:text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
+            <tbody className="divide-y divide-[var(--color-border-subtle)]">
+              {inputs.map(inp => (
+                <tr key={inp.id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="py-3 px-4 font-bold text-[var(--color-text-title)]">{inp.name}</td>
+                  <td className="py-3 px-4 text-[var(--color-text-muted)]">
+                    <span className="stitch-badge stitch-badge-neutral">
+                      {INPUT_TYPE_LABELS[inp.input_type] || inp.input_type}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 font-bold tabular-nums text-[var(--color-text-title)]">{inp.quantity} {inp.unit}</td>
+                  <td className="py-3 px-4 font-extrabold text-emerald-800 tabular-nums">{formatCurrency(inp.cost)}</td>
+                  <td className="py-3 px-4 text-[var(--color-text-muted)] font-mono">{inp.used_date}</td>
+                  <td className="py-3 px-4 text-[var(--color-text-title)]">{inp.supplier || 'Regional Agro Depot'}</td>
+                  <td className="py-3 px-4 text-right">
+                    <button
+                      onClick={() => handleDelete(inp.id, inp.name)}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                      title="Delete record"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      )}
+      </div>
 
+      {/* Creation Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={resetForm}>
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl animate-scale-in" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-6 border-b border-[var(--color-border-light)]">
-              <h2 className="text-lg font-semibold">Add Input</h2>
-              <button onClick={resetForm} className="p-2 rounded-lg hover:bg-[var(--color-surface-tertiary)]"><X className="w-4 h-4" /></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-[var(--color-border-subtle)] animate-scale-in">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[var(--color-border-subtle)]">
+              <h2 className="text-sm font-bold text-[var(--color-text-title)]">Log Input Consumption</h2>
+              <button onClick={resetForm} className="p-1 rounded text-slate-400 hover:text-slate-600">
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {error && <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">{error}</div>}
-              <div>
-                <label className="block text-sm font-medium mb-1.5">Farm *</label>
-                <select value={farmId} onChange={e => handleFarmChange(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent">
-                  {farms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-                </select>
+
+            {error && (
+              <div className="p-2.5 rounded-lg bg-red-50 text-red-700 text-xs mb-3">
+                {error}
               </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
               <div>
-                <label className="block text-sm font-medium mb-1.5">Crop Cycle</label>
-                <select value={cropCycleId} onChange={e => setCropCycleId(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent">
-                  <option value="">-- None --</option>
-                  {cropCycles.map(c => <option key={c.id} value={c.id}>{c.crop_name} ({c.season})</option>)}
-                </select>
+                <label className="block font-medium text-[var(--color-text-title)] mb-1">Input Item Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="e.g. Zinc Sulfate Monohydrate (33% Zn)"
+                  className="w-full px-3 py-2 border border-[var(--color-border-subtle)] rounded-lg outline-none focus:border-[var(--color-primary-600)]"
+                />
               </div>
+
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-sm font-medium mb-1.5">Input Name *</label>
-                  <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="e.g. Urea"
-                    className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent" />
-                </div>
-                <div><label className="block text-sm font-medium mb-1.5">Type</label>
-                  <select value={inputType} onChange={e => setInputType(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent">
-                    {Object.entries(INPUT_TYPE_LABELS).map(([val, lbl]) => <option key={val} value={val}>{lbl}</option>)}
+                <div>
+                  <label className="block font-medium text-[var(--color-text-title)] mb-1">Category</label>
+                  <select
+                    value={inputType}
+                    onChange={e => setInputType(e.target.value)}
+                    className="w-full px-3 py-2 border border-[var(--color-border-subtle)] rounded-lg outline-none bg-white"
+                  >
+                    <option value="SEED">Seed</option>
+                    <option value="FERTILIZER">Fertilizer</option>
+                    <option value="PESTICIDE">Pesticide</option>
+                    <option value="HERBICIDE">Herbicide</option>
+                    <option value="ORGANIC_MANURE">Organic Manure</option>
+                    <option value="OTHER">Other Bio-Agent</option>
                   </select>
                 </div>
+
+                <div>
+                  <label className="block font-medium text-[var(--color-text-title)] mb-1">Supplier / Vendor</label>
+                  <input
+                    type="text"
+                    value={supplier}
+                    onChange={e => setSupplier(e.target.value)}
+                    placeholder="e.g. IFFCO Agro Center"
+                    className="w-full px-3 py-2 border border-[var(--color-border-subtle)] rounded-lg outline-none"
+                  />
+                </div>
               </div>
+
               <div className="grid grid-cols-3 gap-3">
-                <div><label className="block text-sm font-medium mb-1.5">Quantity</label>
-                  <input type="number" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="50" min="0"
-                    className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent" />
+                <div className="col-span-1">
+                  <label className="block font-medium text-[var(--color-text-title)] mb-1">Quantity *</label>
+                  <input
+                    type="number"
+                    step="any"
+                    required
+                    value={quantity}
+                    onChange={e => setQuantity(e.target.value)}
+                    placeholder="25"
+                    className="w-full px-3 py-2 border border-[var(--color-border-subtle)] rounded-lg outline-none font-mono"
+                  />
                 </div>
-                <div><label className="block text-sm font-medium mb-1.5">Unit</label>
-                  <select value={unit} onChange={e => setUnit(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent">
-                    <option value="kg">kg</option><option value="liters">liters</option><option value="bags">bags</option><option value="packets">packets</option>
+
+                <div className="col-span-1">
+                  <label className="block font-medium text-[var(--color-text-title)] mb-1">Unit</label>
+                  <select
+                    value={unit}
+                    onChange={e => setUnit(e.target.value)}
+                    className="w-full px-3 py-2 border border-[var(--color-border-subtle)] rounded-lg outline-none bg-white font-mono"
+                  >
+                    <option value="kg">kg</option>
+                    <option value="litres">litres</option>
+                    <option value="bags">bags</option>
+                    <option value="packets">packets</option>
                   </select>
                 </div>
-                <div><label className="block text-sm font-medium mb-1.5">Cost (₹)</label>
-                  <input type="number" value={cost} onChange={e => setCost(e.target.value)} placeholder="5000" min="0"
-                    className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent" />
+
+                <div className="col-span-1">
+                  <label className="block font-medium text-[var(--color-text-title)] mb-1">Total Cost (₹) *</label>
+                  <input
+                    type="number"
+                    required
+                    value={cost}
+                    onChange={e => setCost(e.target.value)}
+                    placeholder="1800"
+                    className="w-full px-3 py-2 border border-[var(--color-border-subtle)] rounded-lg outline-none font-mono"
+                  />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-sm font-medium mb-1.5">Used Date</label>
-                  <input type="date" value={usedDate} onChange={e => setUsedDate(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent" />
-                </div>
-                <div><label className="block text-sm font-medium mb-1.5">Supplier</label>
-                  <input type="text" value={supplier} onChange={e => setSupplier(e.target.value)} placeholder="Supplier name"
-                    className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent" />
-                </div>
+
+              <div>
+                <label className="block font-medium text-[var(--color-text-title)] mb-1">Used Date</label>
+                <input
+                  type="date"
+                  value={usedDate}
+                  onChange={e => setUsedDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-[var(--color-border-subtle)] rounded-lg outline-none bg-white font-mono"
+                />
               </div>
-              <div className="flex gap-3 pt-2">
-                <button type="button" onClick={resetForm} className="flex-1 px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] text-sm font-medium hover:bg-[var(--color-surface-tertiary)]">Cancel</button>
-                <button type="submit" disabled={saving} className="flex-1 px-4 py-2.5 rounded-xl gradient-primary text-white text-sm font-medium shadow-sm hover:shadow-md disabled:opacity-60">
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Add Input'}
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="stitch-btn-secondary px-3 py-2 text-xs cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="stitch-btn-primary px-4 py-2 text-xs cursor-pointer disabled:opacity-50"
+                >
+                  {saving ? 'Saving...' : 'Record Input'}
                 </button>
               </div>
             </form>

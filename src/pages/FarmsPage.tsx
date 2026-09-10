@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { farmService } from '@/services/farmService';
+import { showToast } from '@/components/common/ToastNotification';
 import type { Farm, FarmInsert } from '@/types/database';
 import {
   Plus, Tractor, MapPin, Maximize, Edit3, Trash2, X,
-  Loader2, ChevronRight
+  Loader2, ChevronRight, Layers, Building2, CheckCircle2
 } from 'lucide-react';
 
 export default function FarmsPage() {
@@ -34,6 +35,7 @@ export default function FarmsPage() {
       setFarms(data);
     } catch (err) {
       console.error(err);
+      showToast.error('Failed to load farms');
     } finally {
       setLoading(false);
     }
@@ -78,37 +80,47 @@ export default function FarmsPage() {
 
       if (editingFarm) {
         await farmService.update(editingFarm.id, payload);
+        showToast.success(`Farm "${name}" updated successfully`);
       } else {
         await farmService.create(payload);
+        showToast.success(`Farm "${name}" registered successfully`);
       }
       resetForm();
       await loadFarms();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to save');
+      const msg = err instanceof Error ? err.message : 'Failed to save farm';
+      setError(msg);
+      showToast.error(msg);
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this farm? All fields, crops, and data will be removed.')) return;
+  const handleDelete = async (id: string, farmName: string) => {
+    if (!confirm(`Delete farm "${farmName}"? All associated fields, crops, and financial logs will be permanently removed.`)) return;
     setDeleting(id);
     try {
       await farmService.delete(id);
+      showToast.success(`Farm "${farmName}" removed`);
       await loadFarms();
     } catch (err) {
       console.error(err);
+      showToast.error('Failed to delete farm');
     } finally {
       setDeleting(null);
     }
   };
 
+  const totalAcreage = farms.reduce((acc, f) => acc + (Number(f.total_area) || 0), 0);
+
   if (loading) {
     return (
-      <div className="space-y-4">
-        <div className="skeleton h-8 w-48" />
+      <div className="space-y-6">
+        <div className="h-8 w-48 bg-[#E2E8F0] animate-pulse rounded-lg" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3].map(i => <div key={i} className="skeleton h-48 rounded-2xl" />)}
+          {[1, 2, 3].map(i => (
+            <div key={i} className="h-44 bg-white border border-[#E5E8EB] rounded-xl animate-pulse" />
+          ))}
         </div>
       </div>
     );
@@ -117,82 +129,134 @@ export default function FarmsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E5E8EB]">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">Farms</h1>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
-            Manage your farming operations
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#143D30] uppercase tracking-wider mb-1">
+            <Building2 className="w-3.5 h-3.5" />
+            <span>Estate & Holdings</span>
+          </div>
+          <h1 className="text-2xl font-bold text-[#0F172A] tracking-tight">Farms Management</h1>
+          <p className="text-xs text-[#64748B] mt-0.5">
+            Configure land holdings, geography, total acreage, and operational clusters
           </p>
         </div>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl gradient-primary text-white text-sm font-medium
-            shadow-sm hover:shadow-md transition-all"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#143D30] hover:bg-[#1A4D3E] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4" />
-          Add Farm
+          <Plus className="w-3.5 h-3.5" />
+          <span>Add New Farm</span>
         </button>
+      </div>
+
+      {/* Stats Ribbon */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div className="bg-white p-4 rounded-xl border border-[#E5E8EB] shadow-xs">
+          <p className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Registered Farms</p>
+          <p className="text-2xl font-bold text-[#0F172A] tabular-nums mt-1">{farms.length}</p>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-[#E5E8EB] shadow-xs">
+          <p className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Total Area Managed</p>
+          <p className="text-2xl font-bold text-[#143D30] tabular-nums mt-1">
+            {totalAcreage.toFixed(1)} <span className="text-xs font-normal text-[#64748B]">acres</span>
+          </p>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-[#E5E8EB] shadow-xs col-span-2 sm:col-span-1">
+          <p className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Status</p>
+          <div className="flex items-center gap-1.5 mt-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-xs font-semibold text-emerald-700">All Systems Operational</span>
+          </div>
+        </div>
       </div>
 
       {/* Farm Cards */}
       {farms.length === 0 ? (
-        <div className="text-center py-16">
-          <Tractor className="w-16 h-16 mx-auto mb-4 text-[var(--color-text-muted)]" />
-          <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">No farms yet</h3>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-1 mb-6">
-            Create your first farm to begin managing operations
+        <div className="bg-white rounded-xl border border-[#E5E8EB] p-12 text-center shadow-xs">
+          <div className="w-12 h-12 rounded-xl bg-[#F0FDF4] text-[#143D30] flex items-center justify-center mx-auto mb-3">
+            <Tractor className="w-6 h-6" />
+          </div>
+          <h3 className="text-sm font-semibold text-[#0F172A]">No farms registered yet</h3>
+          <p className="text-xs text-[#64748B] mt-1 max-w-sm mx-auto">
+            Register your first agricultural property to begin tracking plots, crops, and financial ledgers.
           </p>
           <button
             onClick={() => setShowForm(true)}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl gradient-primary text-white font-medium"
+            className="mt-4 inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#143D30] hover:bg-[#1A4D3E] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
-            Create Your First Farm
+            <Plus className="w-3.5 h-3.5" />
+            <span>Create First Farm</span>
           </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {farms.map((farm, i) => (
+          {farms.map((farm) => (
             <div
               key={farm.id}
-              className="glass-card p-5 cursor-pointer group animate-slide-up"
-              style={{ animationDelay: `${i * 0.05}s` }}
+              className="bg-white rounded-xl border border-[#E5E8EB] p-5 shadow-xs hover:border-[#CBD5E1] hover:shadow-sm transition-all duration-200 cursor-pointer group flex flex-col justify-between"
               onClick={() => navigate(`/farms/${farm.id}`)}
             >
-              <div className="flex items-start justify-between mb-3">
-                <div className="w-11 h-11 rounded-xl bg-[var(--color-primary-50)] flex items-center justify-center">
-                  <Tractor className="w-5 h-5 text-[var(--color-primary-600)]" />
+              <div>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-[#F0FDF4] border border-[#DCFCE7] flex items-center justify-center text-[#143D30]">
+                    <Tractor className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
+                    <button
+                      onClick={() => openEdit(farm)}
+                      className="p-1.5 rounded-md hover:bg-[#F1F5F9] text-[#64748B] hover:text-[#0F172A] transition-colors"
+                      title="Edit Farm"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(farm.id, farm.name)}
+                      className="p-1.5 rounded-md hover:bg-red-50 text-[#64748B] hover:text-red-600 transition-colors"
+                      title="Delete Farm"
+                    >
+                      {deleting === farm.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
                 </div>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
-                  <button
-                    onClick={() => openEdit(farm)}
-                    className="p-1.5 rounded-lg hover:bg-[var(--color-surface-tertiary)] text-[var(--color-text-muted)]"
-                  >
-                    <Edit3 className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(farm.id)}
-                    className="p-1.5 rounded-lg hover:bg-red-50 text-[var(--color-text-muted)] hover:text-red-600"
-                  >
-                    {deleting === farm.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-              </div>
-              <h3 className="text-base font-semibold text-[var(--color-text-primary)] mb-1">{farm.name}</h3>
-              <div className="space-y-1 mb-3">
-                {farm.location && (
-                  <p className="flex items-center gap-1.5 text-xs text-[var(--color-text-muted)]">
-                    <MapPin className="w-3 h-3" />
-                    {[farm.location, farm.district, farm.state].filter(Boolean).join(', ')}
+
+                <h3 className="text-base font-bold text-[#0F172A] group-hover:text-[#143D30] transition-colors">
+                  {farm.name}
+                </h3>
+
+                {farm.description && (
+                  <p className="text-xs text-[#64748B] mt-1 line-clamp-2 leading-relaxed">
+                    {farm.description}
                   </p>
                 )}
-                <p className="flex items-center gap-1.5 text-xs text-[var(--color-text-muted)]">
-                  <Maximize className="w-3 h-3" />
-                  {farm.total_area} {farm.area_unit}
-                </p>
+
+                <div className="mt-4 pt-3 border-t border-[#F1F5F9] space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-[#64748B] flex items-center gap-1.5">
+                      <Maximize className="w-3.5 h-3.5 text-[#94A3B8]" /> Total Acreage
+                    </span>
+                    <span className="font-semibold text-[#0F172A] tabular-nums">
+                      {farm.total_area} {farm.area_unit}
+                    </span>
+                  </div>
+
+                  {(farm.location || farm.district || farm.state) && (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-[#64748B] flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-[#94A3B8]" /> Location
+                      </span>
+                      <span className="font-medium text-[#334155] truncate max-w-[180px] text-right">
+                        {[farm.location, farm.district, farm.state].filter(Boolean).join(', ')}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center text-xs text-[var(--color-primary-600)] font-medium group-hover:text-[var(--color-primary-700)]">
-                View Details <ChevronRight className="w-3 h-3 ml-1" />
+
+              <div className="mt-4 pt-3 border-t border-[#F1F5F9] flex items-center justify-between text-xs">
+                <span className="text-[11px] text-[#94A3B8]">Active Holding</span>
+                <span className="text-xs font-semibold text-[#143D30] group-hover:text-[#1A4D3E] flex items-center gap-1">
+                  Manage Plots <ChevronRight className="w-3.5 h-3.5" />
+                </span>
               </div>
             </div>
           ))}
@@ -201,80 +265,100 @@ export default function FarmsPage() {
 
       {/* Create/Edit Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={resetForm}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in" onClick={resetForm}>
           <div
-            className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl animate-scale-in"
+            className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl border border-[#E5E8EB] animate-scale-in"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-6 border-b border-[var(--color-border-light)]">
-              <h2 className="text-lg font-semibold">{editingFarm ? 'Edit Farm' : 'Create Farm'}</h2>
-              <button onClick={resetForm} className="p-2 rounded-lg hover:bg-[var(--color-surface-tertiary)]">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E8EB]">
+              <div>
+                <h2 className="text-base font-bold text-[#0F172A]">
+                  {editingFarm ? 'Edit Farm Holding' : 'Register New Farm'}
+                </h2>
+                <p className="text-xs text-[#64748B] mt-0.5">Specify operational boundaries and territory</p>
+              </div>
+              <button onClick={resetForm} className="p-1.5 rounded-lg text-[#64748B] hover:bg-[#F1F5F9] transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {error && (
-                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">{error}</div>
+                <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 font-medium">
+                  {error}
+                </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium mb-1.5">Farm Name *</label>
+                <label className="block text-xs font-semibold text-[#334155] mb-1.5">
+                  Farm Name <span className="text-red-500">*</span>
+                </label>
                 <input
-                  type="text" value={name} onChange={e => setName(e.target.value)} required
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  required
                   placeholder="e.g. Green Valley Farm"
-                  className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)]
-                    text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent"
+                  className="w-full px-3.5 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30] focus:border-[#143D30] transition-colors"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium mb-1.5">Location</label>
+                  <label className="block text-xs font-semibold text-[#334155] mb-1.5">Village / Town</label>
                   <input
-                    type="text" value={location} onChange={e => setLocation(e.target.value)}
-                    placeholder="Village/Town"
-                    className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)]
-                      text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent"
+                    type="text"
+                    value={location}
+                    onChange={e => setLocation(e.target.value)}
+                    placeholder="e.g. Rampur"
+                    className="w-full px-3.5 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30] focus:border-[#143D30] transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1.5">District</label>
+                  <label className="block text-xs font-semibold text-[#334155] mb-1.5">District</label>
                   <input
-                    type="text" value={district} onChange={e => setDistrict(e.target.value)}
-                    placeholder="District"
-                    className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)]
-                      text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent"
+                    type="text"
+                    value={district}
+                    onChange={e => setDistrict(e.target.value)}
+                    placeholder="e.g. Guntur"
+                    className="w-full px-3.5 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30] focus:border-[#143D30] transition-colors"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1.5">State</label>
+                <label className="block text-xs font-semibold text-[#334155] mb-1.5">State</label>
                 <input
-                  type="text" value={state} onChange={e => setState(e.target.value)}
+                  type="text"
+                  value={state}
+                  onChange={e => setState(e.target.value)}
                   placeholder="e.g. Andhra Pradesh"
-                  className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)]
-                    text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent"
+                  className="w-full px-3.5 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30] focus:border-[#143D30] transition-colors"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium mb-1.5">Total Area *</label>
+                  <label className="block text-xs font-semibold text-[#334155] mb-1.5">
+                    Total Area <span className="text-red-500">*</span>
+                  </label>
                   <input
-                    type="number" value={totalArea} onChange={e => setTotalArea(e.target.value)}
-                    placeholder="25" min="0" step="0.1"
-                    className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)]
-                      text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent"
+                    type="number"
+                    value={totalArea}
+                    onChange={e => setTotalArea(e.target.value)}
+                    placeholder="25"
+                    min="0"
+                    step="0.1"
+                    required
+                    className="w-full px-3.5 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30] focus:border-[#143D30] transition-colors tabular-nums"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1.5">Unit</label>
+                  <label className="block text-xs font-semibold text-[#334155] mb-1.5">Unit</label>
                   <select
-                    value={areaUnit} onChange={e => setAreaUnit(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)]
-                      text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent"
+                    value={areaUnit}
+                    onChange={e => setAreaUnit(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30] focus:border-[#143D30] transition-colors"
                   >
                     <option value="acres">Acres</option>
                     <option value="hectares">Hectares</option>
@@ -285,26 +369,30 @@ export default function FarmsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1.5">Description</label>
+                <label className="block text-xs font-semibold text-[#334155] mb-1.5">Description & Soil Profile</label>
                 <textarea
-                  value={description} onChange={e => setDescription(e.target.value)}
-                  placeholder="Brief description of the farm..."
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  placeholder="Primary crop types, irrigation sources, top soil characteristics..."
                   rows={3}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)]
-                    text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent resize-none"
+                  className="w-full px-3.5 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30] focus:border-[#143D30] transition-colors resize-none"
                 />
               </div>
 
-              <div className="flex gap-3 pt-2">
-                <button type="button" onClick={resetForm}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] text-sm font-medium
-                    hover:bg-[var(--color-surface-tertiary)] transition-colors">
+              <div className="flex gap-2.5 pt-3 border-t border-[#E5E8EB]">
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="flex-1 px-3.5 py-2 rounded-lg border border-[#CBD5E1] text-xs font-medium text-[#475569] hover:bg-[#F1F5F9] transition-colors cursor-pointer"
+                >
                   Cancel
                 </button>
-                <button type="submit" disabled={saving}
-                  className="flex-1 px-4 py-2.5 rounded-xl gradient-primary text-white text-sm font-medium
-                    shadow-sm hover:shadow-md transition-all disabled:opacity-60">
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : (editingFarm ? 'Update Farm' : 'Create Farm')}
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex-1 px-3.5 py-2 rounded-lg bg-[#143D30] hover:bg-[#1A4D3E] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-60"
+                >
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : (editingFarm ? 'Save Changes' : 'Register Farm')}
                 </button>
               </div>
             </form>

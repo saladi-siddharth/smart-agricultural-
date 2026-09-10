@@ -5,10 +5,11 @@ import { fieldService } from '@/services/fieldService';
 import { activityService } from '@/services/activityService';
 import { expenseService } from '@/services/expenseService';
 import { calculateCropProgressScore, formatCurrency } from '@/services/intelligenceService';
+import { showToast } from '@/components/common/ToastNotification';
 import type { CropCycle, Farm, Field, CropCycleInsert } from '@/types/database';
 import {
   Leaf, Plus, Calendar, DollarSign, Target, ChevronRight,
-  TrendingUp, Clock, CheckCircle2, AlertCircle, Loader2
+  TrendingUp, Clock, CheckCircle2, AlertCircle, Loader2, X
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -19,6 +20,7 @@ export default function CropsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'ALL' | 'ACTIVE' | 'PLANNED' | 'COMPLETED'>('ALL');
   const [modalOpen, setModalOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   // Stats
   const [cropStats, setCropStats] = useState<Record<string, { progress: number; spent: number }>>({});
@@ -74,6 +76,7 @@ export default function CropsPage() {
       }
     } catch (err) {
       console.error('Failed loading crop cycles', err);
+      showToast.error('Failed to load crop cycles');
     } finally {
       setLoading(false);
     }
@@ -104,12 +107,17 @@ export default function CropsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
     try {
       await cropService.create(formData);
+      showToast.success(`Crop cycle "${formData.crop_name}" launched`);
       setModalOpen(false);
       loadData();
     } catch (err) {
       console.error('Failed creating crop cycle', err);
+      showToast.error('Failed to create crop cycle');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -121,39 +129,39 @@ export default function CropsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E5E8EB]">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-[var(--color-primary-700)] uppercase tracking-wider mb-1">
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#143D30] uppercase tracking-wider mb-1">
             <Leaf className="w-3.5 h-3.5" />
             <span>Crop Lifecycle Management</span>
           </div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-[var(--color-text-primary)]">
+          <h1 className="text-2xl font-bold text-[#0F172A] tracking-tight">
             Crop Cycles & Seasons
           </h1>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
-            Monitor planting schedules, stage progression, budget vs spend, and harvest projections.
+          <p className="text-xs text-[#64748B] mt-0.5">
+            Monitor planting schedules, biological stage progression, budget vs spend, and harvest projections.
           </p>
         </div>
 
         <button
           onClick={openCreateModal}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl gradient-primary text-white text-sm font-medium shadow-sm hover:shadow-md transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#143D30] hover:bg-[#1A4D3E] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-3.5 h-3.5" />
           <span>New Crop Cycle</span>
         </button>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 border-b border-[var(--color-border-light)] pb-2">
+      <div className="flex items-center gap-1.5 border-b border-[#E5E8EB] pb-2">
         {(['ALL', 'ACTIVE', 'PLANNED', 'COMPLETED'] as const).map(tab => (
           <button
             key={tab}
             onClick={() => setFilter(tab)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
               filter === tab
-                ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)] font-semibold'
-                : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-tertiary)]'
+                ? 'bg-[#143D30] text-white font-semibold shadow-xs'
+                : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]'
             }`}
           >
             {tab === 'ALL' ? 'All Seasons' : tab.charAt(0) + tab.slice(1).toLowerCase()}
@@ -163,27 +171,27 @@ export default function CropsPage() {
 
       {/* Crop Cards */}
       {loading ? (
-        <div className="p-12 flex flex-col items-center justify-center bg-white rounded-2xl border border-[var(--color-border-light)]">
-          <Loader2 className="w-8 h-8 animate-spin text-[var(--color-primary-600)] mb-3" />
-          <p className="text-sm text-[var(--color-text-secondary)]">Loading crop cycles...</p>
+        <div className="p-12 flex flex-col items-center justify-center bg-white rounded-xl border border-[#E5E8EB]">
+          <Loader2 className="w-6 h-6 animate-spin text-[#143D30] mb-2" />
+          <p className="text-xs text-[#64748B]">Loading crop cycles...</p>
         </div>
       ) : filteredCrops.length === 0 ? (
-        <div className="text-center p-12 bg-white rounded-2xl border border-[var(--color-border-light)] shadow-xs">
-          <Leaf className="w-12 h-12 text-[var(--color-text-muted)] mx-auto mb-3" />
-          <h3 className="text-base font-semibold text-[var(--color-text-primary)]">No crop cycles found</h3>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-1 max-w-md mx-auto">
+        <div className="text-center p-12 bg-white rounded-xl border border-[#E5E8EB] shadow-xs">
+          <Leaf className="w-10 h-10 text-[#94A3B8] mx-auto mb-2" />
+          <h3 className="text-sm font-semibold text-[#0F172A]">No crop cycles found</h3>
+          <p className="text-xs text-[#64748B] mt-1 max-w-sm mx-auto">
             Create a crop cycle to plan operations from seed bed to harvest, track financial ROI, and measure crop health.
           </p>
           <button
             onClick={openCreateModal}
-            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl gradient-primary text-white text-sm font-medium"
+            className="mt-4 inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#143D30] text-white text-xs font-semibold shadow-xs"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5" />
             <span>Launch New Crop</span>
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {filteredCrops.map(crop => {
             const stats = cropStats[crop.id] || { progress: 0, spent: 0 };
             const budgetPercent = crop.planned_budget > 0
@@ -195,83 +203,83 @@ export default function CropsPage() {
             return (
               <div
                 key={crop.id}
-                className="bg-white rounded-2xl border border-[var(--color-border-light)] p-6 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between"
+                className="bg-white rounded-xl border border-[#E5E8EB] p-5 shadow-xs hover:border-[#CBD5E1] transition-all duration-200 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wider ${
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
                           crop.status === 'ACTIVE'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            ? 'bg-[#F0FDF4] text-[#143D30] border border-[#DCFCE7]'
                             : crop.status === 'COMPLETED'
                             ? 'bg-blue-50 text-blue-700 border border-blue-200'
                             : 'bg-amber-50 text-amber-700 border border-amber-200'
                         }`}>
                           {crop.status}
                         </span>
-                        <span className="text-xs text-[var(--color-text-muted)]">• {crop.season} Season</span>
+                        <span className="text-xs text-[#64748B]">• {crop.season} Season</span>
                       </div>
-                      <h3 className="text-xl font-bold text-[var(--color-text-primary)]">
+                      <h3 className="text-lg font-bold text-[#0F172A]">
                         {crop.crop_name}
                       </h3>
-                      <p className="text-xs text-[var(--color-text-secondary)]">
-                        Variety: <span className="font-semibold">{crop.variety || 'Standard'}</span> • Field: <span className="font-semibold">{field?.name || 'Assigned Plot'}</span>
+                      <p className="text-xs text-[#64748B]">
+                        Variety: <span className="font-semibold text-[#334155]">{crop.variety || 'Standard'}</span> • Field: <span className="font-semibold text-[#334155]">{field?.name || 'Assigned Plot'}</span>
                       </p>
                     </div>
 
                     <Link
                       to={`/crops/${crop.id}`}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[var(--color-surface-tertiary)] hover:bg-[var(--color-primary-50)] text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-primary-700)] transition-colors"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#E2E8F0] text-xs font-semibold text-[#143D30] transition-colors"
                     >
                       <span>Command View</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>
 
-                  <p className="text-xs text-[var(--color-text-secondary)] mb-5 line-clamp-2">
+                  <p className="text-xs text-[#64748B] mb-4 line-clamp-2">
                     {crop.notes || 'Target yield planned with integrated pest and irrigation protocols.'}
                   </p>
 
                   {/* Stage Progress Bar */}
-                  <div className="mb-5 bg-[var(--color-surface-secondary)] p-3 rounded-xl border border-[var(--color-border-light)]">
+                  <div className="mb-4 bg-[#F8FAFC] p-3 rounded-lg border border-[#F1F5F9]">
                     <div className="flex items-center justify-between text-xs mb-1.5">
-                      <span className="font-medium text-[var(--color-text-secondary)]">Crop Cycle Completion</span>
-                      <span className="font-bold text-[var(--color-primary-700)]">{stats.progress}%</span>
+                      <span className="font-medium text-[#64748B]">Crop Cycle Completion</span>
+                      <span className="font-bold text-[#143D30] tabular-nums">{stats.progress}%</span>
                     </div>
-                    <div className="w-full h-2.5 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-[#E2E8F0] rounded-full overflow-hidden">
                       <div
-                        className="h-full gradient-primary rounded-full transition-all duration-500"
+                        className="h-full bg-[#143D30] rounded-full transition-all duration-500"
                         style={{ width: `${stats.progress}%` }}
                       />
                     </div>
                   </div>
 
                   {/* Financial & Yield Grid */}
-                  <div className="grid grid-cols-3 gap-3 text-xs py-3 border-y border-[var(--color-border-light)] mb-4">
+                  <div className="grid grid-cols-3 gap-3 text-xs py-3 border-y border-[#F1F5F9] mb-3">
                     <div>
-                      <span className="text-[var(--color-text-muted)] block text-[11px]">Target Yield</span>
-                      <span className="font-bold text-[var(--color-text-primary)] text-sm">
+                      <span className="text-[11px] text-[#94A3B8] block">Target Yield</span>
+                      <span className="font-bold text-[#0F172A] text-sm tabular-nums">
                         {crop.target_yield} {crop.yield_unit}
                       </span>
                     </div>
                     <div>
-                      <span className="text-[var(--color-text-muted)] block text-[11px]">Budget Spent</span>
-                      <span className="font-bold text-[var(--color-text-primary)] text-sm">
+                      <span className="text-[11px] text-[#94A3B8] block">Budget Spent</span>
+                      <span className="font-bold text-[#0F172A] text-sm tabular-nums">
                         {formatCurrency(stats.spent)}
                       </span>
-                      <span className="text-[10px] text-[var(--color-text-muted)] block">of {formatCurrency(crop.planned_budget)} ({budgetPercent}%)</span>
+                      <span className="text-[10px] text-[#94A3B8] block tabular-nums">of {formatCurrency(crop.planned_budget)} ({budgetPercent}%)</span>
                     </div>
                     <div>
-                      <span className="text-[var(--color-text-muted)] block text-[11px]">Projected Rev</span>
-                      <span className="font-bold text-emerald-700 text-sm">
+                      <span className="text-[11px] text-[#94A3B8] block">Projected Rev</span>
+                      <span className="font-bold text-emerald-700 text-sm tabular-nums">
                         {formatCurrency(estRevenue)}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between text-xs text-[var(--color-text-muted)] pt-2">
+                <div className="flex items-center justify-between text-[11px] text-[#94A3B8] pt-1">
                   <div className="flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5" />
                     <span>Sown: {new Date(crop.start_date).toLocaleDateString()}</span>
@@ -291,16 +299,19 @@ export default function CropsPage() {
 
       {/* New Crop Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-[var(--color-border-light)] animate-scale-in max-h-[90vh] overflow-y-auto">
-            <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-4">
-              Launch New Crop Cycle
-            </h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fade-in" onClick={() => setModalOpen(false)}>
+          <div className="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl border border-[#E5E8EB] animate-scale-in max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E8EB] mb-4">
+              <h2 className="text-sm font-bold text-[#0F172A]">Launch New Crop Cycle</h2>
+              <button onClick={() => setModalOpen(false)} className="p-1 rounded text-[#94A3B8] hover:bg-[#F1F5F9]">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
                     Crop Name *
                   </label>
                   <input
@@ -309,11 +320,11 @@ export default function CropsPage() {
                     value={formData.crop_name}
                     onChange={e => setFormData({ ...formData, crop_name: e.target.value })}
                     placeholder="e.g. Paddy (Rice)"
-                    className="w-full px-3 py-2 rounded-xl border border-[var(--color-border-light)] text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] outline-none"
+                    className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30]"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
                     Variety / Hybrid
                   </label>
                   <input
@@ -321,20 +332,20 @@ export default function CropsPage() {
                     value={formData.variety}
                     onChange={e => setFormData({ ...formData, variety: e.target.value })}
                     placeholder="e.g. BPT 5204"
-                    className="w-full px-3 py-2 rounded-xl border border-[var(--color-border-light)] text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] outline-none"
+                    className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
                     Assigned Plot / Field *
                   </label>
                   <select
                     value={formData.field_id}
                     onChange={e => setFormData({ ...formData, field_id: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-[var(--color-border-light)] text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] outline-none"
+                    className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30]"
                   >
                     {fields.map(f => (
                       <option key={f.id} value={f.id}>{f.name} ({f.area} {f.area_unit})</option>
@@ -342,13 +353,13 @@ export default function CropsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
                     Season
                   </label>
                   <select
                     value={formData.season}
                     onChange={e => setFormData({ ...formData, season: e.target.value as any })}
-                    className="w-full px-3 py-2 rounded-xl border border-[var(--color-border-light)] text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] outline-none"
+                    className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30]"
                   >
                     <option value="Kharif">Kharif (Monsoon)</option>
                     <option value="Rabi">Rabi (Winter)</option>
@@ -360,33 +371,33 @@ export default function CropsPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                    Sowing / Planting Date *
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
+                    Sowing Date *
                   </label>
                   <input
                     type="date"
                     required
                     value={formData.start_date}
                     onChange={e => setFormData({ ...formData, start_date: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-[var(--color-border-light)] text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] outline-none"
+                    className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30]"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
                     Expected Harvest Date
                   </label>
                   <input
                     type="date"
                     value={formData.expected_harvest_date || ''}
                     onChange={e => setFormData({ ...formData, expected_harvest_date: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-[var(--color-border-light)] text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] outline-none"
+                    className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
                     Target Yield (tonnes)
                   </label>
                   <input
@@ -394,35 +405,35 @@ export default function CropsPage() {
                     step="0.1"
                     value={formData.target_yield}
                     onChange={e => setFormData({ ...formData, target_yield: Number(e.target.value) })}
-                    className="w-full px-3 py-2 rounded-xl border border-[var(--color-border-light)] text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] outline-none"
+                    className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30] tabular-nums"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
                     Expected Price/T (₹)
                   </label>
                   <input
                     type="number"
                     value={formData.selling_price_per_unit}
                     onChange={e => setFormData({ ...formData, selling_price_per_unit: Number(e.target.value) })}
-                    className="w-full px-3 py-2 rounded-xl border border-[var(--color-border-light)] text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] outline-none"
+                    className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30] tabular-nums"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
                     Planned Budget (₹)
                   </label>
                   <input
                     type="number"
                     value={formData.planned_budget}
                     onChange={e => setFormData({ ...formData, planned_budget: Number(e.target.value) })}
-                    className="w-full px-3 py-2 rounded-xl border border-[var(--color-border-light)] text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] outline-none"
+                    className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30] tabular-nums"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                <label className="block text-xs font-semibold text-[#334155] mb-1">
                   Crop Strategy / Field Notes
                 </label>
                 <textarea
@@ -430,23 +441,24 @@ export default function CropsPage() {
                   value={formData.notes}
                   onChange={e => setFormData({ ...formData, notes: e.target.value })}
                   placeholder="Notes on nutrient management, seed vendor, nursery techniques..."
-                  className="w-full px-3 py-2 rounded-xl border border-[var(--color-border-light)] text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] outline-none"
+                  className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30] resize-none"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border-light)]">
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#E5E8EB]">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-sm font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-tertiary)]"
+                  className="px-3 py-2 rounded-lg text-xs font-medium text-[#475569] hover:bg-[#F1F5F9]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl gradient-primary text-white text-sm font-medium shadow-sm hover:shadow-md cursor-pointer"
+                  disabled={saving}
+                  className="px-3.5 py-2 rounded-lg bg-[#143D30] hover:bg-[#1A4D3E] text-white text-xs font-semibold shadow-xs cursor-pointer"
                 >
-                  Create Crop Cycle
+                  {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto" /> : 'Launch Season'}
                 </button>
               </div>
             </form>

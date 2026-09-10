@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { fieldService } from '@/services/fieldService';
 import { farmService } from '@/services/farmService';
 import { cropService } from '@/services/cropService';
+import { showToast } from '@/components/common/ToastNotification';
 import type { Field, Farm, CropCycle, FieldInsert } from '@/types/database';
 import {
   Map, Plus, Edit2, Trash2, Droplets, Layers,
-  ChevronRight, Sprout, Loader2, Sparkles
+  ChevronRight, Sprout, Loader2, Sparkles, X
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -16,6 +17,7 @@ export default function FieldsPage() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingField, setEditingField] = useState<Field | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState<FieldInsert>({
     farm_id: '',
@@ -43,6 +45,7 @@ export default function FieldsPage() {
       }
     } catch (err) {
       console.error('Failed loading fields', err);
+      showToast.error('Failed to load fields');
     } finally {
       setLoading(false);
     }
@@ -82,26 +85,34 @@ export default function FieldsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
     try {
       if (editingField) {
         await fieldService.update(editingField.id, formData);
+        showToast.success(`Field "${formData.name}" updated`);
       } else {
         await fieldService.create(formData);
+        showToast.success(`Field "${formData.name}" created`);
       }
       setModalOpen(false);
       loadData();
     } catch (err) {
       console.error('Failed saving field', err);
+      showToast.error('Failed to save field');
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this field?')) return;
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete plot "${name}"?`)) return;
     try {
       await fieldService.delete(id);
+      showToast.success(`Plot "${name}" removed`);
       loadData();
     } catch (err) {
       console.error('Failed deleting field', err);
+      showToast.error('Failed to delete field');
     }
   };
 
@@ -110,105 +121,105 @@ export default function FieldsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E5E8EB]">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-[var(--color-primary-700)] uppercase tracking-wider mb-1">
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#143D30] uppercase tracking-wider mb-1">
             <Map className="w-3.5 h-3.5" />
             <span>Land & Plot Management</span>
           </div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-[var(--color-text-primary)]">
+          <h1 className="text-2xl font-bold text-[#0F172A] tracking-tight">
             Farm Fields & Parcels
           </h1>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
+          <p className="text-xs text-[#64748B] mt-0.5">
             Manage your land parcels, soil profiles, and irrigation infrastructure.
           </p>
         </div>
 
         <button
           onClick={openCreateModal}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl gradient-primary text-white text-sm font-medium shadow-sm hover:shadow-md transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#143D30] hover:bg-[#1A4D3E] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-3.5 h-3.5" />
           <span>Add New Field</span>
         </button>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-[var(--color-border-light)] shadow-xs">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="bg-white p-4 rounded-xl border border-[#E5E8EB] shadow-xs">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-[var(--color-text-secondary)]">Total Cultivated Area</p>
-            <div className="w-8 h-8 rounded-lg bg-[var(--color-primary-50)] text-[var(--color-primary-700)] flex items-center justify-center">
-              <Layers className="w-4 h-4" />
+            <p className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Cultivated Area</p>
+            <div className="w-7 h-7 rounded-md bg-[#F0FDF4] text-[#143D30] flex items-center justify-center">
+              <Layers className="w-3.5 h-3.5" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-[var(--color-text-primary)] mt-2">
-            {totalArea.toFixed(1)} <span className="text-sm font-normal text-[var(--color-text-muted)]">acres</span>
+          <p className="text-2xl font-bold text-[#0F172A] tabular-nums mt-1">
+            {totalArea.toFixed(1)} <span className="text-xs font-normal text-[#64748B]">acres</span>
           </p>
-          <p className="text-xs text-[var(--color-text-secondary)] mt-1">Spread across {fields.length} active plots</p>
+          <p className="text-[11px] text-[#64748B] mt-0.5">{fields.length} active plots</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-[var(--color-border-light)] shadow-xs">
+        <div className="bg-white p-4 rounded-xl border border-[#E5E8EB] shadow-xs">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-[var(--color-text-secondary)]">Active Crop Cycles</p>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <Sprout className="w-4 h-4" />
+            <p className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Active Crops</p>
+            <div className="w-7 h-7 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <Sprout className="w-3.5 h-3.5" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-[var(--color-text-primary)] mt-2">
+          <p className="text-2xl font-bold text-[#143D30] tabular-nums mt-1">
             {crops.filter(c => c.status === 'ACTIVE').length}
           </p>
-          <p className="text-xs text-[var(--color-text-secondary)] mt-1">Planted & under cultivation</p>
+          <p className="text-[11px] text-[#64748B] mt-0.5">Planted & growing</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-[var(--color-border-light)] shadow-xs">
+        <div className="bg-white p-4 rounded-xl border border-[#E5E8EB] shadow-xs">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-[var(--color-text-secondary)]">Dominant Soil Profile</p>
-            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-              <Sparkles className="w-4 h-4" />
+            <p className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Soil Profile</p>
+            <div className="w-7 h-7 rounded-md bg-amber-50 text-amber-600 flex items-center justify-center">
+              <Sparkles className="w-3.5 h-3.5" />
             </div>
           </div>
-          <p className="text-lg font-bold text-[var(--color-text-primary)] mt-2 truncate">
+          <p className="text-base font-bold text-[#0F172A] mt-1 truncate">
             {fields[0]?.soil_type || 'Clay Loam'}
           </p>
-          <p className="text-xs text-[var(--color-text-secondary)] mt-1">High water retention capacity</p>
+          <p className="text-[11px] text-[#64748B] mt-0.5">High moisture hold</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-[var(--color-border-light)] shadow-xs">
+        <div className="bg-white p-4 rounded-xl border border-[#E5E8EB] shadow-xs">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-[var(--color-text-secondary)]">Irrigation Network</p>
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-              <Droplets className="w-4 h-4" />
+            <p className="text-[11px] font-medium text-[#64748B] uppercase tracking-wider">Irrigation Cover</p>
+            <div className="w-7 h-7 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center">
+              <Droplets className="w-3.5 h-3.5" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-[var(--color-text-primary)] mt-2">100%</p>
-          <p className="text-xs text-[var(--color-text-secondary)] mt-1">Canal + Solar Borewell cover</p>
+          <p className="text-2xl font-bold text-[#0F172A] tabular-nums mt-1">100%</p>
+          <p className="text-[11px] text-[#64748B] mt-0.5">Canal + Drip</p>
         </div>
       </div>
 
       {/* Fields Grid */}
       {loading ? (
-        <div className="p-12 flex flex-col items-center justify-center bg-white rounded-2xl border border-[var(--color-border-light)]">
-          <Loader2 className="w-8 h-8 animate-spin text-[var(--color-primary-600)] mb-3" />
-          <p className="text-sm text-[var(--color-text-secondary)]">Loading field parcels...</p>
+        <div className="p-12 flex flex-col items-center justify-center bg-white rounded-xl border border-[#E5E8EB]">
+          <Loader2 className="w-6 h-6 animate-spin text-[#143D30] mb-2" />
+          <p className="text-xs text-[#64748B]">Loading field parcels...</p>
         </div>
       ) : fields.length === 0 ? (
-        <div className="text-center p-12 bg-white rounded-2xl border border-[var(--color-border-light)] shadow-xs">
-          <Map className="w-12 h-12 text-[var(--color-text-muted)] mx-auto mb-3" />
-          <h3 className="text-base font-semibold text-[var(--color-text-primary)]">No fields added yet</h3>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-1 max-w-md mx-auto">
-            Divide your farm into numbered plots or parcels to track soil condition, irrigation, and crop rotation.
+        <div className="text-center p-12 bg-white rounded-xl border border-[#E5E8EB] shadow-xs">
+          <Map className="w-10 h-10 text-[#94A3B8] mx-auto mb-2" />
+          <h3 className="text-sm font-semibold text-[#0F172A]">No fields configured yet</h3>
+          <p className="text-xs text-[#64748B] mt-1 max-w-sm mx-auto">
+            Demarcate your farm into numbered plots or sectors to track soil condition and crop rotations.
           </p>
           <button
             onClick={openCreateModal}
-            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl gradient-primary text-white text-sm font-medium"
+            className="mt-4 inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#143D30] text-white text-xs font-semibold shadow-xs"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5" />
             <span>Create First Field</span>
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {fields.map(field => {
             const activeCrop = crops.find(c => c.field_id === field.id && c.status === 'ACTIVE');
             const farm = farms.find(f => f.id === field.farm_id);
@@ -216,56 +227,56 @@ export default function FieldsPage() {
             return (
               <div
                 key={field.id}
-                className="bg-white rounded-2xl border border-[var(--color-border-light)] p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between"
+                className="bg-white rounded-xl border border-[#E5E8EB] p-5 shadow-xs hover:border-[#CBD5E1] transition-all duration-200 flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex items-start justify-between gap-3 mb-2">
                     <div>
-                      <h3 className="text-base font-bold text-[var(--color-text-primary)] leading-snug">
+                      <h3 className="text-sm font-bold text-[#0F172A] leading-snug">
                         {field.name}
                       </h3>
-                      <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+                      <p className="text-[11px] text-[#64748B]">
                         {farm?.name || 'Green Valley Farm'}
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => openEditModal(field)}
-                        className="p-1.5 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-tertiary)] hover:text-[var(--color-text-primary)]"
+                        className="p-1 rounded text-[#94A3B8] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors"
                         title="Edit Field"
                       >
-                        <Edit2 className="w-4 h-4" />
+                        <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
-                        onClick={() => handleDelete(field.id)}
-                        className="p-1.5 rounded-lg text-[var(--color-text-secondary)] hover:bg-red-50 hover:text-red-600"
+                        onClick={() => handleDelete(field.id, field.name)}
+                        className="p-1 rounded text-[#94A3B8] hover:text-red-600 hover:bg-red-50 transition-colors"
                         title="Delete Field"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
 
-                  <p className="text-xs text-[var(--color-text-secondary)] mb-4 line-clamp-2">
+                  <p className="text-xs text-[#64748B] mb-3 line-clamp-2">
                     {field.description || 'Dedicated cultivation parcel with active soil management.'}
                   </p>
 
-                  <div className="grid grid-cols-2 gap-2 text-xs py-3 border-y border-[var(--color-border-light)] mb-4">
+                  <div className="grid grid-cols-2 gap-2 text-xs py-2.5 border-y border-[#F1F5F9] mb-3">
                     <div>
-                      <span className="text-[var(--color-text-muted)] block text-[11px]">Area</span>
-                      <span className="font-semibold text-[var(--color-text-primary)]">
+                      <span className="text-[11px] text-[#94A3B8] block">Area</span>
+                      <span className="font-semibold text-[#0F172A] tabular-nums">
                         {field.area} {field.area_unit}
                       </span>
                     </div>
                     <div>
-                      <span className="text-[var(--color-text-muted)] block text-[11px]">Soil Type</span>
-                      <span className="font-semibold text-[var(--color-text-primary)] truncate block">
+                      <span className="text-[11px] text-[#94A3B8] block">Soil Type</span>
+                      <span className="font-semibold text-[#0F172A] truncate block">
                         {field.soil_type || 'Alluvial'}
                       </span>
                     </div>
-                    <div className="col-span-2 mt-1">
-                      <span className="text-[var(--color-text-muted)] block text-[11px]">Irrigation Method</span>
-                      <span className="font-medium text-[var(--color-text-secondary)] flex items-center gap-1">
+                    <div className="col-span-2 pt-1">
+                      <span className="text-[11px] text-[#94A3B8] block">Irrigation</span>
+                      <span className="font-medium text-[#334155] flex items-center gap-1">
                         <Droplets className="w-3 h-3 text-blue-500" />
                         {field.irrigation_type || 'Canal Supply'}
                       </span>
@@ -274,34 +285,32 @@ export default function FieldsPage() {
 
                   {/* Active crop badge */}
                   {activeCrop ? (
-                    <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-between">
+                    <div className="p-2.5 rounded-lg bg-[#F0FDF4] border border-[#DCFCE7] flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Sprout className="w-4 h-4 text-emerald-600" />
+                        <Sprout className="w-3.5 h-3.5 text-[#143D30]" />
                         <div>
-                          <p className="text-xs font-semibold text-emerald-800">{activeCrop.crop_name}</p>
-                          <p className="text-[11px] text-emerald-600">{activeCrop.variety} ({activeCrop.season})</p>
+                          <p className="text-xs font-bold text-[#143D30]">{activeCrop.crop_name}</p>
+                          <p className="text-[10px] text-[#166534]">{activeCrop.variety} ({activeCrop.season})</p>
                         </div>
                       </div>
                       <Link
                         to={`/crops/${activeCrop.id}`}
-                        className="text-xs font-medium text-emerald-700 hover:text-emerald-900 flex items-center gap-0.5"
+                        className="text-xs font-semibold text-[#143D30] hover:underline flex items-center gap-0.5"
                       >
                         <span>View</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
+                        <ChevronRight className="w-3 h-3" />
                       </Link>
                     </div>
                   ) : (
-                    <div className="p-2.5 rounded-xl bg-[var(--color-surface-tertiary)] text-center">
-                      <p className="text-xs text-[var(--color-text-muted)]">Currently Fallow / Preparing for next cycle</p>
+                    <div className="p-2 rounded-lg bg-[#F8FAFC] border border-[#F1F5F9] text-center">
+                      <p className="text-[11px] text-[#94A3B8]">Currently Fallow / Ready for planting</p>
                     </div>
                   )}
                 </div>
 
-                <div className="mt-4 pt-3 flex items-center justify-between text-xs text-[var(--color-text-muted)]">
-                  <span>Created: {new Date(field.created_at).toLocaleDateString()}</span>
-                  <span className="inline-flex items-center gap-1 text-[var(--color-primary-700)] font-medium">
-                    Active Plot
-                  </span>
+                <div className="mt-3 pt-2.5 flex items-center justify-between text-[11px] text-[#94A3B8]">
+                  <span>Created {new Date(field.created_at).toLocaleDateString()}</span>
+                  <span className="font-medium text-[#143D30]">Active Sector</span>
                 </div>
               </div>
             );
@@ -311,15 +320,20 @@ export default function FieldsPage() {
 
       {/* Create / Edit Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-[var(--color-border-light)] animate-scale-in">
-            <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-4">
-              {editingField ? 'Edit Field Parcel' : 'Add New Field Parcel'}
-            </h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fade-in" onClick={() => setModalOpen(false)}>
+          <div className="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl border border-[#E5E8EB] animate-scale-in" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E8EB] mb-4">
+              <h2 className="text-sm font-bold text-[#0F172A]">
+                {editingField ? 'Edit Field Parcel' : 'Add New Field Parcel'}
+              </h2>
+              <button onClick={() => setModalOpen(false)} className="p-1 rounded text-[#94A3B8] hover:bg-[#F1F5F9]">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                <label className="block text-xs font-semibold text-[#334155] mb-1">
                   Field / Parcel Name *
                 </label>
                 <input
@@ -328,13 +342,13 @@ export default function FieldsPage() {
                   value={formData.name}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g. North Plot (Parcel A)"
-                  className="w-full px-3 py-2 rounded-xl border border-[var(--color-border-light)] text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] outline-none"
+                  className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
                     Area *
                   </label>
                   <input
@@ -343,17 +357,17 @@ export default function FieldsPage() {
                     required
                     value={formData.area}
                     onChange={e => setFormData({ ...formData, area: Number(e.target.value) })}
-                    className="w-full px-3 py-2 rounded-xl border border-[var(--color-border-light)] text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] outline-none"
+                    className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30] tabular-nums"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
                     Unit
                   </label>
                   <select
                     value={formData.area_unit}
                     onChange={e => setFormData({ ...formData, area_unit: e.target.value as any })}
-                    className="w-full px-3 py-2 rounded-xl border border-[var(--color-border-light)] text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] outline-none"
+                    className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30]"
                   >
                     <option value="acres">Acres</option>
                     <option value="hectares">Hectares</option>
@@ -364,13 +378,13 @@ export default function FieldsPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
                     Soil Type
                   </label>
                   <select
                     value={formData.soil_type}
                     onChange={e => setFormData({ ...formData, soil_type: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-[var(--color-border-light)] text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] outline-none"
+                    className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30]"
                   >
                     <option value="Clay Loam">Clay Loam</option>
                     <option value="Alluvial Soil">Alluvial Soil</option>
@@ -380,13 +394,13 @@ export default function FieldsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
                     Irrigation Type
                   </label>
                   <select
                     value={formData.irrigation_type}
                     onChange={e => setFormData({ ...formData, irrigation_type: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-[var(--color-border-light)] text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] outline-none"
+                    className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30]"
                   >
                     <option value="Canal + Drip">Canal + Drip</option>
                     <option value="Canal Lift">Canal Lift</option>
@@ -398,7 +412,7 @@ export default function FieldsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                <label className="block text-xs font-semibold text-[#334155] mb-1">
                   Description / Soil Notes
                 </label>
                 <textarea
@@ -406,23 +420,24 @@ export default function FieldsPage() {
                   value={formData.description}
                   onChange={e => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Notes on drainage, organic matter, slope, etc."
-                  className="w-full px-3 py-2 rounded-xl border border-[var(--color-border-light)] text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] outline-none"
+                  className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30] resize-none"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border-light)]">
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#E5E8EB]">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-sm font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-tertiary)]"
+                  className="px-3 py-2 rounded-lg text-xs font-medium text-[#475569] hover:bg-[#F1F5F9]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl gradient-primary text-white text-sm font-medium shadow-sm hover:shadow-md cursor-pointer"
+                  disabled={saving}
+                  className="px-3.5 py-2 rounded-lg bg-[#143D30] hover:bg-[#1A4D3E] text-white text-xs font-semibold shadow-xs"
                 >
-                  {editingField ? 'Save Changes' : 'Create Field'}
+                  {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto" /> : (editingField ? 'Save Changes' : 'Create Field')}
                 </button>
               </div>
             </form>

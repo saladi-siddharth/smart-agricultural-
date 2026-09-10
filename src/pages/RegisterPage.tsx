@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Sprout, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
+import { Sprout, Eye, EyeOff, ArrowRight, Loader2, Sparkles, ShieldCheck } from 'lucide-react';
+import { showToast } from '@/components/common/ToastNotification';
 
 export default function RegisterPage() {
   const { signUp } = useAuth();
@@ -25,113 +26,139 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await signUp(email, password, fullName);
+      showToast.success('Account created successfully! Welcome to FarmPilot.');
       navigate('/dashboard');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to create account';
       setError(message);
+      showToast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left — Hero */}
-      <div className="hidden lg:flex lg:w-1/2 gradient-hero relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-40 left-10 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-64 h-64 bg-primary-400/10 rounded-full blur-3xl" />
+    <div className="min-h-screen flex bg-[#FBFBFA]">
+      {/* Left — Botanical Luxury Hero Brand Panel */}
+      <div className="hidden lg:flex lg:w-1/2 bg-[#143D30] text-white relative overflow-hidden flex-col justify-between p-12">
+        <div className="absolute inset-0 opacity-5 pointer-events-none">
+          <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="reg-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="1" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#reg-grid)" />
+          </svg>
         </div>
-        <div className="relative z-10 flex flex-col justify-center px-16 text-white">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-              <Sprout className="w-7 h-7" />
-            </div>
-            <span className="text-2xl font-bold tracking-tight">FarmPilot</span>
+
+        {/* Brand Header */}
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20">
+            <Sprout className="w-5 h-5 text-emerald-400" />
           </div>
-          <h2 className="text-4xl font-bold leading-tight mb-4">
-            Start Managing<br />
-            Your Farm<br />
-            Intelligently
+          <div>
+            <span className="text-xl font-bold tracking-tight text-white">FarmPilot</span>
+            <span className="block text-[10px] uppercase font-bold tracking-widest text-emerald-300">Phase 1 Agronomic OS</span>
+          </div>
+        </div>
+
+        {/* Main Brand Narrative */}
+        <div className="relative z-10 my-auto max-w-lg space-y-6">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs text-emerald-300 font-medium">
+            <Sparkles className="w-3.5 h-3.5" />
+            Precision Agriculture Management System
+          </div>
+
+          <h2 className="text-3xl lg:text-4xl font-bold leading-tight text-white tracking-tight">
+            Start Managing Your Farm With Mathematical Clarity.
           </h2>
-          <p className="text-lg text-white/70 max-w-md mb-8">
-            Join thousands of farm managers who use FarmPilot to optimize their operations, track costs, and maximize profitability.
+
+          <p className="text-sm text-white/70 leading-relaxed">
+            Eliminate operational guesswork. Plan crop cycles, track real-time resource outlays, and preserve peak biological health.
           </p>
-          <div className="grid grid-cols-2 gap-4 max-w-sm">
+
+          <div className="grid grid-cols-2 gap-3 pt-2">
             {[
-              { label: 'Farm Health', value: 'Score' },
-              { label: 'Crop Progress', value: 'Tracking' },
-              { label: 'Cost Analysis', value: 'Engine' },
-              { label: 'Smart Alerts', value: 'System' },
+              { label: 'Farm Health Index', value: '4-Pillar Algorithmic Score' },
+              { label: 'Agronomic Insights', value: 'Explainable Rationale Engine' },
+              { label: 'Financial Matrix', value: 'Live Outlay vs Revenue ROI' },
+              { label: 'Field Demarcation', value: 'Soil & Irrigation Ledger' },
             ].map((item, i) => (
-              <div key={i} className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
-                <p className="text-xs text-white/60">{item.label}</p>
-                <p className="text-sm font-semibold">{item.value}</p>
+              <div key={i} className="p-3 rounded-lg bg-white/5 border border-white/10">
+                <p className="text-xs font-bold text-white">{item.label}</p>
+                <p className="text-[10px] text-white/60 mt-0.5">{item.value}</p>
               </div>
             ))}
           </div>
         </div>
+
+        {/* Footer info */}
+        <div className="relative z-10 flex items-center justify-between text-xs text-white/50 pt-6 border-t border-white/10">
+          <span>Enterprise Agricultural SaaS</span>
+          <span className="flex items-center gap-1">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            Supabase RLS Protected
+          </span>
+        </div>
       </div>
 
-      {/* Right — Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-[var(--color-surface-secondary)]">
+      {/* Right — Clean Light Form Panel */}
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-md">
-          <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
-              <Sprout className="w-6 h-6 text-white" />
+          {/* Mobile Logo */}
+          <div className="lg:hidden flex items-center gap-2.5 mb-8">
+            <div className="w-9 h-9 bg-[#143D30] rounded-xl flex items-center justify-center text-white">
+              <Sprout className="w-5 h-5 text-emerald-400" />
             </div>
-            <span className="text-xl font-bold">FarmPilot</span>
+            <span className="text-lg font-bold text-[#0F172A]">FarmPilot</span>
           </div>
 
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-[var(--color-border-light)]">
+          <div className="bg-white rounded-xl p-8 border border-[#E5E8EB] shadow-xs">
             <div className="mb-6">
-              <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">Create your account</h1>
-              <p className="text-sm text-[var(--color-text-secondary)] mt-1">
-                Set up your farm command center in seconds
+              <h1 className="text-xl font-bold text-[#0F172A] tracking-tight">Create your account</h1>
+              <p className="text-xs text-[#64748B] mt-1">
+                Configure your agricultural holding in seconds
               </p>
             </div>
 
             {error && (
-              <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700 animate-scale-in">
+              <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 font-medium">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
-                  Full name
+                <label className="block text-xs font-semibold text-[#334155] mb-1.5">
+                  Full Name
                 </label>
                 <input
                   type="text"
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
-                  placeholder="e.g. Ravi Kumar"
+                  placeholder="e.g. Ramesh Reddy"
                   required
-                  className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)]
-                    text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent
-                    placeholder:text-[var(--color-text-muted)] transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30] focus:border-[#143D30] transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
-                  Email address
+                <label className="block text-xs font-semibold text-[#334155] mb-1.5">
+                  Email Address
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="farmer@example.com"
+                  placeholder="farmer@domain.com"
                   required
-                  className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)]
-                    text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent
-                    placeholder:text-[var(--color-text-muted)] transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30] focus:border-[#143D30] transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
+                <label className="block text-xs font-semibold text-[#334155] mb-1.5">
                   Password
                 </label>
                 <div className="relative">
@@ -142,14 +169,12 @@ export default function RegisterPage() {
                     placeholder="Minimum 6 characters"
                     required
                     minLength={6}
-                    className="w-full px-4 py-2.5 pr-10 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-secondary)]
-                      text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent
-                      placeholder:text-[var(--color-text-muted)] transition-all"
+                    className="w-full px-3.5 py-2.5 pr-10 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] text-xs text-[#0F172A] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#143D30] focus:border-[#143D30] transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#475569]"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -159,25 +184,22 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
-                  gradient-primary text-white text-sm font-medium shadow-sm
-                  hover:shadow-md transition-all duration-200
-                  disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-[#143D30] hover:bg-[#1A4D3E] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-60"
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <>
-                    Create account
-                    <ArrowRight className="w-4 h-4" />
+                    Create Account
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </>
                 )}
               </button>
             </form>
 
-            <p className="mt-6 text-center text-sm text-[var(--color-text-secondary)]">
+            <p className="mt-6 text-center text-xs text-[#64748B]">
               Already have an account?{' '}
-              <Link to="/login" className="text-[var(--color-primary-600)] font-medium hover:text-[var(--color-primary-700)]">
+              <Link to="/login" className="text-[#143D30] font-semibold hover:underline">
                 Sign in
               </Link>
             </p>
