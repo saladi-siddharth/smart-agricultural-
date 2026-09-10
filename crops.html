@@ -3,11 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FarmPilot — Seasonal Crop Cycles</title>
-  <meta name="description" content="Biological crop cycle progression aligned with Phase 1 problem statement: Land preparation, Sowing, Irrigation, Fertilization, Pest management, Harvest.">
+  <title>FarmPilot — Seasonal Crop Cycles & Operational Workspace</title>
+  <meta name="description" content="Biological crop cycle operational workspace with 6-stage lifecycle tracking, field activities, inputs, expenses, and profitability sensitivity simulator.">
   
   <link rel="stylesheet" href="css/design-system.css">
   <link rel="stylesheet" href="css/components.css">
+  <style>
+    .workspace-tab-btn {
+      padding: 0.65rem 1.25rem;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+      border: none;
+      background: transparent;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .workspace-tab-btn.active {
+      color: var(--color-forest);
+      border-bottom-color: var(--color-forest);
+      background: #F0FDF4;
+    }
+    .workspace-tab-content {
+      display: none;
+      padding-top: 1.5rem;
+    }
+    .workspace-tab-content.active {
+      display: block;
+    }
+  </style>
 </head>
 <body>
 
@@ -23,12 +48,12 @@
           <!-- Page Header -->
           <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);">
             <div>
-              <span class="badge badge-success" style="margin-bottom: 0.35rem;">Problem Statement Standard • Phase 1</span>
+              <span class="badge badge-success" style="margin-bottom: 0.35rem;">Operational Workspace • Kharif 2026</span>
               <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--color-text-primary);">
-                Seasonal Crop Cycles
+                Crop Cycles Operational Workspace
               </h1>
               <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
-                Biological 6-stage lifecycle tracking from Land Preparation to Harvest, yield simulation, and Kharif budget execution
+                Unified operational dossier tracking biological progression, field tasks, inputs, expenses, and yield profitability
               </p>
             </div>
 
@@ -38,34 +63,52 @@
           </div>
 
           <!-- Active Cycle Hero Dossier -->
-          <div class="card" style="border-top: 4px solid var(--color-forest);">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="card" style="border-top: 4px solid var(--color-forest); margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
               <div>
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
                   <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary);">Paddy (Rice)</h2>
                   <span class="badge badge-success">Active Kharif 2026</span>
-                  <span class="badge badge-neutral" style="font-size: 0.6875rem;">Stage 4: Fertilization (58%)</span>
+                  <span class="badge badge-neutral" style="font-size: 0.6875rem;" id="crop-stage-badge">Stage 4: Fertilization (58%)</span>
                 </div>
                 <p style="font-size: 0.875rem; color: var(--color-text-secondary);">
                   Variety: <strong style="color: var(--color-text-primary);">BPT-5204 (Samba Mahsuri)</strong> • Assigned to <strong style="color: var(--color-forest);">North Block (Plot A - 10.0 Ac)</strong>
                 </p>
               </div>
 
-              <div style="text-align: right;">
-                <span style="font-size: 0.75rem; color: var(--color-text-tertiary);">Sowing Date: June 15, 2026</span>
-                <p style="font-size: 0.875rem; font-weight: 700; color: var(--color-text-primary); margin-top: 0.2rem;">
-                  Expected Harvest: November 20, 2026
-                </p>
+              <!-- Real-time Financial Outlay Metrics -->
+              <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                <div>
+                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Planned Budget</span>
+                  <p class="tabular-nums font-mono" id="crop-budget-val" style="font-size: 1.25rem; font-weight: 800; color: var(--color-text-primary); margin: 0.1rem 0;">₹50,000</p>
+                </div>
+                <div>
+                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Actual Spend</span>
+                  <p class="tabular-nums font-mono" id="crop-spend-val" style="font-size: 1.25rem; font-weight: 800; color: var(--color-forest); margin: 0.1rem 0;">₹18,500</p>
+                </div>
+                <div>
+                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Target Margin</span>
+                  <p class="tabular-nums font-mono" id="crop-margin-val" style="font-size: 1.25rem; font-weight: 800; color: var(--color-emerald-dark); margin: 0.1rem 0;">58.9%</p>
+                </div>
               </div>
             </div>
 
-            <!-- Problem Statement 6-Stage Biological Growth Progression Track -->
-            <div style="margin: 2.5rem 0 1.5rem;">
+            <!-- Operational Workspace Navigation Tabs -->
+            <div style="display: flex; border-bottom: 1px solid var(--color-border); margin-top: 1.5rem; gap: 0.25rem;" id="crop-workspace-tabs">
+              <button class="workspace-tab-btn active" data-tab="tab-timeline">Biological Timeline</button>
+              <button class="workspace-tab-btn" data-tab="tab-activities">Field Operations</button>
+              <button class="workspace-tab-btn" data-tab="tab-inputs">Input Stocks</button>
+              <button class="workspace-tab-btn" data-tab="tab-expenses">Budget & Expenses</button>
+              <button class="workspace-tab-btn" data-tab="tab-profitability">Yield & Profit Simulator</button>
+            </div>
+
+            <!-- Tab 1: Biological Timeline -->
+            <div class="workspace-tab-content active" id="tab-timeline">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
                 <h3 style="font-size: 0.875rem; font-weight: 800; text-transform: uppercase; color: var(--color-text-secondary); letter-spacing: 0.05em;">
-                  Problem Statement Biological Lifecycle Progression Track
+                  Biological Lifecycle Progression Track (Days 1 - 140)
                 </h3>
-                <span class="badge badge-success">Current Stage: Fertilization (58% Complete)</span>
+                <span class="badge badge-success">Fertilization Active (58% Window)</span>
               </div>
 
               <div class="crop-stage-track">
@@ -73,218 +116,176 @@
                   <div class="crop-stage-line-progress" style="width: 58%;"></div>
                 </div>
 
-                <!-- 1. Land Preparation -->
                 <div class="crop-stage-step completed">
                   <div class="crop-stage-node">✓</div>
                   <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-primary);">1. Land prep</strong>
                   <span style="font-size: 0.625rem; color: var(--color-text-tertiary);">Day 1-15</span>
-                  <span class="badge badge-success" style="font-size: 0.5625rem; margin-top: 0.25rem;">Completed</span>
+                  <span class="badge badge-success" style="font-size: 0.5625rem; margin-top: 0.25rem;">Done</span>
                 </div>
 
-                <!-- 2. Sowing -->
                 <div class="crop-stage-step completed">
                   <div class="crop-stage-node">✓</div>
                   <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-primary);">2. Sowing</strong>
                   <span style="font-size: 0.625rem; color: var(--color-text-tertiary);">Day 16-35</span>
-                  <span class="badge badge-success" style="font-size: 0.5625rem; margin-top: 0.25rem;">Completed</span>
+                  <span class="badge badge-success" style="font-size: 0.5625rem; margin-top: 0.25rem;">Done</span>
                 </div>
 
-                <!-- 3. Irrigation -->
                 <div class="crop-stage-step completed">
                   <div class="crop-stage-node">✓</div>
                   <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-primary);">3. Irrigation</strong>
                   <span style="font-size: 0.625rem; color: var(--color-text-tertiary);">Day 36-55</span>
-                  <span class="badge badge-success" style="font-size: 0.5625rem; margin-top: 0.25rem;">Completed</span>
+                  <span class="badge badge-success" style="font-size: 0.5625rem; margin-top: 0.25rem;">Done</span>
                 </div>
 
-                <!-- 4. Fertilization (Current Stage - 58%) -->
                 <div class="crop-stage-step active">
-                  <div class="crop-stage-node animate-pulse-glow">4</div>
+                  <div class="crop-stage-node" style="box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.25);">4</div>
                   <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-forest);">4. Fertilization</strong>
-                  <span style="font-size: 0.625rem; color: var(--color-emerald); font-weight: 700;">Day 56-85 (Current)</span>
-                  <span class="badge badge-warning" style="font-size: 0.5625rem; margin-top: 0.25rem;">58% Complete</span>
+                  <span style="font-size: 0.625rem; color: var(--color-text-secondary); font-weight: 700;">Day 56-80</span>
+                  <span class="badge badge-warning" style="font-size: 0.5625rem; margin-top: 0.25rem;">58% Active</span>
                 </div>
 
-                <!-- 5. Pest Management -->
                 <div class="crop-stage-step">
                   <div class="crop-stage-node">5</div>
-                  <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-tertiary);">5. Pest mgmt</strong>
-                  <span style="font-size: 0.625rem; color: var(--color-text-tertiary);">Day 86-115</span>
-                  <span class="badge badge-neutral" style="font-size: 0.5625rem; margin-top: 0.25rem;">Scheduled</span>
+                  <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-secondary);">5. Pest Mgmt</strong>
+                  <span style="font-size: 0.625rem; color: var(--color-text-tertiary);">Day 81-110</span>
+                  <span class="badge badge-neutral" style="font-size: 0.5625rem; margin-top: 0.25rem;">Planned</span>
                 </div>
 
-                <!-- 6. Harvest -->
                 <div class="crop-stage-step">
                   <div class="crop-stage-node">6</div>
-                  <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-tertiary);">6. Harvest</strong>
-                  <span style="font-size: 0.625rem; color: var(--color-text-tertiary);">Day 116-150</span>
-                  <span class="badge badge-neutral" style="font-size: 0.5625rem; margin-top: 0.25rem;">Projected</span>
-                </div>
-              </div>
-                    <!-- Phase 1 Problem Statement: Interactive Harvest Yield & Profitability Sensitivity Simulator -->
-            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
-              <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;">
-                <div>
-                  <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span class="badge badge-success">Phase 1 Economic Engine</span>
-                    <span class="badge badge-neutral">Interactive Sensitivity Analysis</span>
-                  </div>
-                  <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.25rem;">
-                    Harvest Yield & Mandi MSP Profitability Simulator
-                  </h3>
-                  <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.15rem;">
-                    Problem Statement Section 6 • Slide yield and MSP to project Gross Revenue, Net Margin, and Break-Even
-                  </p>
-                </div>
-              </div>
-
-              <!-- Interactive Controls & Sensitivity Matrix Grid -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; background: var(--color-surface-secondary); padding: 1.25rem; border-radius: var(--radius-lg); border: 1px solid var(--color-border-subtle); margin-bottom: 1.25rem;">
-                
-                <!-- Yield Slider -->
-                <div class="simulator-slider-group">
-                  <div class="simulator-slider-header">
-                    <label class="form-label" style="font-weight: 700; color: var(--color-text-primary); margin: 0;">Expected Yield (Plot A)</label>
-                    <span id="display-sim-yield" class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-forest);">4.2 Tonnes</span>
-                  </div>
-                  <input type="range" id="sim-yield-slider" class="slider-range-custom" min="2.5" max="6.0" step="0.1" value="4.2">
-                  <div style="display: flex; justify-content: space-between; font-size: 0.6875rem; color: var(--color-text-tertiary); margin-top: 0.35rem;">
-                    <span>2.5 Tonnes (Drought Risk)</span>
-                    <span style="color: var(--color-forest); font-weight: 700;">4.2 T Benchmark</span>
-                    <span>6.0 Tonnes (Maximum Vigor)</span>
-                  </div>
-                </div>
-
-                <!-- MSP Slider -->
-                <div class="simulator-slider-group">
-                  <div class="simulator-slider-header">
-                    <label class="form-label" style="font-weight: 700; color: var(--color-text-primary); margin: 0;">Selling Price / MSP (₹/Tonne)</label>
-                    <span id="display-sim-price" class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-forest);">₹29,000 / T</span>
-                  </div>
-                  <input type="range" id="sim-price-slider" class="slider-range-custom" min="22000" max="36000" step="500" value="29000">
-                  <div style="display: flex; justify-content: space-between; font-size: 0.6875rem; color: var(--color-text-tertiary); margin-top: 0.35rem;">
-                    <span>₹22,000 (Market Slump)</span>
-                    <span style="color: var(--color-forest); font-weight: 700;">₹29,000 Kharif MSP</span>
-                    <span>₹36,000 (Premium Mandi)</span>
-                  </div>
-                </div>
-
-              </div>
-
-              <!-- Output KPI Matrix -->
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                <div style="background-color: var(--color-surface-primary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Gross Projected Revenue</span>
-                  <p id="sim-revenue-text" class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-forest); margin-top: 0.25rem;">
-                    ₹1,21,800
-                  </p>
-                  <span id="sim-revenue-sub" style="font-size: 0.75rem; color: var(--color-text-secondary);">4.2 T × ₹29,000/T</span>
-                </div>
-
-                <div style="background-color: var(--color-surface-primary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Total Operational Cost</span>
-                  <p id="sim-cost-text" class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.25rem;">
-                    ₹46,500
-                  </p>
-                  <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Current audited season spend</span>
-                </div>
-
-                <div style="background-color: #ECFDF5; padding: 1rem; border-radius: var(--radius-md); border: 1.5px solid #A7F3D0;">
-                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: #047857;">Estimated Net Profit</span>
-                  <p id="sim-profit-text" class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: #065F46; margin-top: 0.25rem;">
-                    ₹75,300
-                  </p>
-                  <span id="sim-margin-text" style="font-size: 0.75rem; color: #047857; font-weight: 700;">61.8% Net Margin • 162% ROI</span>
-                </div>
-
-                <div style="background-color: var(--color-surface-primary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Break-Even Threshold</span>
-                  <p id="sim-breakeven-text" class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.25rem;">
-                    1.60 <span style="font-size: 0.8125rem;">Tonnes</span>
-                  </p>
-                  <span id="sim-breakeven-sub" style="font-size: 0.75rem; color: var(--color-text-secondary);">Yield required to cover ₹46.5K</span>
-                </div>
-              </div>
-
-              <!-- Live Agronomic & Financial Intelligence Insight -->
-              <div style="background: rgba(240, 253, 244, 0.7); border: 1px dashed #34D399; border-radius: var(--radius-md); padding: 0.75rem 1rem; margin-top: 1rem; display: flex; align-items: flex-start; gap: 0.6rem;">
-                <span style="font-size: 1rem; flex-shrink: 0;">📈</span>
-                <div id="sim-insight-text" style="font-size: 0.75rem; color: #065F46; line-height: 1.5;">
-                  <strong>Economic Decision Support:</strong> At 4.2 Tonnes/plot and ₹29,000 MSP, Green Valley Farm realizes ₹75,300 net operating profit. The enterprise can absorb a 61.9% price/yield decline before reaching break-even (1.60 T).
+                  <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-secondary);">6. Harvest</strong>
+                  <span style="font-size: 0.625rem; color: var(--color-text-tertiary);">Day 111-140</span>
+                  <span class="badge badge-neutral" style="font-size: 0.5625rem; margin-top: 0.25rem;">Nov 2026</span>
                 </div>
               </div>
             </div>
-            </div>
-          </div>
 
-          <!-- Crop Stages Protocol & Milestone Table -->
-          <div class="card">
-            <div class="card-header">
-              <div>
-                <h3 style="font-size: 1rem; font-weight: 800;">Problem Statement Stage Protocols & Interventions</h3>
-                <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.2rem;">
-                  The 6 core biological stages defined in the FarmPilot specifications
-                </p>
+            <!-- Tab 2: Field Operations Scoped to this Crop -->
+            <div class="workspace-tab-content" id="tab-activities">
+              <div class="data-table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Operation</th>
+                      <th>Category</th>
+                      <th>Planned Date</th>
+                      <th>Priority</th>
+                      <th>Assigned</th>
+                      <th>Status</th>
+                      <th>Outlay (₹)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="crop-activities-tbody">
+                    <!-- Loaded by JS -->
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            <div class="data-table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Biological Stage</th>
-                    <th>Timeline</th>
-                    <th>Field & Irrigation Protocol</th>
-                    <th>Nutrient & Remediation Directive</th>
-                    <th>Current Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>1. Land preparation</strong></td>
-                    <td class="font-mono">Days 1 - 15</td>
-                    <td>2-3 cm shallow standing water for tractor puddling</td>
-                    <td>Basal application of Farmyard Manure (FYM 10 t/ha) + DAP</td>
-                    <td><span class="badge badge-success">Completed</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>2. Sowing</strong></td>
-                    <td class="font-mono">Days 16 - 35</td>
-                    <td>Nursery wet bed, saturated soil, subsequent transplanting</td>
-                    <td>Certified BPT-5204 seeds treated with biofertilizer & carbendazim</td>
-                    <td><span class="badge badge-success">Completed</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>3. Irrigation</strong></td>
-                    <td class="font-mono">Days 36 - 55</td>
-                    <td>Alternate Wetting and Drying (AWD) with 5 cm water head</td>
-                    <td>Check canal inflow line and solar borewell head pressure</td>
-                    <td><span class="badge badge-success">Completed</span></td>
-                  </tr>
-                  <tr style="background: #F0FDF4; font-weight: 600;">
-                    <td><strong style="color: var(--color-forest);">4. Fertilization (Active)</strong></td>
-                    <td class="font-mono">Days 56 - 85</td>
-                    <td>Maintain 2 cm standing water during broadcast</td>
-                    <td>Split Urea top-dressing (45 kg/ha) + Zinc Sulfate spray (0.5%)</td>
-                    <td><span class="badge badge-warning">58% In Progress</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>5. Pest management</strong></td>
-                    <td class="font-mono">Days 86 - 115</td>
-                    <td>Intermittent drainage to prevent sheath blight fungal spores</td>
-                    <td>Pheromone traps for stem borer + prophylactic organic neem spray</td>
-                    <td><span class="badge badge-neutral">Scheduled</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>6. Harvest</strong></td>
-                    <td class="font-mono">Days 116 - 150</td>
-                    <td>Drain field 10 days prior to physiological maturity</td>
-                    <td>Combine harvester operation at 20-22% grain moisture; threshing</td>
-                    <td><span class="badge badge-neutral">Projected</span></td>
-                  </tr>
-                </tbody>
-              </table>
+            <!-- Tab 3: Agronomic Inputs Consumed -->
+            <div class="workspace-tab-content" id="tab-inputs">
+              <div class="data-table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Input Name</th>
+                      <th>Category</th>
+                      <th>Quantity</th>
+                      <th>Unit Cost</th>
+                      <th>Total Outlay</th>
+                      <th>Date Used</th>
+                    </tr>
+                  </thead>
+                  <tbody id="crop-inputs-tbody">
+                    <!-- Loaded by JS -->
+                  </tbody>
+                </table>
+              </div>
             </div>
+
+            <!-- Tab 4: Expenses & Budget Breakdown -->
+            <div class="workspace-tab-content" id="tab-expenses">
+              <div class="data-table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Category</th>
+                      <th>Description</th>
+                      <th>Date</th>
+                      <th>Amount (₹)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="crop-expenses-tbody">
+                    <!-- Loaded by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Tab 5: Profitability Sensitivity Simulator -->
+            <div class="workspace-tab-content" id="tab-profitability">
+              <div style="background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%); border: 1px solid var(--color-emerald-light); border-radius: var(--radius-lg); padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+                  <div>
+                    <h3 style="font-size: 1.125rem; font-weight: 800; color: var(--color-forest);">
+                      Harvest Yield & MSP Profitability Sensitivity Engine
+                    </h3>
+                    <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                      Interactive simulation of Mandi price shocks and realized yield on net operational profit
+                    </p>
+                  </div>
+                  <span class="badge badge-success">Live Sensitivity Simulator</span>
+                </div>
+
+                <!-- Sliders -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1.5rem;">
+                  <div class="simulator-slider-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span style="font-size: 0.8125rem; font-weight: 700; color: var(--color-text-primary);">Simulated Yield (Tonnes / Plot)</span>
+                      <span id="display-sim-yield" class="tabular-nums font-mono" style="font-size: 0.9375rem; font-weight: 800; color: var(--color-forest);">4.2 Tonnes</span>
+                    </div>
+                    <input type="range" id="sim-yield-slider" min="2.0" max="6.5" step="0.1" value="4.2" style="width: 100%; accent-color: var(--color-emerald);">
+                  </div>
+
+                  <div class="simulator-slider-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span style="font-size: 0.8125rem; font-weight: 700; color: var(--color-text-primary);">Simulated Selling Price (₹ / Tonne MSP)</span>
+                      <span id="display-sim-price" class="tabular-nums font-mono" style="font-size: 0.9375rem; font-weight: 800; color: var(--color-forest);">₹29,000 / T</span>
+                    </div>
+                    <input type="range" id="sim-price-slider" min="20000" max="38000" step="500" value="29000" style="width: 100%; accent-color: var(--color-emerald);">
+                  </div>
+                </div>
+
+                <!-- Simulation Result KPI Cards -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                  <div style="background: #FFFFFF; padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                    <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Gross Revenue</span>
+                    <p id="sim-revenue-text" class="tabular-nums font-mono" style="font-size: 1.35rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0 0;">₹1,21,800</p>
+                    <span id="sim-revenue-sub" style="font-size: 0.75rem; color: var(--color-text-secondary);">4.2 T @ ₹29k/T</span>
+                  </div>
+
+                  <div style="background: #FFFFFF; padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                    <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Net Operating Profit</span>
+                    <p id="sim-profit-text" class="tabular-nums font-mono" style="font-size: 1.35rem; font-weight: 800; color: var(--color-forest); margin: 0.25rem 0 0;">₹1,03,300</p>
+                    <span id="sim-margin-text" style="font-size: 0.75rem; color: var(--color-emerald-dark); font-weight: 700;">84.8% Margin</span>
+                  </div>
+
+                  <div style="background: #FFFFFF; padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                    <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Break-Even Threshold</span>
+                    <p id="sim-breakeven-text" class="tabular-nums font-mono" style="font-size: 1.35rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0 0;">0.64 T</p>
+                    <span id="sim-breakeven-sub" style="font-size: 0.75rem; color: var(--color-text-secondary);">Yield to cover outlay</span>
+                  </div>
+                </div>
+
+                <div style="background: rgba(240, 253, 244, 0.7); border: 1px dashed #34D399; border-radius: var(--radius-md); padding: 0.75rem 1rem; margin-top: 1rem; display: flex; align-items: flex-start; gap: 0.6rem;">
+                  <span>📈</span>
+                  <div id="sim-insight-text" style="font-size: 0.75rem; color: #065F46; line-height: 1.5;">
+                    Decision support insight computing from active records...
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
 
         </div>
@@ -292,15 +293,12 @@
     </div>
   </div>
 
-  <!-- Add Crop Cycle Modal -->
+  <!-- Modal for New Crop -->
   <div class="modal-overlay" id="add-crop-modal">
     <div class="modal-content">
       <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <h3 style="font-size: 1.125rem; font-weight: 800;">Launch New Crop Cycle</h3>
-          <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Initialize biological growth stages, yield, and budget parameters</p>
-        </div>
-        <button onclick="document.getElementById('add-crop-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8; background: none; border: none; cursor: pointer;">✕</button>
+        <h3 style="font-size: 1.125rem; font-weight: 800;">Launch Seasonal Crop Cycle</h3>
+        <button onclick="document.getElementById('add-crop-modal').classList.remove('active')" style="background:none; border:none; font-size:1.25rem; cursor:pointer;">✕</button>
       </div>
 
       <form id="add-crop-form" style="padding: 1.5rem;">
@@ -311,43 +309,34 @@
           </div>
           <div class="form-group">
             <label class="form-label">Variety</label>
-            <input type="text" id="cycle-variety" class="form-input" placeholder="e.g. MTU-1010" value="BPT-5204">
+            <input type="text" id="cycle-variety" class="form-input" required value="BPT-5204">
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
           <div class="form-group">
-            <label class="form-label">Season</label>
+            <label class="form-label">Season *</label>
             <select id="cycle-season" class="form-select">
-              <option value="Kharif" selected>Kharif 2026</option>
-              <option value="Rabi">Rabi 2026-27</option>
-              <option value="Zaid">Zaid 2027</option>
+              <option value="Kharif">Kharif</option>
+              <option value="Rabi">Rabi</option>
+              <option value="Zaid">Zaid</option>
             </select>
           </div>
-          <div class="form-group">
-            <label class="form-label">Target Parcel</label>
-            <select id="cycle-field" class="form-select">
-              <option value="North Block (Plot A)">North Block (Plot A - 10.0 Ac)</option>
-              <option value="Central Sector (Plot B)">Central Sector (Plot B - 8.5 Ac)</option>
-              <option value="South Sector (Plot C)">South Sector (Plot C - 6.5 Ac)</option>
-            </select>
-          </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
           <div class="form-group">
             <label class="form-label">Target Yield (Tonnes) *</label>
             <input type="number" step="0.1" id="cycle-yield" class="form-input" required value="4.2">
           </div>
-          <div class="form-group">
-            <label class="form-label">MSP Selling Price (₹/Tonne) *</label>
-            <input type="number" id="cycle-price" class="form-input" required value="29000">
-          </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Planned Budget (₹) *</label>
-          <input type="number" id="cycle-budget" class="form-input" required value="50000">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label">Selling Price (₹/Tonne) *</label>
+            <input type="number" id="cycle-price" class="form-input" required value="29000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Planned Budget (₹) *</label>
+            <input type="number" id="cycle-budget" class="form-input" required value="50000">
+          </div>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; pt-3; border-top: 1px solid var(--color-border);">
@@ -363,13 +352,79 @@
   <script src="js/config.js"></script>
   <script src="js/supabase.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/mailer.js"></script>
   <script src="js/app.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       window.FarmPilotApp.init('crops');
 
-      // Phase 1 Problem Statement: Yield & MSP Profitability Sensitivity Engine
+      // 1. Tab Switching
+      document.querySelectorAll('#crop-workspace-tabs button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#crop-workspace-tabs button').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.workspace-tab-content').forEach(c => c.classList.remove('active'));
+          btn.classList.add('active');
+          const tabId = btn.getAttribute('data-tab');
+          const target = document.getElementById(tabId);
+          if (target) target.classList.add('active');
+        });
+      });
+
+      // 2. Load Real Financials & Aggregates
+      const fin = await window.FarmPilotDB.getFinancialSummary();
+      document.getElementById('crop-budget-val').textContent = `₹${fin.plannedBudget.toLocaleString('en-IN')}`;
+      document.getElementById('crop-spend-val').textContent = `₹${fin.totalSpent.toLocaleString('en-IN')}`;
+      document.getElementById('crop-margin-val').textContent = `${fin.profitMargin}%`;
+
+      // 3. Load Activities
+      const activities = await window.FarmPilotDB.getActivities();
+      const actTbody = document.getElementById('crop-activities-tbody');
+      if (actTbody) {
+        actTbody.innerHTML = activities.map(a => `
+          <tr>
+            <td><strong>${a.title}</strong></td>
+            <td><span class="badge badge-neutral">${a.category}</span></td>
+            <td class="font-mono">${a.due_date}</td>
+            <td><span class="badge ${a.priority === 'HIGH' || a.priority === 'CRITICAL' ? 'badge-danger' : 'badge-neutral'}">${a.priority || 'MED'}</span></td>
+            <td>${a.assigned_to_name || 'Ravi Kumar'}</td>
+            <td><span class="badge ${a.status === 'COMPLETED' ? 'badge-success' : a.status === 'OVERDUE' ? 'badge-danger' : 'badge-warning'}">${a.status}</span></td>
+            <td class="tabular-nums font-mono font-bold">₹${Number(a.cost || 0).toLocaleString('en-IN')}</td>
+          </tr>
+        `).join('');
+      }
+
+      // 4. Load Inputs
+      const inputs = await window.FarmPilotDB.getInputs();
+      const inpTbody = document.getElementById('crop-inputs-tbody');
+      if (inpTbody) {
+        inpTbody.innerHTML = inputs.map(i => `
+          <tr>
+            <td><strong>${i.name}</strong></td>
+            <td><span class="badge badge-neutral">${i.category}</span></td>
+            <td class="tabular-nums font-mono">${i.quantity} ${i.unit}</td>
+            <td class="tabular-nums font-mono">₹${Number(i.unit_cost || 0).toFixed(1)}</td>
+            <td class="tabular-nums font-mono font-bold">₹${Number(i.total_cost || 0).toLocaleString('en-IN')}</td>
+            <td class="font-mono">${i.date}</td>
+          </tr>
+        `).join('');
+      }
+
+      // 5. Load Expenses
+      const expenses = await window.FarmPilotDB.getExpenses();
+      const expTbody = document.getElementById('crop-expenses-tbody');
+      if (expTbody) {
+        expTbody.innerHTML = expenses.map(e => `
+          <tr>
+            <td><span class="badge badge-neutral">${e.category}</span></td>
+            <td><strong>${e.description}</strong></td>
+            <td class="font-mono">${e.date}</td>
+            <td class="tabular-nums font-mono font-bold" style="color: var(--color-forest);">₹${Number(e.amount || 0).toLocaleString('en-IN')}</td>
+          </tr>
+        `).join('');
+      }
+
+      // 6. Interactive Sensitivity Engine
       const yieldSlider = document.getElementById('sim-yield-slider');
       const priceSlider = document.getElementById('sim-price-slider');
 
@@ -378,40 +433,36 @@
 
         const yieldVal = parseFloat(yieldSlider.value);
         const priceVal = parseFloat(priceSlider.value);
-        const cost = 46500; // Audited Kharif season operational spend
+        const cost = fin.totalSpent > 0 ? fin.totalSpent : 18500;
 
         const grossRevenue = yieldVal * priceVal;
         const netProfit = grossRevenue - cost;
-        const marginPct = (netProfit / grossRevenue) * 100;
-        const roiPct = ((netProfit) / cost) * 100;
+        const marginPct = grossRevenue > 0 ? (netProfit / grossRevenue) * 100 : 0;
         const breakEvenYield = cost / priceVal;
 
-        // Update Labels
         document.getElementById('display-sim-yield').textContent = `${yieldVal.toFixed(1)} Tonnes`;
         document.getElementById('display-sim-price').textContent = `₹${priceVal.toLocaleString('en-IN')} / T`;
 
-        // Update KPI Cards
         document.getElementById('sim-revenue-text').textContent = `₹${Math.round(grossRevenue).toLocaleString('en-IN')}`;
-        document.getElementById('sim-revenue-sub').textContent = `${yieldVal.toFixed(1)} T × ₹${priceVal.toLocaleString('en-IN')}/T`;
+        document.getElementById('sim-revenue-sub').textContent = `${yieldVal.toFixed(1)} T @ ₹${priceVal.toLocaleString('en-IN')}/T`;
 
         const profitEl = document.getElementById('sim-profit-text');
         profitEl.textContent = `${netProfit >= 0 ? '₹' : '-₹'}${Math.abs(Math.round(netProfit)).toLocaleString('en-IN')}`;
-        profitEl.style.color = netProfit >= 0 ? '#065F46' : '#DC2626';
+        profitEl.style.color = netProfit >= 0 ? 'var(--color-forest)' : '#DC2626';
 
         const marginEl = document.getElementById('sim-margin-text');
-        marginEl.textContent = `${marginPct.toFixed(1)}% Net Margin • ${Math.round(roiPct)}% ROI`;
-        marginEl.style.color = netProfit >= 0 ? '#047857' : '#DC2626';
+        marginEl.textContent = `${marginPct.toFixed(1)}% Net Margin`;
+        marginEl.style.color = netProfit >= 0 ? 'var(--color-emerald-dark)' : '#DC2626';
 
         document.getElementById('sim-breakeven-text').innerHTML = `${breakEvenYield.toFixed(2)} <span style="font-size: 0.8125rem;">Tonnes</span>`;
-        document.getElementById('sim-breakeven-sub').textContent = `Yield required to cover ₹${(cost / 1000).toFixed(1)}K cost`;
+        document.getElementById('sim-breakeven-sub').textContent = `Required to cover ₹${Number(cost).toLocaleString('en-IN')} spend`;
 
-        // Update Insight narrative
         const insightEl = document.getElementById('sim-insight-text');
         if (netProfit >= 0) {
           const bufferPct = (((yieldVal - breakEvenYield) / yieldVal) * 100).toFixed(1);
-          insightEl.innerHTML = `<strong>Economic Decision Support:</strong> At ${yieldVal.toFixed(1)} Tonnes and ₹${priceVal.toLocaleString('en-IN')} MSP, Green Valley Farm realizes ₹${Math.round(netProfit).toLocaleString('en-IN')} net operating profit. The farm can absorb a <strong>${bufferPct}%</strong> yield/price shock before reaching break-even (${breakEvenYield.toFixed(2)} T).`;
+          insightEl.innerHTML = `<strong>Economic Decision Support:</strong> At ${yieldVal.toFixed(1)} Tonnes and ₹${priceVal.toLocaleString('en-IN')} MSP, Green Valley Farm realizes ₹${Math.round(netProfit).toLocaleString('en-IN')} net profit. The farm can absorb a <strong>${bufferPct}%</strong> price/yield shock before reaching break-even (${breakEvenYield.toFixed(2)} T).`;
         } else {
-          insightEl.innerHTML = `<strong>⚠️ Economic Deficit Warning:</strong> At current parameters (${yieldVal.toFixed(1)} T @ ₹${priceVal.toLocaleString('en-IN')}), operations run a <strong>₹${Math.abs(Math.round(netProfit)).toLocaleString('en-IN')}</strong> loss. Yield must improve by ${(breakEvenYield - yieldVal).toFixed(2)} T or Mandi price must exceed ₹${Math.round(cost / yieldVal).toLocaleString('en-IN')}/T to break even.`;
+          insightEl.innerHTML = `<strong>⚠️ Deficit Warning:</strong> At current levels (${yieldVal.toFixed(1)} T @ ₹${priceVal.toLocaleString('en-IN')}), operations run a <strong>₹${Math.abs(Math.round(netProfit)).toLocaleString('en-IN')}</strong> loss.`;
         }
       }
 
@@ -421,7 +472,7 @@
         recalculateSensitivity();
       }
 
-      // Crop Cycle Form submission
+      // 7. Modal Form Submit
       document.getElementById('add-crop-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const payload = {
@@ -435,7 +486,7 @@
 
         await window.FarmPilotDB.createCropCycle(payload);
         document.getElementById('add-crop-modal').classList.remove('active');
-        window.FarmPilotApp.showToast('Crop cycle saved with 6 Problem Statement biological stages! 🎉');
+        window.FarmPilotApp.showToast('Crop cycle saved with 6 biological stages! 🎉');
       });
     });
   </script>

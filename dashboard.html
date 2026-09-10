@@ -113,10 +113,10 @@
               <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); letter-spacing: 0.05em;">
                 Total Managed Area
               </span>
-              <p class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-text-primary); margin: 0.35rem 0 0.2rem;">
+              <p id="kpi-area-val" class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-text-primary); margin: 0.35rem 0 0.2rem;">
                 25.0 <span style="font-size: 0.875rem; font-weight: 600; color: var(--color-text-secondary);">Acres</span>
               </p>
-              <span style="font-size: 0.75rem; font-weight: 600; color: var(--color-emerald-dark);">
+              <span id="kpi-area-sub" style="font-size: 0.75rem; font-weight: 600; color: var(--color-emerald-dark);">
                 ✓ 3 Demarcated Parcels
               </span>
             </div>
@@ -125,10 +125,10 @@
               <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); letter-spacing: 0.05em;">
                 Active Crop Cycles
               </span>
-              <p class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-forest); margin: 0.35rem 0 0.2rem;">
+              <p id="kpi-crop-val" class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-forest); margin: 0.35rem 0 0.2rem;">
                 1 <span style="font-size: 0.875rem; font-weight: 600; color: var(--color-text-secondary);">Cycle</span>
               </p>
-              <span style="font-size: 0.75rem; font-weight: 600; color: var(--color-text-secondary);">
+              <span id="kpi-crop-sub" style="font-size: 0.75rem; font-weight: 600; color: var(--color-text-secondary);">
                 Paddy BPT-5204 (Kharif)
               </span>
             </div>
@@ -149,10 +149,10 @@
               <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); letter-spacing: 0.05em;">
                 Kharif Budget Outlay
               </span>
-              <p class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-text-primary); margin: 0.35rem 0 0.2rem;">
+              <p id="kpi-budget-val" class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-text-primary); margin: 0.35rem 0 0.2rem;">
                 ₹18,500
               </p>
-              <span style="font-size: 0.75rem; font-weight: 600; color: var(--color-emerald-dark);">
+              <span id="kpi-budget-sub" style="font-size: 0.75rem; font-weight: 600; color: var(--color-emerald-dark);">
                 37% of ₹50,000 Budget
               </span>
             </div>
@@ -587,6 +587,7 @@
   <script src="js/auth.js"></script>
   <script src="js/confetti.js"></script>
   <script src="js/parcel-map.js"></script>
+  <script src="js/mailer.js"></script>
   <script src="js/app.js"></script>
   <script src="js/trash-animation.js"></script>
 
@@ -597,6 +598,26 @@
 
       // Initialize Aerial Parcel Map
       window.initParcelMap('dashboard-parcel-map');
+
+      // Update Dynamic KPIs from Database Records
+      async function updateDynamicKPIs() {
+        if (!window.FarmPilotDB) return;
+        const farm = await window.FarmPilotDB.getActiveFarm();
+        const fin = await window.FarmPilotDB.getFinancialSummary();
+
+        if (farm) {
+          const areaEl = document.getElementById('kpi-area-val');
+          if (areaEl) areaEl.innerHTML = `${farm.total_area} <span style="font-size: 0.875rem; font-weight: 600; color: var(--color-text-secondary);">${farm.area_unit || 'Acres'}</span>`;
+        }
+
+        if (fin) {
+          const budEl = document.getElementById('kpi-budget-val');
+          const budSub = document.getElementById('kpi-budget-sub');
+          if (budEl) budEl.textContent = `₹${fin.totalSpent.toLocaleString('en-IN')}`;
+          if (budSub) budSub.textContent = `${fin.budgetUtilization}% of ₹${fin.plannedBudget.toLocaleString('en-IN')} Budget`;
+        }
+      }
+      updateDynamicKPIs();
 
       // Function to dynamically update Health Gauge & Telemetry on Dashboard
       function applyHealthUpdate(health) {

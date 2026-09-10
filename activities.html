@@ -140,10 +140,11 @@
               <button class="btn btn-sm btn-primary" data-filter="ALL">All Active Operations</button>
               <button class="btn btn-sm btn-outline" data-filter="OVERDUE">Overdue Interventions</button>
               <button class="btn btn-sm btn-outline" data-filter="PENDING">Upcoming / Scheduled</button>
+              <button class="btn btn-sm btn-outline" data-filter="COMPLETED">Completed History</button>
             </div>
 
             <div style="font-size: 0.75rem; color: var(--color-text-secondary); display: flex; align-items: center; gap: 0.35rem;">
-              <span>⚡ Completed activities are automatically deleted and removed from the active register</span>
+              <span>⚡ Operations update Farm Health in real time and preserve full audit history</span>
             </div>
           </div>
 
@@ -269,6 +270,26 @@
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
           <div class="form-group">
+            <label class="form-label">Priority *</label>
+            <select id="act-priority" class="form-select">
+              <option value="CRITICAL">🔴 Critical Priority</option>
+              <option value="HIGH" selected>🟠 High Priority</option>
+              <option value="MEDIUM">🟢 Medium Priority</option>
+              <option value="LOW">⚪ Low Priority</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Assign Worker</label>
+            <select id="act-worker" class="form-select">
+              <option value="12f2a103-05d5-498f-b187-406bf7f634cd">Ravi Kumar (Field Operator)</option>
+              <option value="33dd8f01-e3c5-42a8-9194-a92504a75246">Siddharth Saladi (Owner)</option>
+              <option value="usr-mgr-02">Rajesh Patel (Manager)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
             <label class="form-label">Due Date *</label>
             <input type="date" id="act-date" class="form-input" required>
           </div>
@@ -364,6 +385,7 @@
   <script src="js/auth.js"></script>
   <script src="js/confetti.js"></script>
   <script src="js/trash-animation.js"></script>
+  <script src="js/mailer.js"></script>
   <script src="js/app.js"></script>
 
   <script>
@@ -402,20 +424,20 @@
 
         if (subEl) {
           if (health.overdueCount > 0) {
-            subEl.textContent = `${health.overdueCount} overdue intervention required. Disposing it cleans the ledger and boosts Farm Health to 94/100!`;
+            subEl.textContent = `${health.overdueCount} overdue intervention required. Resolving it clears the alert and boosts Farm Health to 94/100!`;
           } else {
             subEl.textContent = `✓ All critical operations are up to date! Farm health is optimal at ${health.score}/100. Soil vitality and crop vigor tracking at peak capacity.`;
           }
         }
 
-        if (activeCountEl) activeCountEl.textContent = activities.length;
+        if (activeCountEl) activeCountEl.textContent = activities.filter(a => a.status !== 'COMPLETED').length;
         if (overdueCountEl) overdueCountEl.textContent = health.overdueCount;
       }
 
       function renderList() {
         const filtered = activities.filter(a => {
-          if (a.status === 'COMPLETED') return false; // Never show completed activities!
-          if (currentFilter === 'ALL') return true;
+          if (currentFilter === 'COMPLETED') return a.status === 'COMPLETED';
+          if (currentFilter === 'ALL') return a.status !== 'COMPLETED';
           return a.status === currentFilter;
         });
 
@@ -570,12 +592,15 @@
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const workerSelect = document.getElementById('act-worker');
         const payload = {
           title: document.getElementById('act-title').value,
           category: document.getElementById('act-category').value,
           field_name: document.getElementById('act-field').value,
           due_date: document.getElementById('act-date').value,
-          priority: document.getElementById('act-priority') ? document.getElementById('act-priority').value : 'MEDIUM',
+          priority: document.getElementById('act-priority') ? document.getElementById('act-priority').value : 'HIGH',
+          assigned_to: workerSelect ? workerSelect.value : undefined,
+          assigned_to_name: workerSelect ? workerSelect.options[workerSelect.selectedIndex].text : 'Ravi Kumar',
           cost: parseFloat(document.getElementById('act-cost').value) || 0,
           notes: document.getElementById('act-notes').value,
           status: 'PENDING'
@@ -586,7 +611,7 @@
           activities = await window.FarmPilotDB.getActivities();
           renderList();
           form.reset();
-          window.FarmPilotApp.showToast('⚡ Activity scheduled & materialized into field queue! 🎉');
+          window.FarmPilotApp.showToast('⚡ Field operation scheduled & executive SMTP alert dispatched! ✉️');
         });
       });
 

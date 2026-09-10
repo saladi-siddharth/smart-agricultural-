@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmPilot — Field Worker Shift View</title>
+  <meta name="description" content="Mobile-first, distraction-free operational interface for field laborers and estate workers.">
+  
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    .worker-task-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+    .worker-task-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+    .worker-task-card.overdue {
+      border-left: 5px solid var(--color-danger);
+    }
+    .worker-task-card.in-progress {
+      border-left: 5px solid #0284C7;
+      background: #F0F9FF;
+    }
+    .worker-task-card.pending {
+      border-left: 5px solid var(--color-emerald);
+    }
+    .worker-action-btn {
+      width: 100%;
+      padding: 0.875rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 800;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+    .btn-start {
+      background: #0284C7;
+      color: #FFFFFF;
+    }
+    .btn-start:hover {
+      background: #0369A1;
+    }
+    .btn-complete {
+      background: #059669;
+      color: #FFFFFF;
+    }
+    .btn-complete:hover {
+      background: #047857;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-layout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="app-content">
+        <div class="app-content-inner animate-fade-in" style="max-width: 800px; margin: 0 auto;">
+          
+          <!-- Shift Header -->
+          <div style="background: linear-gradient(135deg, #0D2820 0%, #164E3D 100%); color: #FFFFFF; border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-md);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <span class="badge" style="background: rgba(52, 211, 153, 0.2); color: #A7F3D0; border: 1px solid rgba(52, 211, 153, 0.4); margin-bottom: 0.5rem;">
+                  Field Shift • Active
+                </span>
+                <h1 style="font-size: 1.5rem; font-weight: 800; color: #FFFFFF; margin: 0.25rem 0;">
+                  Today's Field Tasks
+                </h1>
+                <p style="font-size: 0.8125rem; color: #D1FAE5; margin: 0;">
+                  Operator: <strong>Ravi Kumar</strong> • Assigned Estate: <strong id="worker-estate-name">Green Valley Farm</strong>
+                </p>
+              </div>
+
+              <div style="text-align: right; background: rgba(255, 255, 255, 0.1); padding: 0.5rem 1rem; border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.15);">
+                <span style="font-size: 0.6875rem; color: #A7F3D0; text-transform: uppercase; font-weight: 700;">Shift Queue</span>
+                <p id="worker-queue-stat" class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; margin: 0; color: #FFFFFF;">
+                  Loading...
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alert / Overdue Prompt Banner -->
+          <div id="worker-overdue-alert" style="display: none; background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span style="font-size: 1.5rem;">⚠️</span>
+              <div>
+                <h3 style="font-size: 0.875rem; font-weight: 800; color: #991B1B; margin: 0;">
+                  Critical Priority: 1 Overdue Intervention!
+                </h3>
+                <p style="font-size: 0.75rem; color: #B91C1C; margin: 0.15rem 0 0;">
+                  Zinc foliar spray in North Block is overdue. Complete this task first to protect crop tillering vigor.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Task Cards Container -->
+          <div id="worker-tasks-list">
+            <!-- Rendered by JS -->
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="js/mailer.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      window.FarmPilotApp.init('worker');
+
+      const container = document.getElementById('worker-tasks-list');
+      const queueStat = document.getElementById('worker-queue-stat');
+      const overdueAlert = document.getElementById('worker-overdue-alert');
+      const estateName = document.getElementById('worker-estate-name');
+
+      const farm = await window.FarmPilotDB.getActiveFarm();
+      if (estateName && farm) estateName.textContent = farm.name;
+
+      async function loadTasks() {
+        const activities = await window.FarmPilotDB.getActivities();
+        const pendingOrActive = activities.filter(a => a.status !== 'COMPLETED');
+        const overdue = pendingOrActive.filter(a => a.status === 'OVERDUE');
+
+        if (queueStat) {
+          queueStat.textContent = `${pendingOrActive.length} Assigned`;
+        }
+
+        if (overdueAlert) {
+          overdueAlert.style.display = overdue.length > 0 ? 'block' : 'none';
+        }
+
+        if (pendingOrActive.length === 0) {
+          container.innerHTML = `
+            <div class="card" style="text-align: center; padding: 3rem 1.5rem; background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%); border: 1.5px dashed var(--color-emerald-light);">
+              <span style="font-size: 2.5rem;">🎉</span>
+              <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--color-forest); margin-top: 0.5rem;">
+                All Field Tasks Completed!
+              </h3>
+              <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                Great work! No pending or overdue operations for your shift today. Farm health is optimal at peak capacity.
+              </p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = pendingOrActive.map(task => {
+          const isOverdue = task.status === 'OVERDUE';
+          const isInProgress = task.status === 'IN_PROGRESS';
+          const cardClass = isOverdue ? 'overdue' : isInProgress ? 'in-progress' : 'pending';
+
+          return `
+            <div class="worker-task-card ${cardClass}" id="worker-card-${task.id}">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <span class="badge ${isOverdue ? 'badge-danger' : isInProgress ? 'badge-primary' : 'badge-success'}">
+                      ${isOverdue ? '⚠️ Overdue' : isInProgress ? '⏳ In Progress' : '● Scheduled'}
+                    </span>
+                    <span class="badge ${task.priority === 'HIGH' ? 'badge-danger' : 'badge-neutral'}">
+                      ${task.priority || 'MEDIUM'} Priority
+                    </span>
+                    <span class="badge badge-neutral" style="font-size: 0.625rem;">
+                      ${task.category}
+                    </span>
+                  </div>
+                  <h2 style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); margin: 0.5rem 0 0.25rem;">
+                    ${task.title}
+                  </h2>
+                  <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin: 0;">
+                    📍 Parcel: <strong style="color: var(--color-forest);">${task.field_name}</strong> • Due: <strong class="font-mono">${task.due_date}</strong>
+                  </p>
+                </div>
+              </div>
+
+              ${task.notes ? `
+                <div style="background: rgba(255,255,255,0.7); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 0.75rem; margin-bottom: 1rem;">
+                  <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0; line-height: 1.5;">
+                    📋 <strong>Field Protocol:</strong> ${task.notes}
+                  </p>
+                </div>
+              ` : ''}
+
+              <div style="display: grid; grid-template-columns: ${isInProgress ? '1fr' : '1fr 1fr'}; gap: 0.75rem; margin-top: 1rem;">
+                ${!isInProgress ? `
+                  <button class="worker-action-btn btn-start" onclick="startTask('${task.id}')">
+                    <span>▶ Start Task</span>
+                  </button>
+                ` : ''}
+
+                <button class="worker-action-btn btn-complete" onclick="finishTask('${task.id}', event)">
+                  <span>✓ Mark Completed</span>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      window.startTask = async (id) => {
+        await window.FarmPilotDB.startActivity(id);
+        window.FarmPilotApp.showToast('Task marked in progress! 🚜');
+        await loadTasks();
+      };
+
+      window.finishTask = async (id, e) => {
+        const rect = e.target.getBoundingClientRect();
+        if (window.triggerConfetti) {
+          window.triggerConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        }
+
+        const res = await window.FarmPilotDB.completeActivity(id);
+        const score = res?.health?.score || 94;
+        window.FarmPilotApp.showToast(`🎉 Task completed and verified! Farm Health recalculated to ${score}/100!`);
+        await loadTasks();
+      };
+
+      loadTasks();
+    });
+  </script>
+</body>
+</html>

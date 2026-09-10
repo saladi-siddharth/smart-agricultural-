@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmPilot — Centralized Alert Center</title>
+  <meta name="description" content="Centralized agronomic alert intelligence, deduplicated notification triage, and operational risk mitigation.">
+  
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    .alert-dossier-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      transition: all 0.25s ease;
+      box-shadow: var(--shadow-sm);
+    }
+    .alert-dossier-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+    .alert-dossier-card.critical {
+      border-left: 5px solid var(--color-danger);
+    }
+    .alert-dossier-card.warning {
+      border-left: 5px solid var(--color-warning);
+    }
+    .alert-dossier-card.success {
+      border-left: 5px solid var(--color-emerald);
+    }
+    .alert-dossier-card.resolved {
+      opacity: 0.75;
+      background: #F8FAFC;
+    }
+    .reason-box {
+      background: #F1F5F9;
+      border-radius: var(--radius-md);
+      padding: 0.875rem 1rem;
+      margin: 1rem 0;
+      border: 1px solid #E2E8F0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-layout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="app-content">
+        <div class="app-content-inner animate-fade-in">
+          
+          <!-- Header Bar -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);">
+            <div>
+              <span class="badge badge-danger" style="margin-bottom: 0.35rem;">Operational Intelligence Hub</span>
+              <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--color-text-primary);">
+                Centralized Alert Center
+              </h1>
+              <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                Deterministic, deduplicated triage of agronomic risks, budget anomalies, and field operational milestones
+              </p>
+            </div>
+
+            <!-- Severity Counters -->
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="background: #FEF2F2; border: 1px solid #FECACA; padding: 0.4rem 0.8rem; border-radius: var(--radius-md); text-align: center;">
+                <span style="font-size: 0.625rem; font-weight: 700; color: #991B1B; text-transform: uppercase;">Critical</span>
+                <p id="cnt-critical" class="tabular-nums font-mono" style="font-size: 1rem; font-weight: 800; color: #DC2626; margin: 0;">1</p>
+              </div>
+              <div style="background: #FFFBEB; border: 1px solid #FDE68A; padding: 0.4rem 0.8rem; border-radius: var(--radius-md); text-align: center;">
+                <span style="font-size: 0.625rem; font-weight: 700; color: #92400E; text-transform: uppercase;">Warning</span>
+                <p id="cnt-warning" class="tabular-nums font-mono" style="font-size: 1rem; font-weight: 800; color: #D97706; margin: 0;">1</p>
+              </div>
+              <div style="background: #ECFDF5; border: 1px solid #A7F3D0; padding: 0.4rem 0.8rem; border-radius: var(--radius-md); text-align: center;">
+                <span style="font-size: 0.625rem; font-weight: 700; color: #065F46; text-transform: uppercase;">Resolved</span>
+                <p id="cnt-resolved" class="tabular-nums font-mono" style="font-size: 1rem; font-weight: 800; color: #059669; margin: 0;">1</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter Navigation Tabs -->
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin: 1rem 0;">
+            <div style="display: flex; gap: 0.5rem;" id="alert-filter-tabs">
+              <button class="btn btn-sm btn-primary" data-filter="ALL">All Alerts</button>
+              <button class="btn btn-sm btn-outline" data-filter="ACTIVE">Active Unresolved</button>
+              <button class="btn btn-sm btn-outline" data-filter="CRITICAL">Critical Priority</button>
+              <button class="btn btn-sm btn-outline" data-filter="RESOLVED">Resolved Archive</button>
+            </div>
+
+            <span style="font-size: 0.75rem; color: var(--color-text-tertiary);">
+              ⚡ Deduplicated deterministically by organization & reference ID
+            </span>
+          </div>
+
+          <!-- Alert Cards Feed -->
+          <div id="alerts-feed-container">
+            <!-- Injected by JS -->
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/mailer.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      window.FarmPilotApp.init('alerts');
+
+      const container = document.getElementById('alerts-feed-container');
+      let currentFilter = 'ALL';
+      let alerts = await window.FarmPilotDB.getAlerts();
+
+      function updateStats() {
+        const crit = alerts.filter(a => a.severity === 'CRITICAL' && !a.is_resolved).length;
+        const warn = alerts.filter(a => a.severity === 'WARNING' && !a.is_resolved).length;
+        const res = alerts.filter(a => a.is_resolved).length;
+
+        document.getElementById('cnt-critical').textContent = crit;
+        document.getElementById('cnt-warning').textContent = warn;
+        document.getElementById('cnt-resolved').textContent = res;
+      }
+
+      function renderAlerts() {
+        updateStats();
+
+        const filtered = alerts.filter(a => {
+          if (currentFilter === 'ACTIVE') return !a.is_resolved;
+          if (currentFilter === 'CRITICAL') return a.severity === 'CRITICAL';
+          if (currentFilter === 'RESOLVED') return a.is_resolved;
+          return true;
+        });
+
+        if (filtered.length === 0) {
+          container.innerHTML = `
+            <div class="card" style="text-align: center; padding: 3rem 1.5rem; background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%); border: 1.5px dashed var(--color-emerald-light);">
+              <span style="font-size: 2.5rem;">🎉</span>
+              <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--color-forest); margin-top: 0.5rem;">
+                No Alerts in this Category
+              </h3>
+              <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                All operational, financial, and irrigation parameters are aligned within safe thresholds.
+              </p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = filtered.map(item => {
+          const isResolved = item.is_resolved;
+          const sev = item.severity ? item.severity.toLowerCase() : 'warning';
+          const sevBadge = item.severity === 'CRITICAL' ? 'badge-danger' : item.severity === 'WARNING' ? 'badge-warning' : 'badge-success';
+
+          return `
+            <div class="alert-dossier-card ${sev} ${isResolved ? 'resolved' : ''}">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                    <span class="badge ${sevBadge}">
+                      ${item.severity}
+                    </span>
+                    <span class="badge badge-neutral" style="font-size: 0.6875rem;">
+                      ${item.category || item.alert_type}
+                    </span>
+                    ${isResolved ? `
+                      <span class="badge badge-success" style="font-size: 0.6875rem;">
+                        ✓ Resolved
+                      </span>
+                    ` : `
+                      <span class="badge badge-danger" style="font-size: 0.6875rem;">
+                        ● Action Required
+                      </span>
+                    `}
+                  </div>
+
+                  <h3 style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0;">
+                    ${item.title}
+                  </h3>
+
+                  <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin: 0.25rem 0;">
+                    ${item.message}
+                  </p>
+                </div>
+
+                <div style="text-align: right;">
+                  <span class="font-mono" style="font-size: 0.6875rem; color: var(--color-text-tertiary);">
+                    ${new Date(item.created_at || Date.now()).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                  ${!isResolved ? `
+                    <div style="margin-top: 0.5rem;">
+                      <button class="btn btn-sm btn-primary" onclick="resolveAlert('${item.id}')">
+                        <span>✓ Resolve Alert</span>
+                      </button>
+                    </div>
+                  ` : `
+                    <div style="margin-top: 0.5rem;">
+                      <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-forest);">
+                        ✓ State Cleared
+                      </span>
+                    </div>
+                  `}
+                </div>
+              </div>
+
+              <!-- Explainable Rationale Box (Why Are You Showing This?) -->
+              <div class="reason-box">
+                <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                  <span style="font-size: 1rem;">💡</span>
+                  <div>
+                    <h4 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #334155; margin: 0 0 0.25rem; letter-spacing: 0.05em;">
+                      Agronomic Rationale & Recommended Intervention
+                    </h4>
+                    <p style="font-size: 0.8125rem; color: #475569; margin: 0; line-height: 1.5;">
+                      <strong>Action:</strong> ${item.recommendation || 'Verify field telemetry and adhere to recommended application dosage.'}
+                    </p>
+                    ${item.source_data ? `
+                      <p style="font-size: 0.6875rem; color: #64748B; margin: 0.35rem 0 0; font-family: monospace;">
+                        Source telemetry: ${item.source_data}
+                      </p>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      window.resolveAlert = async (id) => {
+        await window.FarmPilotDB.resolveAlert(id);
+        alerts = await window.FarmPilotDB.getAlerts();
+        renderAlerts();
+        window.FarmPilotApp.showToast('✓ Alert marked resolved! Operational history updated.');
+      };
+
+      renderAlerts();
+
+      // Filter tabs event listeners
+      document.querySelectorAll('#alert-filter-tabs button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#alert-filter-tabs button').forEach(b => b.className = 'btn btn-sm btn-outline');
+          btn.className = 'btn btn-sm btn-primary';
+          currentFilter = btn.getAttribute('data-filter');
+          renderAlerts();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

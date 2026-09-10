@@ -52,19 +52,47 @@ async function runMigrations() {
   try {
     client = await tryConnect();
 
+    // Ensure migrations table exists
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS public._migrations (
+        name TEXT PRIMARY KEY,
+        applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+    `);
+
+    const { rows: applied } = await client.query('SELECT name FROM public._migrations');
+    const appliedNames = new Set(applied.map(r => r.name));
+
     const migrationsDir = path.resolve(__dirname, '../supabase/migrations');
     const files = [
       '001_initial_schema.sql',
       '002_rls_policies.sql',
       '003_database_functions.sql',
+      '004_phase2_multi_tenant.sql',
     ];
 
     for (const file of files) {
+      if (appliedNames.has(file)) {
+        console.log(`Skipping already applied migration: ${file}`);
+        continue;
+      }
+
       const filePath = path.join(migrationsDir, file);
       console.log(`Running migration: ${file}...`);
       const sql = fs.readFileSync(filePath, 'utf8');
-      await client.query(sql);
-      console.log(`Completed: ${file}`);
+      
+      try {
+        await client.query(sql);
+        await client.query('INSERT INTO public._migrations (name) VALUES ($1) ON CONFLICT DO NOTHING', [file]);
+        console.log(`Completed: ${file}`);
+      } catch (err) {
+        if (err.message.includes('already exists') || err.message.includes('duplicate key')) {
+          console.warn(`Notice for ${file}: ${err.message} — recording as applied`);
+          await client.query('INSERT INTO public._migrations (name) VALUES ($1) ON CONFLICT DO NOTHING', [file]);
+        } else {
+          throw err;
+        }
+      }
     }
 
     console.log('All migrations applied successfully to Supabase PostgreSQL!');

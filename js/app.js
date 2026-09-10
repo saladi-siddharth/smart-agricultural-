@@ -1,27 +1,32 @@
 /**
- * Universal FarmPilot App Shell & Layout Controller
- * Handles Navigation, Executive Sidebar, Command Palette, and Toast Notifications
+ * Universal FarmPilot App Shell & Layout Controller — Phase 2 Enterprise
+ * Multi-Tenant Organization, Farm Selector, Role Persona Switcher, and Nav Badges
  */
 
 window.FarmPilotApp = {
   activePage: '',
 
-  init(activePageName) {
+  async init(activePageName) {
     this.activePage = activePageName;
     
-    // Protect route if on a private page
+    // Protect route if on private pages
     if (activePageName !== 'landing' && activePageName !== 'login') {
       window.FarmPilotAuth.checkAuth(true);
     }
 
-    this.renderSidebar();
-    this.renderHeader();
+    await this.renderSidebar();
+    await this.renderHeader();
     this.setupShortcuts();
     
     // Auto-update health across the application whenever changes occur
     window.addEventListener('farmpilot:health-updated', (e) => {
       this.updateHealthUI(e.detail);
     });
+
+    window.addEventListener('farmpilot:persona-changed', () => {
+      window.location.reload();
+    });
+
     this.updateHealthUI();
   },
 
@@ -59,6 +64,13 @@ window.FarmPilotApp = {
         actNavBadge.style.display = 'none';
       }
     }
+
+    // 4. Alerts nav badge
+    const alertNavBadge = document.querySelector('a[href="alerts.html"] .nav-badge');
+    if (alertNavBadge) {
+      alertNavBadge.textContent = healthData.overdueCount > 0 ? 'Action Req' : 'Optimal';
+      alertNavBadge.className = healthData.overdueCount > 0 ? 'nav-badge danger' : 'nav-badge success';
+    }
   },
 
   showToast(message, type = 'success') {
@@ -73,7 +85,7 @@ window.FarmPilotApp = {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
-    toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+    toast.innerHTML = `<span style="font-weight:bold;">${icon}</span><span>${message}</span>`;
     container.appendChild(toast);
 
     setTimeout(() => {
@@ -81,39 +93,56 @@ window.FarmPilotApp = {
       toast.style.transform = 'translateY(10px)';
       toast.style.transition = 'all 0.3s ease';
       setTimeout(() => toast.remove(), 300);
-    }, 3200);
+    }, 4500);
   },
 
-  renderSidebar() {
+  async renderSidebar() {
     const sidebarEl = document.getElementById('app-sidebar');
     if (!sidebarEl) return;
 
-    const navItems = [
+    const user = window.FarmPilotAuth.getUser() || window.FARMPILOT_CONFIG.PERSONAS.OWNER;
+    const isWorker = user.role === 'WORKER';
+
+    const navItems = isWorker ? [
+      {
+        group: 'Worker Shift',
+        items: [
+          { id: 'worker', label: "Today's Tasks", icon: '🚜', href: 'worker.html', badge: 'Active Shift', badgeType: 'success' },
+          { id: 'activities', label: 'All Field Tasks', icon: '📋', href: 'activities.html' }
+        ]
+      }
+    ] : [
       {
         group: 'Overview',
         items: [
           { id: 'dashboard', label: 'Dashboard', icon: '📊', href: 'dashboard.html' },
-          { id: 'farms', label: 'Farms', icon: '🚜', href: 'farms.html' },
+          { id: 'farms', label: 'Farms Portfolio', icon: '🚜', href: 'farms.html' },
           { id: 'crops', label: 'Crop Cycles', icon: '🌱', href: 'crops.html', badge: 'Active' }
         ]
       },
       {
         group: 'Operations',
         items: [
-          { id: 'activities', label: 'Activities', icon: '📋', href: 'activities.html', badge: '1 Overdue', badgeType: 'danger' },
-          { id: 'inputs', label: 'Inputs', icon: '📦', href: 'inputs.html' },
-          { id: 'expenses', label: 'Expenses', icon: '💰', href: 'expenses.html' }
+          { id: 'activities', label: 'Field Operations', icon: '📋', href: 'activities.html', badge: '1 Overdue', badgeType: 'danger' },
+          { id: 'inputs', label: 'Inputs & Stock', icon: '📦', href: 'inputs.html' },
+          { id: 'expenses', label: 'Financials & Budget', icon: '💰', href: 'expenses.html' }
         ]
       },
       {
-        group: 'Intelligence',
+        group: 'Intelligence & SaaS',
         items: [
-          { id: 'intelligence', label: 'Farm Health', icon: '🧠', href: 'intelligence.html', badge: '82/100', badgeType: 'success' }
+          { id: 'alerts', label: 'Alert Center', icon: '🔔', href: 'alerts.html', badge: '1 Urgent', badgeType: 'danger' },
+          { id: 'intelligence', label: 'Farm Health', icon: '🧠', href: 'intelligence.html', badge: '82/100', badgeType: 'success' },
+          { id: 'reports', label: 'Executive Reports', icon: '📑', href: 'reports.html' }
+        ]
+      },
+      {
+        group: 'Field Staff View',
+        items: [
+          { id: 'worker', label: "Mobile Worker View", icon: '📱', href: 'worker.html' }
         ]
       }
     ];
-
-    const user = window.FarmPilotAuth.getUser() || { full_name: 'Siddharth Saladi', email: 'farmer@greenvalley.in' };
 
     sidebarEl.innerHTML = `
       <!-- Brand Header -->
@@ -129,7 +158,7 @@ window.FarmPilotApp = {
           </div>
           <div class="sidebar-brand-text">
             <h2>FarmPilot</h2>
-            <span>Agronomic OS</span>
+            <span>Agronomic SaaS</span>
           </div>
         </a>
       </div>
@@ -184,22 +213,22 @@ window.FarmPilotApp = {
           </span>
         </div>
 
-        <!-- User Profile Strip -->
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem; border-radius: var(--radius-md); background-color: var(--color-surface-secondary);">
+        <!-- User Profile & Sign Out -->
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem; border-radius: var(--radius-md); background-color: var(--color-surface-secondary); border: 1px solid var(--color-border);">
           <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 0;">
             <div style="width: 28px; height: 28px; border-radius: var(--radius-sm); background-color: var(--color-forest); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; flex-shrink: 0;">
-              ${user.full_name ? user.full_name.charAt(0).toUpperCase() : 'F'}
+              ${user.avatar || (user.full_name ? user.full_name.charAt(0).toUpperCase() : 'F')}
             </div>
             <div style="min-width: 0;">
               <p style="font-size: 0.75rem; font-weight: 800; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1;">
-                ${user.full_name || 'Farm Manager'}
+                ${user.full_name || 'Farm Operator'}
               </p>
-              <p style="font-size: 0.625rem; color: var(--color-text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                ${user.email}
+              <p style="font-size: 0.625rem; color: var(--color-emerald-dark); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${user.roleLabel || user.role}
               </p>
             </div>
           </div>
-          <button onclick="window.FarmPilotAuth.logout()" title="Sign out" style="color: #94A3B8; hover:color: #EF4444; font-size: 0.75rem;">
+          <button onclick="window.FarmPilotAuth.logout()" title="Sign out" style="color: #94A3B8; hover:color: #EF4444; font-size: 0.75rem; background:none; border:none; cursor:pointer;">
             🚪
           </button>
         </div>
@@ -207,53 +236,82 @@ window.FarmPilotApp = {
     `;
   },
 
-  renderHeader() {
+  async renderHeader() {
     const headerEl = document.getElementById('app-header');
     if (!headerEl) return;
 
     const pageTitles = {
-      dashboard: 'Dashboard',
+      dashboard: 'Dashboard Command Center',
       farms: 'Farms & Land Holdings',
       crops: 'Seasonal Crop Cycles',
       activities: 'Operations & Field Tasks',
       inputs: 'Agronomic Inputs & Stocks',
       expenses: 'Financial Outlay & Ledgers',
-      intelligence: 'Farm Health & Intelligence'
+      intelligence: 'Farm Health & Intelligence',
+      alerts: 'Centralized Alert Center',
+      reports: 'Executive Reports & Analytics',
+      worker: "Field Worker Shift"
     };
 
     const currentTitle = pageTitles[this.activePage] || 'Command Center';
+    const user = window.FarmPilotAuth.getUser() || window.FARMPILOT_CONFIG.PERSONAS.OWNER;
+    const activeFarm = window.FarmPilotDB ? await window.FarmPilotDB.getActiveFarm() : window.FARMPILOT_CONFIG.DEFAULT_FARMS[0];
+    const farms = window.FarmPilotDB ? await window.FarmPilotDB.getFarms() : window.FARMPILOT_CONFIG.DEFAULT_FARMS;
 
     headerEl.innerHTML = `
-      <!-- Left: Breadcrumb -->
+      <!-- Left: Breadcrumb & Title -->
       <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem;">
-        <span style="color: var(--color-text-tertiary); font-weight: 500;">FarmPilot</span>
+        <span style="color: var(--color-text-tertiary); font-weight: 500;">Green Valley Agri</span>
         <span style="color: #CBD5E1;">/</span>
         <span style="color: var(--color-text-primary); font-weight: 800;">${currentTitle}</span>
       </div>
 
-      <!-- Center: Estate Season Pill -->
-      <div style="display: flex; align-items: center; gap: 0.625rem; padding: 0.35rem 0.75rem; border-radius: var(--radius-full); background-color: var(--color-surface-secondary); border: 1px solid var(--color-border); font-size: 0.75rem;">
-        <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #10B981;" class="animate-pulse-glow"></span>
-        <span style="font-weight: 800; color: var(--color-text-primary);">Green Valley Farm</span>
-        <span style="font-size: 0.6875rem; color: var(--color-text-tertiary);">25.0 Ac</span>
-        <span style="font-size: 0.625rem; font-weight: 700; background-color: var(--color-emerald-light); color: var(--color-forest); padding: 0.1rem 0.4rem; border-radius: 4px;">
-          Kharif 2026
-        </span>
+      <!-- Center: Farm Portfolio Selector -->
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.65rem; border-radius: var(--radius-full); background-color: var(--color-surface-secondary); border: 1px solid var(--color-border); font-size: 0.75rem;">
+          <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #10B981;" class="animate-pulse-glow"></span>
+          <select id="farm-selector-select" style="background: transparent; border: none; font-size: 0.75rem; font-weight: 800; color: var(--color-text-primary); cursor: pointer; outline: none;">
+            ${farms.map(f => `
+              <option value="${f.id}" ${f.id === activeFarm.id ? 'selected' : ''}>
+                🚜 ${f.name} (${f.total_area} Ac)
+              </option>
+            `).join('')}
+          </select>
+          <span style="font-size: 0.625rem; font-weight: 700; background-color: var(--color-emerald-light); color: var(--color-forest); padding: 0.1rem 0.4rem; border-radius: 4px;">
+            Kharif 2026
+          </span>
+        </div>
       </div>
 
-      <!-- Right: Action Buttons & Search -->
-      <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <!-- Right: Demo Persona Switcher & Search -->
+      <div style="display: flex; align-items: center; gap: 0.65rem;">
+        <!-- Demo Persona Switcher Dropdown -->
+        <div style="display: flex; align-items: center; gap: 0.35rem; background: #FEF3C7; border: 1px solid #FCD34D; padding: 0.2rem 0.6rem; border-radius: var(--radius-md);" title="Switch Role Persona for Live Demo">
+          <span style="font-size: 0.6875rem; font-weight: 800; color: #92400E;">ROLE:</span>
+          <select id="role-persona-select" style="background: transparent; border: none; font-size: 0.75rem; font-weight: 800; color: #78350F; cursor: pointer; outline: none;" onchange="window.FarmPilotAuth.switchPersona(this.value)">
+            <option value="OWNER" ${user.role === 'OWNER' ? 'selected' : ''}>👑 Owner (Siddharth)</option>
+            <option value="MANAGER" ${user.role === 'MANAGER' ? 'selected' : ''}>🛠️ Manager (Rajesh)</option>
+            <option value="WORKER" ${user.role === 'WORKER' ? 'selected' : ''}>🚜 Worker (Ravi)</option>
+            <option value="CONSULTANT" ${user.role === 'CONSULTANT' ? 'selected' : ''}>🔬 Consultant (Swaminathan)</option>
+          </select>
+        </div>
+
         <button onclick="FarmPilotApp.openCommandPalette()" class="btn btn-secondary btn-sm" style="display: flex; align-items: center; gap: 0.35rem; color: var(--color-text-secondary);">
           <span>🔍</span>
           <span>Search</span>
           <kbd class="font-mono" style="background: #FFFFFF; border: 1px solid #CBD5E1; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.625rem;">⌘K</kbd>
         </button>
-
-        <a href="index.html" class="btn btn-outline btn-sm" title="View Public Landing Page">
-          Home ↗
-        </a>
       </div>
     `;
+
+    // Farm change event listener
+    const farmSelect = document.getElementById('farm-selector-select');
+    if (farmSelect) {
+      farmSelect.addEventListener('change', async (e) => {
+        await window.FarmPilotDB.setActiveFarm(e.target.value);
+        window.location.reload();
+      });
+    }
   },
 
   setupShortcuts() {
@@ -281,11 +339,14 @@ window.FarmPilotApp = {
             <input type="text" id="cmd-input" placeholder="Type a command or jump to page..." style="border: none; outline: none; width: 100%; font-size: 0.875rem; background: transparent;">
             <kbd class="font-mono" style="font-size: 0.625rem; color: #94A3B8;">ESC</kbd>
           </div>
-          <div style="padding: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; max-height: 280px; overflow-y: auto;">
+          <div style="padding: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; max-height: 320px; overflow-y: auto;">
             <a href="dashboard.html" class="nav-item" style="padding: 0.5rem 0.75rem;">📊 Dashboard Command Center</a>
             <a href="farms.html" class="nav-item" style="padding: 0.5rem 0.75rem;">🚜 Farms & Land Holdings</a>
-            <a href="crops.html" class="nav-item" style="padding: 0.5rem 0.75rem;">🌱 Crop Cycles (Paddy BPT-5204)</a>
+            <a href="crops.html" class="nav-item" style="padding: 0.5rem 0.75rem;">🌱 Crop Cycles Operational Workspace</a>
             <a href="activities.html" class="nav-item" style="padding: 0.5rem 0.75rem;">📋 Field Operations Ledger</a>
+            <a href="worker.html" class="nav-item" style="padding: 0.5rem 0.75rem;">📱 Mobile Worker Shift View</a>
+            <a href="alerts.html" class="nav-item" style="padding: 0.5rem 0.75rem;">🔔 Centralized Alert Center</a>
+            <a href="reports.html" class="nav-item" style="padding: 0.5rem 0.75rem;">📑 Executive Reports & CSV Export</a>
             <a href="inputs.html" class="nav-item" style="padding: 0.5rem 0.75rem;">📦 Agronomic Inputs & Stock</a>
             <a href="expenses.html" class="nav-item" style="padding: 0.5rem 0.75rem;">💰 Financial Ledger & Budget</a>
             <a href="intelligence.html" class="nav-item" style="padding: 0.5rem 0.75rem;">🧠 Farm Health & Advisory</a>
