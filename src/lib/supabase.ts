@@ -1,7 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+// Default to live project credentials if environment variables are not set in the hosting provider
+const defaultSupabaseUrl = 'https://xgcamlpkbgjulkfknpud.supabase.co';
+const defaultSupabaseAnonKey = 'sb_publishable_3rbDSN4ONrtCxacboVfEdA_3nkUt82f';
+
+const supabaseUrl =
+  import.meta.env.VITE_SUPABASE_URL ||
+  import.meta.env.VITE_PUBLIC_SUPABASE_URL ||
+  defaultSupabaseUrl;
+
+const supabaseAnonKey =
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  import.meta.env.VITE_PUBLIC_SUPABASE_ANON_KEY ||
+  defaultSupabaseAnonKey;
 
 export const isSupabaseConfigured = Boolean(
   supabaseUrl &&
@@ -10,17 +21,9 @@ export const isSupabaseConfigured = Boolean(
   !supabaseUrl.includes('placeholder')
 );
 
-if (!isSupabaseConfigured) {
-  console.info(
-    'FarmPilot is operating in Demo Mode with local mock data (Green Valley Farm). ' +
-    'To connect to a live Supabase instance, provide VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.'
-  );
-}
-
-// Provide valid placeholder parameters if unconfigured to prevent createClient startup crash
 export const supabase = createClient(
-  isSupabaseConfigured ? supabaseUrl : 'https://demo-farmpilot.supabase.co',
-  isSupabaseConfigured ? supabaseAnonKey : 'demo-anon-key',
+  isSupabaseConfigured ? supabaseUrl : defaultSupabaseUrl,
+  isSupabaseConfigured ? supabaseAnonKey : defaultSupabaseAnonKey,
   {
     auth: {
       autoRefreshToken: true,

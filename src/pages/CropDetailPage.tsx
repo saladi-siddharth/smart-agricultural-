@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { cropService } from '@/services/cropService';
 import { activityService } from '@/services/activityService';
 import { expenseService } from '@/services/expenseService';
@@ -17,9 +17,7 @@ import type {
   IrrigationLog, Harvest, CropFinancials, ActivityInsert
 } from '@/types/database';
 import {
-  ArrowLeft, Leaf, Calendar, CheckCircle2, Clock, AlertTriangle,
-  Wallet, Plus, DollarSign, Droplets, Wheat, Sprout,
-  BarChart3, TrendingUp, Sparkles, Loader2, ChevronRight
+  ArrowLeft, CheckCircle2, Clock, AlertTriangle, Plus, Loader2
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { CropStageTimeline } from '@/components/crop/CropStageTimeline';
@@ -27,7 +25,6 @@ import { CropProfitabilityCard } from '@/components/crop/CropProfitabilityCard';
 
 export default function CropDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [crop, setCrop] = useState<CropCycle | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
