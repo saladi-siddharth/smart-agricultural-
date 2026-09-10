@@ -4,12 +4,11 @@ import { useAuth } from '@/hooks/useAuth';
 import {
   LayoutDashboard, Tractor, Map, Leaf, ClipboardList,
   Package, Wallet, Brain, LogOut, Menu, X, ChevronDown,
-  Bell, User, Sprout, Search, ChevronLeft, ChevronRight,
-  Sparkles, CheckCircle2, AlertTriangle
+  Bell, Sprout, Search, ChevronLeft, ChevronRight,
+  Sun, Droplets, Wind, Activity, CheckCircle2, AlertTriangle
 } from 'lucide-react';
 import { ToastContainer, showToast } from '@/components/common/ToastNotification';
 import { CommandPaletteModal } from '@/components/common/CommandPaletteModal';
-import { motion } from 'framer-motion';
 
 interface NavGroup {
   label: string;
@@ -90,38 +89,38 @@ export default function AppLayout() {
   const pageTitle = currentNav?.label || 'Command Center';
 
   return (
-    <div className="flex h-screen bg-[#FBFBFA] overflow-hidden">
+    <div className="flex h-screen bg-[#FBFBFA] text-[#0F172A] overflow-hidden font-sans antialiased">
       {/* Mobile Drawer Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-40 lg:hidden"
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 lg:hidden transition-opacity"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Stitch Collapsible Sidebar */}
+      {/* Executive Command Sidebar */}
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50
           bg-white border-r border-[#E5E8EB]
-          flex flex-col transition-all duration-200 ease-in-out
-          ${collapsed ? 'lg:w-[72px]' : 'lg:w-[260px]'}
-          ${sidebarOpen ? 'w-[260px] translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          flex flex-col transition-all duration-200 ease-in-out select-none
+          ${collapsed ? 'lg:w-[76px]' : 'lg:w-[272px]'}
+          ${sidebarOpen ? 'w-[272px] translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         {/* Brand Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-[#E5E8EB]">
-          <NavLink to="/dashboard" className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-[#143D30] flex items-center justify-center text-white flex-shrink-0 shadow-xs">
-              <Sprout className="w-4 h-4 text-emerald-400" />
+        <div className="h-16 flex items-center justify-between px-4 border-b border-[#E5E8EB] flex-shrink-0">
+          <NavLink to="/dashboard" className="flex items-center gap-3 min-w-0 group">
+            <div className="w-9 h-9 rounded-xl bg-[#143D30] flex items-center justify-center text-white flex-shrink-0 shadow-sm transition-transform group-hover:scale-105">
+              <Sprout className="w-5 h-5 text-emerald-400" />
             </div>
             {(!collapsed || sidebarOpen) && (
               <div className="min-w-0">
-                <span className="text-sm font-bold text-[#0F172A] tracking-tight block truncate">
+                <span className="text-sm font-extrabold text-[#0F172A] tracking-tight block truncate">
                   FarmPilot
                 </span>
                 <span className="text-[10px] font-bold text-[#059669] tracking-wider uppercase block truncate">
-                  Agronomic OS
+                  Agronomic OS • Phase 1
                 </span>
               </div>
             )}
@@ -135,12 +134,35 @@ export default function AppLayout() {
           </button>
         </div>
 
+        {/* Executive Estate Selector Widget */}
+        {(!collapsed || sidebarOpen) && (
+          <div className="p-3 border-b border-[#F1F5F9] bg-[#F8FAFC]/70">
+            <div className="p-3 bg-white rounded-xl border border-[#E5E8EB] shadow-2xs hover:border-[#CBD5E1] transition-all">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] font-bold text-[#143D30] uppercase tracking-wider bg-[#DCFCE7] px-2 py-0.5 rounded-md">
+                  Active Estate
+                </span>
+                <div className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[10px] font-semibold text-emerald-700">Online</span>
+                </div>
+              </div>
+              <p className="font-bold text-xs text-[#0F172A] truncate">Green Valley Farm</p>
+              <div className="text-[11px] text-[#64748B] flex items-center gap-1.5 mt-0.5 font-medium">
+                <span>25.0 Acres</span>
+                <span>•</span>
+                <span>3 Demarcated Parcels</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Navigation Sections */}
-        <nav className="flex-1 overflow-y-auto py-5 px-3 space-y-6">
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-5">
           {NAV_GROUPS.map(group => (
             <div key={group.label} className="space-y-1">
               {(!collapsed || sidebarOpen) && (
-                <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-[#94A3B8] mb-1.5">
+                <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-[#94A3B8] mb-1">
                   {group.label}
                 </p>
               )}
@@ -157,39 +179,90 @@ export default function AppLayout() {
                       flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold
                       transition-all relative
                       ${isActive
-                        ? 'bg-[#F0FDF4] text-[#143D30] font-bold shadow-xs'
-                        : 'text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
+                        ? 'bg-[#143D30] text-white shadow-sm'
+                        : 'text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A]'
                       }
                       ${collapsed && !sidebarOpen ? 'justify-center px-2' : ''}
                     `}
                   >
-                    <Icon className="w-4 h-4 flex-shrink-0" />
-                    {(!collapsed || sidebarOpen) && (
-                      <span className="flex-1 truncate">{item.label}</span>
-                    )}
+                    {({ isActive }) => (
+                      <>
+                        <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-emerald-300' : 'text-[#64748B]'}`} />
+                        {(!collapsed || sidebarOpen) && (
+                          <span className="flex-1 truncate tracking-tight">{item.label}</span>
+                        )}
 
-                    {(!collapsed || sidebarOpen) && item.badge && (
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                        item.badge.includes('Overdue')
-                          ? 'bg-red-50 text-red-700 border border-red-200'
-                          : 'bg-[#DCFCE7] text-[#143D30]'
-                      }`}>
-                        {item.badge}
-                      </span>
+                        {(!collapsed || sidebarOpen) && item.badge && (
+                          <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold tabular-nums ${
+                            item.badge.includes('Overdue')
+                              ? isActive
+                                ? 'bg-red-500/30 text-red-200 border border-red-400/40'
+                                : 'bg-red-50 text-red-700 border border-red-200'
+                              : isActive
+                              ? 'bg-emerald-500/30 text-emerald-200 border border-emerald-400/40'
+                              : 'bg-[#DCFCE7] text-[#143D30]'
+                          }`}>
+                            {item.badge}
+                          </span>
+                        )}
+                      </>
                     )}
                   </NavLink>
                 );
               })}
             </div>
           ))}
+
+          {/* Microclimate Live Telemetry Card (Desktop Expanded / Mobile) */}
+          {(!collapsed || sidebarOpen) && (
+            <div className="pt-2">
+              <div className="p-3 bg-gradient-to-br from-[#F0FDF4] to-[#ECFDF5] rounded-xl border border-[#DCFCE7] text-xs">
+                <div className="flex items-center justify-between text-[#143D30] font-bold text-[11px] mb-1.5">
+                  <span className="flex items-center gap-1.5">
+                    <Sun className="w-3.5 h-3.5 text-amber-500" />
+                    Field Microclimate
+                  </span>
+                  <span className="text-[9px] font-mono font-bold bg-white/90 px-1.5 py-0.5 rounded text-[#059669]">
+                    LIVE
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between mb-1.5">
+                  <span className="text-lg font-extrabold text-[#0F172A] tabular-nums tracking-tight">28°C</span>
+                  <span className="text-[11px] font-semibold text-[#166534]">Sunny • Optimal</span>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5 text-[10px] text-[#475569] pt-2 border-t border-[#DCFCE7]/80">
+                  <span className="flex items-center gap-1">
+                    <Droplets className="w-3 h-3 text-blue-500" /> 64% Humid
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Wind className="w-3 h-3 text-emerald-600" /> 12 km/h WNW
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </nav>
 
         {/* Sidebar Footer & Collapse Toggle */}
-        <div className="border-t border-[#E5E8EB] p-3 space-y-2">
+        <div className="border-t border-[#E5E8EB] p-3 space-y-2 flex-shrink-0 bg-white">
+          {/* Health Index Strip */}
+          {(!collapsed || sidebarOpen) && (
+            <div className="p-2.5 rounded-xl bg-[#F8FAFC] border border-[#E5E8EB] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-[11px] font-bold text-[#0F172A]">Farm Health</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-emerald-700 tabular-nums">82/100</span>
+                <span className="text-[10px] text-emerald-600 font-medium">(Optimal)</span>
+              </div>
+            </div>
+          )}
+
           {/* Collapse Toggle for Desktop */}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="hidden lg:flex w-full items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A] transition-colors"
+            className="hidden lg:flex w-full items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A] transition-colors cursor-pointer"
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {collapsed ? (
@@ -206,7 +279,7 @@ export default function AppLayout() {
           <div className="relative">
             <button
               onClick={() => setProfileOpen(!profileOpen)}
-              className={`w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-[#F8FAFC] transition-colors ${
+              className={`w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-[#F8FAFC] transition-colors cursor-pointer ${
                 collapsed && !sidebarOpen ? 'justify-center' : ''
               }`}
             >
@@ -226,7 +299,7 @@ export default function AppLayout() {
             </button>
 
             {profileOpen && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-[#E5E8EB] rounded-xl shadow-xl overflow-hidden animate-scale-in z-50">
+              <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-[#E5E8EB] rounded-xl shadow-xl overflow-hidden z-50 animate-fade-in">
                 <div className="p-3 border-b border-[#E5E8EB]">
                   <p className="text-xs font-bold text-[#0F172A]">{displayName}</p>
                   <p className="text-[11px] text-[#64748B] truncate">{user?.email}</p>
@@ -247,14 +320,14 @@ export default function AppLayout() {
         </div>
       </aside>
 
-      {/* Main Content Area */}
+      {/* Main Content Viewport */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Stitch Top Command Header */}
         <header className="h-16 bg-white/85 backdrop-blur-md border-b border-[#E5E8EB] flex items-center justify-between px-4 lg:px-8 flex-shrink-0 sticky top-0 z-30">
           {/* Left: Mobile Toggle & Breadcrumbs */}
           <div className="flex items-center gap-3 min-w-0">
             <button
-              className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100"
+              className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 cursor-pointer"
               onClick={() => setSidebarOpen(true)}
             >
               <Menu className="w-4 h-4" />
@@ -272,7 +345,7 @@ export default function AppLayout() {
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="font-bold text-[#0F172A]">Green Valley Farm</span>
             <span className="text-[11px] text-[#64748B]">25.0 Acres</span>
-            <span className="text-[10px] font-bold text-[#143D30] bg-[#DCFCE7] px-1.5 py-0.2 rounded">Kharif 2026</span>
+            <span className="text-[10px] font-bold text-[#143D30] bg-[#DCFCE7] px-1.5 py-0.5 rounded">Kharif 2026</span>
           </div>
 
           {/* Right Actions: Command Search, Notifications */}
@@ -284,7 +357,7 @@ export default function AppLayout() {
             >
               <Search className="w-3.5 h-3.5 text-[#64748B]" />
               <span className="hidden sm:inline">Search commands</span>
-              <kbd className="hidden sm:inline px-1.5 py-0.2 bg-white border border-[#CBD5E1] rounded text-[10px] font-mono">⌘K</kbd>
+              <kbd className="hidden sm:inline px-1.5 py-0.5 bg-white border border-[#CBD5E1] rounded text-[10px] font-mono">⌘K</kbd>
             </button>
 
             {/* Notifications Popover */}
@@ -299,7 +372,7 @@ export default function AppLayout() {
               </button>
 
               {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white border border-[#E5E8EB] rounded-xl shadow-xl p-3 z-50 animate-scale-in">
+                <div className="absolute right-0 mt-2 w-80 bg-white border border-[#E5E8EB] rounded-xl shadow-xl p-3 z-50 animate-fade-in">
                   <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#E5E8EB]">
                     <span className="text-xs font-bold text-[#0F172A]">Alert Center</span>
                     <span className="text-[10px] font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded-full border border-red-200">
