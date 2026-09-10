@@ -500,6 +500,13 @@ function buildOtpEmailHtml({ otp, email }) {
   // Static File Serving
   let filePath = path.join(__dirname, pathname === '/' ? 'index.html' : pathname);
 
+  if (!fs.existsSync(filePath)) {
+    const publicCandidate = path.join(__dirname, 'public', pathname);
+    if (fs.existsSync(publicCandidate) && !fs.statSync(publicCandidate).isDirectory()) {
+      filePath = publicCandidate;
+    }
+  }
+
   // If path is a directory, append index.html
   if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
     filePath = path.join(filePath, 'index.html');

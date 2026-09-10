@@ -14,6 +14,7 @@ window.FarmPilotApp = {
       window.FarmPilotAuth.checkAuth(true);
     }
 
+    this.renderImpersonationBanner();
     await this.renderSidebar();
     await this.renderHeader();
     this.setupShortcuts();
@@ -31,6 +32,41 @@ window.FarmPilotApp = {
 
     if (window.FarmPilotWeather) {
       window.FarmPilotWeather.updateWidgets();
+    }
+  },
+
+  renderImpersonationBanner() {
+    let banner = document.getElementById('owner-impersonation-banner');
+    if (window.FarmPilotAuth && window.FarmPilotAuth.isImpersonating()) {
+      const user = window.FarmPilotAuth.getUser();
+      const roleLabel = user?.impersonating_label || user?.impersonating_role || 'Executive Role';
+      const roleName = user?.impersonating_name || 'Assigned Persona';
+      
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'owner-impersonation-banner';
+        document.body.prepend(banner);
+      }
+      banner.style.cssText = 'background: linear-gradient(90deg, #1E3A8A 0%, #2563EB 100%); color: #FFFFFF; padding: 0.65rem 1.5rem; display: flex; align-items: center; justify-content: space-between; font-size: 0.8125rem; font-weight: 700; box-shadow: 0 4px 12px rgba(37,99,235,0.35); position: sticky; top: 0; z-index: 99999; border-bottom: 2px solid #60A5FA;';
+      banner.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <span style="font-size: 1.25rem;">👑</span>
+          <div>
+            <span style="font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(255,255,255,0.22); padding: 0.15rem 0.5rem; border-radius: 4px; margin-right: 0.5rem; font-size: 0.6875rem;">
+              Executive Owner Impersonation
+            </span>
+            <span>
+              Viewing Green Valley Agriculture Ltd as <strong>${roleLabel}</strong> (${roleName}). Interface and permissions match this role.
+            </span>
+          </div>
+        </div>
+        <button onclick="window.FarmPilotAuth.exitImpersonation()" style="background: #FFFFFF; color: #1E3A8A; border: none; padding: 0.35rem 0.85rem; border-radius: 6px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: all 0.2s;" onmouseover="this.style.background='#EFF6FF'" onmouseout="this.style.background='#FFFFFF'">
+          <span>Exit Role View</span>
+          <span>✕</span>
+        </button>
+      `;
+    } else if (banner) {
+      banner.remove();
     }
   },
 
@@ -105,18 +141,18 @@ window.FarmPilotApp = {
     if (!sidebarEl) return;
 
     const user = window.FarmPilotAuth.getUser() || window.FARMPILOT_CONFIG.PERSONAS.OWNER;
-    const role = user.role || 'OWNER';
+    const role = window.FarmPilotAuth.getEffectiveRole();
 
     // Role-based route guard
-    if (role === 'WORKER' && ['expenses', 'farms', 'reports', 'dashboard', 'crops', 'inputs'].includes(this.activePage)) {
+    if (role === 'WORKER' && ['expenses', 'farms', 'reports', 'dashboard', 'crops', 'inputs', 'roles', 'audit'].includes(this.activePage)) {
       window.location.href = 'worker.html';
       return;
     }
-    if (role === 'CONSULTANT' && ['expenses', 'farms'].includes(this.activePage)) {
+    if (role === 'CONSULTANT' && ['expenses', 'farms', 'roles', 'labour'].includes(this.activePage)) {
       window.location.href = 'crops.html';
       return;
     }
-    if (role === 'MANAGER' && ['reports'].includes(this.activePage)) {
+    if (role === 'MANAGER' && ['roles'].includes(this.activePage)) {
       window.location.href = 'dashboard.html';
       return;
     }
@@ -124,7 +160,6 @@ window.FarmPilotApp = {
     let navItems = [];
 
     if (role === 'WORKER') {
-      // 3 Links Total
       navItems = [
         {
           group: 'Field Worker Shift',
@@ -141,7 +176,6 @@ window.FarmPilotApp = {
         }
       ];
     } else if (role === 'CONSULTANT') {
-      // 7 Links Total
       navItems = [
         {
           group: 'Agronomic Overview',
@@ -151,23 +185,23 @@ window.FarmPilotApp = {
           ]
         },
         {
-          group: 'Field Management',
+          group: 'Field & Inputs',
           items: [
             { id: 'activities', label: 'Field Operations & AWD', icon: '📋', href: 'activities.html', badge: '1 Overdue', badgeType: 'danger' },
             { id: 'inputs', label: 'Inputs & Stock', icon: '📦', href: 'inputs.html' }
           ]
         },
         {
-          group: 'Advisory & Intel',
+          group: 'Advisory & Auditing',
           items: [
             { id: 'alerts', label: 'Alert Center', icon: '🔔', href: 'alerts.html', badge: '1 Urgent', badgeType: 'danger' },
             { id: 'intelligence', label: 'Farm Health & Soil', icon: '🧠', href: 'intelligence.html', badge: '82/100', badgeType: 'success' },
-            { id: 'reports', label: 'Agronomic Reports', icon: '📑', href: 'reports.html' }
+            { id: 'reports', label: 'Agronomic Reports', icon: '📑', href: 'reports.html' },
+            { id: 'audit', label: 'Audit History', icon: '📜', href: 'audit.html' }
           ]
         }
       ];
     } else if (role === 'MANAGER') {
-      // 9 Links Total
       navItems = [
         {
           group: 'Operations Command',
@@ -181,15 +215,17 @@ window.FarmPilotApp = {
           group: 'Field & Logistics',
           items: [
             { id: 'activities', label: 'Field Operations & AWD', icon: '📋', href: 'activities.html', badge: '1 Overdue', badgeType: 'danger' },
+            { id: 'labour', label: 'Labour Management', icon: '👷', href: 'labour.html', badge: '24 Today', badgeType: 'primary' },
             { id: 'inputs', label: 'Inputs & Stock', icon: '📦', href: 'inputs.html' },
             { id: 'expenses', label: 'Financials & Budget', icon: '💰', href: 'expenses.html' }
           ]
         },
         {
-          group: 'Intelligence',
+          group: 'Intelligence & Audit',
           items: [
             { id: 'alerts', label: 'Alert Center', icon: '🔔', href: 'alerts.html', badge: '1 Urgent', badgeType: 'danger' },
-            { id: 'intelligence', label: 'Farm Health', icon: '🧠', href: 'intelligence.html', badge: '82/100', badgeType: 'success' }
+            { id: 'intelligence', label: 'Farm Health', icon: '🧠', href: 'intelligence.html', badge: '82/100', badgeType: 'success' },
+            { id: 'audit', label: 'Audit History', icon: '📜', href: 'audit.html' }
           ]
         },
         {
@@ -200,7 +236,7 @@ window.FarmPilotApp = {
         }
       ];
     } else {
-      // OWNER (10 Links Total - Full enterprise oversight)
+      // OWNER (Enterprise Oversight)
       navItems = [
         {
           group: 'Executive Overview',
@@ -211,9 +247,10 @@ window.FarmPilotApp = {
           ]
         },
         {
-          group: 'Operations & Ledgers',
+          group: 'Operations & Resources',
           items: [
             { id: 'activities', label: 'Field Operations & AWD', icon: '📋', href: 'activities.html', badge: '1 Overdue', badgeType: 'danger' },
+            { id: 'labour', label: 'Labour & Shifts', icon: '👷', href: 'labour.html', badge: '24 Today', badgeType: 'primary' },
             { id: 'inputs', label: 'Inputs & Stock', icon: '📦', href: 'inputs.html' },
             { id: 'expenses', label: 'Financials & Budget', icon: '💰', href: 'expenses.html' }
           ]
@@ -224,6 +261,13 @@ window.FarmPilotApp = {
             { id: 'alerts', label: 'Alert Center', icon: '🔔', href: 'alerts.html', badge: '1 Urgent', badgeType: 'danger' },
             { id: 'intelligence', label: 'Farm Health', icon: '🧠', href: 'intelligence.html', badge: '82/100', badgeType: 'success' },
             { id: 'reports', label: 'Executive Reports', icon: '📑', href: 'reports.html' }
+          ]
+        },
+        {
+          group: 'Governance & Auditing',
+          items: [
+            { id: 'roles', label: 'Roles & Permissions', icon: '👥', href: 'roles.html', badge: 'Master', badgeType: 'primary' },
+            { id: 'audit', label: 'Audit History', icon: '📜', href: 'audit.html', badge: 'Live', badgeType: 'warning' }
           ]
         },
         {
@@ -363,17 +407,20 @@ window.FarmPilotApp = {
       farms: 'Farms & Land Holdings',
       crops: 'Seasonal Crop Cycles',
       activities: 'Operations & Field Tasks',
+      labour: 'Labour & Shift Management',
       inputs: 'Agronomic Inputs & Stocks',
       expenses: 'Financial Outlay & Ledgers',
       intelligence: 'Farm Health & Intelligence',
       alerts: 'Centralized Alert Center',
       reports: 'Executive Reports & Analytics',
+      roles: 'Roles & Permissions Matrix',
+      audit: 'Tamper-Evident Audit History',
       worker: "Field Worker Shift"
     };
 
     const currentTitle = pageTitles[this.activePage] || 'Command Center';
     const user = window.FarmPilotAuth.getUser() || window.FARMPILOT_CONFIG.PERSONAS.OWNER;
-    const role = user.role || 'OWNER';
+    const role = window.FarmPilotAuth.getEffectiveRole();
     const activeFarm = window.FarmPilotDB ? await window.FarmPilotDB.getActiveFarm() : window.FARMPILOT_CONFIG.DEFAULT_FARMS[0];
     const farms = window.FarmPilotDB ? await window.FarmPilotDB.getFarms() : window.FARMPILOT_CONFIG.DEFAULT_FARMS;
 
@@ -431,7 +478,7 @@ window.FarmPilotApp = {
           </select>
         </div>
 
-        <!-- PROFILE BUTTON & COMPREHENSIVE USER MENU (Replaces Search Bar) -->
+        <!-- PROFILE BUTTON & COMPREHENSIVE USER MENU -->
         <div style="position: relative;" id="header-profile-wrapper">
           <button id="header-profile-btn" onclick="FarmPilotApp.toggleProfileMenu(event)" style="display: flex; align-items: center; gap: 0.5rem; background: var(--color-surface); border: 1.5px solid var(--color-border); padding: 0.25rem 0.6rem 0.25rem 0.35rem; border-radius: var(--radius-full); cursor: pointer; box-shadow: var(--shadow-sm); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--color-emerald-light)'" onmouseout="this.style.borderColor='var(--color-border)'">
             <div style="width: 28px; height: 28px; border-radius: 50%; overflow: hidden; border: 1px solid var(--color-border); flex-shrink: 0;">
@@ -444,7 +491,7 @@ window.FarmPilotApp = {
           </button>
 
           <!-- Floating Comprehensive Profile Dropdown -->
-          <div id="header-profile-dropdown" style="display: none; position: absolute; right: 0; top: calc(100% + 8px); width: 285px; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: 0 12px 28px -5px rgba(0,0,0,0.18), 0 8px 10px -6px rgba(0,0,0,0.1); z-index: 9999; padding: 1rem; animation: fadeIn 0.15s ease-out;">
+          <div id="header-profile-dropdown" style="display: none; position: absolute; right: 0; top: calc(100% + 8px); width: 295px; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: 0 12px 28px -5px rgba(0,0,0,0.18), 0 8px 10px -6px rgba(0,0,0,0.1); z-index: 9999; padding: 1rem; animation: fadeIn 0.15s ease-out;">
             
             <!-- User Photo, Name & Image Upload Trigger -->
             <div style="display: flex; flex-direction: column; align-items: center; text-align: center; padding-bottom: 0.875rem; border-bottom: 1px solid var(--color-border);">
@@ -487,6 +534,18 @@ window.FarmPilotApp = {
               <a href="dashboard.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; border-radius: 4px; color: var(--color-text-primary); text-decoration: none; font-weight: 600; font-size: 0.75rem;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='transparent'">
                 <span>📊</span>
                 <span>Dashboard Overview</span>
+              </a>
+              <a href="roles.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; border-radius: 4px; color: var(--color-text-primary); text-decoration: none; font-weight: 600; font-size: 0.75rem;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='transparent'">
+                <span>👥</span>
+                <span>Roles & Permissions Matrix</span>
+              </a>
+              <a href="audit.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; border-radius: 4px; color: var(--color-text-primary); text-decoration: none; font-weight: 600; font-size: 0.75rem;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='transparent'">
+                <span>📜</span>
+                <span>Tamper-Evident Audit History</span>
+              </a>
+              <a href="labour.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; border-radius: 4px; color: var(--color-text-primary); text-decoration: none; font-weight: 600; font-size: 0.75rem;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='transparent'">
+                <span>👷</span>
+                <span>Labour & Shift Management</span>
               </a>
               <a href="alerts.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; border-radius: 4px; color: var(--color-text-primary); text-decoration: none; font-weight: 600; font-size: 0.75rem;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='transparent'">
                 <span>🔔</span>

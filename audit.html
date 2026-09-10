@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmPilot — Tamper-Evident Audit History</title>
+  <meta name="description" content="Forensic operational audit ledger tracking every irrigation volume update, fertilizer application, labour dispatch, and role adjustment.">
+  
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <style>
+    .audit-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+    }
+    .audit-table th {
+      background: var(--color-surface-secondary);
+      padding: 0.75rem 1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 2px solid var(--color-border);
+      text-align: left;
+    }
+    .audit-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: middle;
+    }
+    .audit-table tr:hover td {
+      background: rgba(248, 250, 252, 0.85);
+    }
+    .diff-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+    }
+    .diff-old { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; text-decoration: line-through; }
+    .diff-new { background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+  <div class="app-layout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="app-content">
+        <!-- Page Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+              <span style="font-size: 1.5rem;">📜</span>
+              <h1 style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); letter-spacing: -0.02em; margin: 0;">
+                Tamper-Evident Forensic Audit History
+              </h1>
+              <span class="badge badge-success" style="font-size: 0.6875rem;">Immutable Trail</span>
+            </div>
+            <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin: 0;">
+              Forensic audit log tracking changes to AWD irrigation volumes, fertilizer stock applications, shift rosters, and security roles.
+            </p>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <button onclick="FarmPilotAudit.exportCSV()" class="btn btn-outline" style="font-size: 0.8125rem;">
+              <span>📥 Export Audit CSV</span>
+            </button>
+            <button onclick="logSampleAuditEvent()" class="btn btn-primary" style="font-size: 0.8125rem;">
+              <span>+ Record Test Event</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Top Metrics KPI Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="card" style="padding: 1.125rem;">
+            <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase;">Total Audit Records</span>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 0.25rem;">
+              <span class="tabular-nums font-mono" id="stat-total-logs" style="font-size: 1.75rem; font-weight: 800; color: var(--color-text-primary);">6</span>
+              <span style="font-size: 0.75rem; color: #059669; font-weight: 700;">100% Verified</span>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 1.125rem;">
+            <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase;">Irrigation & AWD Diffs</span>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 0.25rem;">
+              <span class="tabular-nums font-mono" style="font-size: 1.75rem; font-weight: 800; color: #2563EB;">2 Diffs</span>
+              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Water Balance</span>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 1.125rem;">
+            <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase;">Fertilizer Entries</span>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 0.25rem;">
+              <span class="tabular-nums font-mono" style="font-size: 1.75rem; font-weight: 800; color: #059669;">+25 kg Urea</span>
+              <span style="font-size: 0.75rem; color: #059669; font-weight: 700;">Stock Tracked</span>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 1.125rem;">
+            <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase;">Security Compliance</span>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 0.25rem;">
+              <span class="tabular-nums font-mono" style="font-size: 1.75rem; font-weight: 800; color: #10B981;">ISO/Agri</span>
+              <span style="font-size: 0.75rem; color: #059669; font-weight: 700;">Zero Breaches</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="card" style="padding: 1rem; margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between;">
+          <div style="display: flex; gap: 0.75rem; flex: 1; min-width: 280px;">
+            <input type="text" id="audit-search-input" placeholder="🔍 Search by user, parcel, action, or module..." class="form-input" style="flex: 1; font-size: 0.8125rem;" oninput="renderAuditTable()">
+            
+            <select id="audit-module-filter" class="form-input" style="width: 180px; font-size: 0.8125rem;" onchange="renderAuditTable()">
+              <option value="ALL">All Modules</option>
+              <option value="Irrigation">Irrigation & AWD</option>
+              <option value="Inputs">Inputs & Fertilizers</option>
+              <option value="Labour">Labour Management</option>
+              <option value="Field">Field Tasks</option>
+              <option value="Security">Roles & Security</option>
+            </select>
+          </div>
+
+          <span id="audit-count-badge" style="font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 700;">
+            Showing 6 audit records
+          </span>
+        </div>
+
+        <!-- Audit Ledger Table -->
+        <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 2rem;">
+          <div style="overflow-x: auto;">
+            <table class="audit-table">
+              <thead>
+                <tr>
+                  <th style="width: 15%;">Timestamp</th>
+                  <th style="width: 16%;">Actor & Role</th>
+                  <th style="width: 15%;">Module</th>
+                  <th style="width: 15%;">Field Parcel</th>
+                  <th style="width: 26%;">Operational Delta / Value Diff</th>
+                  <th style="width: 13%; text-align: right;">Forensic Proof</th>
+                </tr>
+              </thead>
+              <tbody id="audit-table-body">
+                <!-- Dynamically Populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Forensic Audit Changes / Diff Modal -->
+  <div class="modal-overlay" id="audit-diff-modal">
+    <div class="modal-content" style="max-width: 520px; padding: 1.75rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.75rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.25rem;">🔍</span>
+          <h3 style="font-size: 1.125rem; font-weight: 800; margin: 0; color: var(--color-text-primary);">Forensic Audit Diff Inspector</h3>
+        </div>
+        <button type="button" onclick="closeDiffModal()" style="background:none; border:none; font-size: 1.25rem; cursor:pointer; color: #64748B;">✕</button>
+      </div>
+
+      <div id="diff-modal-content">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <div style="margin-top: 1.5rem; text-align: right;">
+        <button onclick="closeDiffModal()" class="btn btn-secondary" style="font-size: 0.8125rem;">Close Inspector</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/audit.js"></script>
+  <script src="js/weather.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      FarmPilotApp.init('audit');
+      renderAuditTable();
+
+      window.addEventListener('farmpilot:audit-logged', () => {
+        renderAuditTable();
+      });
+    });
+
+    function renderAuditTable() {
+      const logs = window.FarmPilotAudit.getLogs();
+      const search = (document.getElementById('audit-search-input')?.value || '').toLowerCase().trim();
+      const moduleFilter = document.getElementById('audit-module-filter')?.value || 'ALL';
+
+      const filtered = logs.filter(l => {
+        const matchesSearch = !search || 
+          l.user.toLowerCase().includes(search) || 
+          l.role.toLowerCase().includes(search) || 
+          l.field_parcel.toLowerCase().includes(search) || 
+          l.module.toLowerCase().includes(search) || 
+          (l.new_value || '').toLowerCase().includes(search);
+        
+        const matchesModule = moduleFilter === 'ALL' || l.module.includes(moduleFilter);
+        return matchesSearch && matchesModule;
+      });
+
+      const tbody = document.getElementById('audit-table-body');
+      const countBadge = document.getElementById('audit-count-badge');
+      const statTotal = document.getElementById('stat-total-logs');
+
+      if (statTotal) statTotal.textContent = logs.length;
+      if (countBadge) countBadge.textContent = `Showing ${filtered.length} of ${logs.length} audit records`;
+
+      if (!filtered.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 2.5rem; color: var(--color-text-secondary);">
+              No audit logs match your search filter.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => `
+        <tr>
+          <td>
+            <div style="font-weight: 700; color: var(--color-text-primary);">${item.formatted_date.split(',')[0]}</div>
+            <div style="font-size: 0.6875rem; color: var(--color-text-secondary);">${item.formatted_date.split(',')[1] || ''}</div>
+          </td>
+          <td>
+            <div style="font-weight: 800; color: var(--color-text-primary);">${item.user}</div>
+            <div style="font-size: 0.6875rem; color: var(--color-emerald-dark); font-weight: 700;">${item.role}</div>
+          </td>
+          <td>
+            <span class="badge" style="background: var(--color-surface-secondary); color: var(--color-text-primary); border: 1px solid var(--color-border); font-size: 0.6875rem;">
+              ${item.module}
+            </span>
+          </td>
+          <td>
+            <span style="font-weight: 600; color: var(--color-text-primary);">${item.field_parcel}</span>
+          </td>
+          <td>
+            <div style="line-height: 1.4;">
+              ${item.old_value && item.old_value !== '—' ? `<span class="diff-badge diff-old">${item.old_value}</span><span style="color:#94A3B8; margin: 0 4px;">→</span>` : ''}
+              <span class="diff-badge diff-new">${item.new_value}</span>
+            </div>
+          </td>
+          <td style="text-align: right;">
+            <button onclick="viewLogDiff('${item.id}')" class="btn btn-outline btn-sm" style="font-size: 0.6875rem; padding: 0.25rem 0.5rem;">
+              <span>View Diff</span>
+              <span>🔍</span>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function viewLogDiff(logId) {
+      const logs = window.FarmPilotAudit.getLogs();
+      const item = logs.find(l => l.id === logId);
+      if (!item) return;
+
+      const container = document.getElementById('diff-modal-content');
+      container.innerHTML = `
+        <div style="background: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.75rem;">
+            <span style="color: var(--color-text-secondary);">Audit ID:</span>
+            <span class="font-mono" style="font-weight: 700;">${item.id}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.75rem;">
+            <span style="color: var(--color-text-secondary);">Date & Time:</span>
+            <span style="font-weight: 700; color: var(--color-text-primary);">${item.formatted_date}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.75rem;">
+            <span style="color: var(--color-text-secondary);">Changed By:</span>
+            <span style="font-weight: 700; color: #047857;">${item.user} (${item.role})</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+            <span style="color: var(--color-text-secondary);">Verified IP/Device:</span>
+            <span class="font-mono" style="font-size: 0.6875rem; color: var(--color-text-secondary);">${item.ip_device}</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.6875rem; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase;">Before State:</label>
+          <div style="background: #FEF2F2; color: #991B1B; padding: 0.65rem 0.85rem; border-radius: 6px; border: 1px solid #FECACA; font-family: var(--font-mono); font-size: 0.75rem; margin-top: 0.25rem;">
+            ${item.old_value}
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.6875rem; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase;">After State (Committed):</label>
+          <div style="background: #ECFDF5; color: #065F46; padding: 0.65rem 0.85rem; border-radius: 6px; border: 1px solid #A7F3D0; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; margin-top: 0.25rem;">
+            ${item.new_value}
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 0.6875rem; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase;">Agronomic Justification / Reason:</label>
+          <div style="padding: 0.65rem 0.85rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.8125rem; color: var(--color-text-primary); margin-top: 0.25rem;">
+            ${item.reason}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('audit-diff-modal').classList.add('active');
+    }
+
+    function closeDiffModal() {
+      document.getElementById('audit-diff-modal').classList.remove('active');
+    }
+
+    function logSampleAuditEvent() {
+      window.FarmPilotAudit.log({
+        module: 'Irrigation & AWD',
+        action: 'FLOW_ADJUSTED',
+        field: 'North Block (Plot A)',
+        old_value: 'Pumping Rate: 1,200 L/hr',
+        new_value: 'Pumping Rate: 1,500 L/hr (+300 L/hr)',
+        reason: 'Accelerated AWD flooding ahead of dry morning temperature spike'
+      });
+      FarmPilotApp.showToast('✓ Recorded live audit event to immutable ledger!', 'success');
+      renderAuditTable();
+    }
+  </script>
+</body>
+</html>

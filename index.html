@@ -3,300 +3,859 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FarmPilot — Precision Agronomic OS</title>
-  <meta name="description" content="Next-generation precision agriculture command center integrating aerial parcel schematics, biological crop cycles, operations, and financial telemetry.">
+  <title>FarmPilot — Autonomous Agronomic OS & Command Center</title>
+  <meta name="description" content="Intelligent precision farm operations platform connecting AWD irrigation, labour shifts, agrochemical tracking, expenses, and tamper-evident audit trails.">
   
   <!-- Design System CSS -->
   <link rel="stylesheet" href="css/design-system.css">
   <link rel="stylesheet" href="css/components.css">
 
   <style>
-    /* Marketing Landing Page Specific Styles */
-    .hero-section {
-      padding: 5rem 1.5rem 4rem;
-      text-align: center;
-      background: radial-gradient(circle at 50% 20%, rgba(20, 61, 48, 0.05) 0%, transparent 70%);
-      position: relative;
+    :root {
+      --hero-bg: #071712;
+      --hero-card-bg: rgba(13, 40, 32, 0.75);
+      --hero-border: rgba(52, 211, 153, 0.25);
     }
 
-    .hero-badge {
+    body {
+      background-color: #FAFAF9;
+      color: #1E293B;
+      overflow-x: hidden;
+    }
+
+    /* Top Announcement Bar */
+    .hackathon-ribbon {
+      background: linear-gradient(90deg, #064E3B 0%, #047857 50%, #059669 100%);
+      color: #FFFFFF;
+      padding: 0.5rem 1rem;
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    /* Landing Header */
+    .landing-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--color-border);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      padding: 0.75rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .landing-nav {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .landing-nav a {
+      color: var(--color-text-secondary);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .landing-nav a:hover {
+      color: var(--color-forest);
+    }
+
+    /* Hero Section with Cinematic Drone Imagery */
+    .hero-container {
+      background: linear-gradient(180deg, #071712 0%, #0F2E23 50%, #164E3D 100%);
+      color: #FFFFFF;
+      padding: 4.5rem 2rem 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-container::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(16, 185, 129, 0.18) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 3rem;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    @media (max-width: 960px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+    }
+
+    .hero-pill {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.35rem 1rem;
+      padding: 0.35rem 0.85rem;
       border-radius: var(--radius-full);
-      background-color: var(--color-emerald-light);
-      border: 1px solid rgba(5, 150, 105, 0.2);
-      color: var(--color-forest);
+      background: rgba(52, 211, 153, 0.15);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      color: #A7F3D0;
       font-size: 0.75rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      margin-bottom: 1.5rem;
-    }
-
-    .hero-title {
-      font-size: clamp(2.25rem, 5vw, 4rem);
-      font-weight: 800;
-      letter-spacing: -0.035em;
-      line-height: 1.1;
-      max-width: 900px;
-      margin: 0 auto 1.25rem;
-      color: var(--color-text-primary);
-    }
-
-    .hero-subtitle {
-      font-size: clamp(1rem, 2vw, 1.25rem);
-      color: var(--color-text-secondary);
-      max-width: 680px;
-      margin: 0 auto 2.5rem;
-      line-height: 1.6;
-    }
-
-    .hero-cta-group {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin-bottom: 3.5rem;
-    }
-
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-      margin-top: 3rem;
-    }
-
-    .feature-card {
-      background-color: var(--color-surface);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-xl);
-      padding: 2rem;
-      text-align: left;
-      transition: all var(--transition-base);
-    }
-
-    .feature-card:hover {
-      border-color: var(--color-forest);
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .feature-icon-box {
-      width: 44px;
-      height: 44px;
-      border-radius: var(--radius-md);
-      background-color: var(--color-emerald-subtle);
-      border: 1px solid var(--color-emerald-light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
       margin-bottom: 1.25rem;
     }
 
-    .telemetry-strip {
-      background-color: var(--color-forest);
+    .hero-headline {
+      font-size: clamp(2.25rem, 4.5vw, 3.75rem);
+      font-weight: 900;
+      line-height: 1.12;
+      letter-spacing: -0.035em;
       color: #FFFFFF;
-      padding: 2rem 1.5rem;
+      margin: 0 0 1.25rem;
+    }
+
+    .hero-headline span {
+      background: linear-gradient(135deg, #34D399 0%, #6EE7B7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-description {
+      font-size: 1.0625rem;
+      line-height: 1.6;
+      color: #D1FAE5;
+      margin: 0 0 2rem;
+      max-width: 580px;
+    }
+
+    .hero-cta-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    /* High-Impact Hero Drone Media Card */
+    .hero-media-card {
+      position: relative;
       border-radius: var(--radius-xl);
-      margin: 3rem 0;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+      background: #000000;
+      transition: transform 0.3s ease;
+    }
+
+    .hero-media-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .hero-media-img {
+      width: 100%;
+      height: 380px;
+      object-fit: cover;
+      display: block;
+      filter: brightness(0.92);
+    }
+
+    .hero-media-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 40%, rgba(7, 23, 18, 0.95) 100%);
+      pointer-events: none;
+    }
+
+    .hero-hud-badges {
+      position: absolute;
+      bottom: 1.25rem;
+      left: 1.25rem;
+      right: 1.25rem;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .hud-stat-box {
+      background: rgba(7, 23, 18, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      border-radius: var(--radius-md);
+      padding: 0.5rem;
       text-align: center;
     }
 
-    .landing-nav {
-      height: 72px;
+    /* 9-Step Operational Pipeline */
+    .pipeline-section {
+      padding: 4.5rem 2rem;
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.75rem;
+      margin-top: 2rem;
+      position: relative;
+    }
+
+    .pipeline-step {
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1rem 0.75rem;
+      text-align: center;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .pipeline-step:hover {
+      border-color: #10B981;
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .pipeline-step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #ECFDF5;
+      color: #047857;
+      font-weight: 800;
+      font-size: 0.75rem;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
+      margin: 0 auto 0.5rem;
+      border: 1px solid #A7F3D0;
+    }
+
+    /* 4-Role Architecture Showcase */
+    .roles-section {
+      background: #F8FAFC;
+      border-top: 1px solid var(--color-border);
       border-bottom: 1px solid var(--color-border);
-      background-color: var(--color-surface-translucent);
-      backdrop-filter: blur(12px);
-      position: sticky;
-      top: 0;
-      z-index: 50;
+      padding: 4.5rem 2rem;
+    }
+
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2.5rem;
+    }
+
+    .role-card {
+      background: #FFFFFF;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s;
+    }
+
+    .role-card:hover {
+      border-color: #10B981;
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+
+    /* Interactive Simulation Modal */
+    .sim-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(6px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .sim-modal-overlay.active { display: flex; }
+    .sim-modal-box {
+      background: #FFFFFF;
+      border-radius: var(--radius-xl);
+      max-width: 680px;
+      width: 100%;
+      padding: 2rem;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35);
     }
   </style>
 </head>
 <body>
 
-  <!-- Landing Header -->
-  <header class="landing-nav">
-    <div class="container-xl" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-      <div style="display: flex; align-items: center; gap: 0.75rem;">
-        <div style="width: 36px; height: 36px; border-radius: 10px; background-color: var(--color-forest); color: #34D399; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800;">
-          🌱
-        </div>
-        <div>
-          <span style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); letter-spacing: -0.02em;">FarmPilot</span>
-          <span style="font-size: 0.625rem; font-weight: 700; color: var(--color-emerald); text-transform: uppercase; margin-left: 0.25rem;">OS</span>
-        </div>
-      </div>
+  <!-- Top Announcement Ribbon -->
+  <div class="hackathon-ribbon">
+    <span>🏆 <strong>National Agritech Hackathon Flagship Edition</strong></span>
+    <span>•</span>
+    <span>Green Valley Agriculture Ltd (Enterprise Tenant)</span>
+    <span>•</span>
+    <span class="tabular-nums font-mono" id="ribbon-weather">☀️ Machilipatnam: 31.5°C • Overcast</span>
+  </div>
 
-      <nav style="display: flex; align-items: center; gap: 1.75rem; font-size: 0.875rem; font-weight: 600;">
-        <a href="#features" style="color: var(--color-text-secondary); hover:color: var(--color-text-primary);">Features</a>
-        <a href="#schematic" style="color: var(--color-text-secondary); hover:color: var(--color-text-primary);">Parcel Map</a>
-        <a href="#intelligence" style="color: var(--color-text-secondary); hover:color: var(--color-text-primary);">Intelligence</a>
-      </nav>
-
-      <div style="display: flex; align-items: center; gap: 0.75rem;">
-        <a href="login.html" class="btn btn-outline btn-sm">Sign In</a>
-        <a href="dashboard.html" class="btn btn-primary btn-sm">Launch Dashboard →</a>
+  <!-- Main Navigation Bar -->
+  <header class="landing-header">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <div style="width: 36px; height: 36px; border-radius: 8px; background: #064E3B; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: #FFFFFF;">
+        🌱
       </div>
+      <div>
+        <span style="font-size: 1.125rem; font-weight: 900; color: #064E3B; letter-spacing: -0.03em;">FarmPilot</span>
+        <span style="font-size: 0.625rem; font-weight: 800; background: #DCFCE7; color: #166534; padding: 0.1rem 0.35rem; border-radius: 4px; margin-left: 0.25rem;">OS</span>
+      </div>
+    </div>
+
+    <nav class="landing-nav" style="display: none; @media(min-width: 800px) { display: flex; }">
+      <a href="#pipeline">Operations Workflow</a>
+      <a href="#irrigation">AWD Water Balance</a>
+      <a href="#labour">Labour Shifts</a>
+      <a href="#roles">4-Role Matrix</a>
+      <a href="audit.html">Forensic Audit</a>
+    </nav>
+
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <a href="login.html" class="btn btn-outline btn-sm" style="font-size: 0.8125rem;">
+        <span>Sign In / Roles</span>
+      </a>
+      <a href="dashboard.html" class="btn btn-primary btn-sm" style="font-size: 0.8125rem; background: #059669; border-color: #047857;">
+        <span>Launch Command Center 🚀</span>
+      </a>
     </div>
   </header>
 
   <!-- Hero Section -->
-  <main>
-    <section class="hero-section">
-      <div class="container-xl">
-        <div class="hero-badge animate-fade-in">
-          <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #10B981;" class="animate-pulse-glow"></span>
-            Precision Agronomic Operating System • Phase 2
+  <section class="hero-container">
+    <div class="hero-grid">
+      <!-- Left Hero Text -->
+      <div>
+        <div class="hero-pill">
+          <span>●</span>
+          <span>Phase 2 Intelligent Farm Operations Platform</span>
         </div>
 
-        <h1 class="hero-title animate-fade-in">
-          Command Your Agricultural Operations with Total Precision
+        <h1 class="hero-headline">
+          The Autonomous OS for <span>Precision Agriculture</span>
         </h1>
 
-        <p class="hero-subtitle animate-fade-in">
-          The national-level precision farming platform unifying real-time aerial parcel schematics, biological crop lifecycle progression, operations queues, and financial outlay ledgers.
+        <p class="hero-description">
+          <strong>"FarmPilot doesn't just record what happened — it computes what needs to happen next, who should do it, how much it will cost, and maintains an unalterable forensic audit trail across every demarcated field parcel."</strong>
         </p>
 
-        <div class="hero-cta-group animate-fade-in">
-          <a href="dashboard.html" class="btn btn-primary btn-lg">
+        <div class="hero-cta-row">
+          <a href="dashboard.html" class="btn" style="background: #10B981; color: #064E3B; font-weight: 900; padding: 0.75rem 1.5rem; font-size: 0.9375rem; border-radius: var(--radius-md); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
             <span>Launch Command Center</span>
             <span>→</span>
           </a>
-          <a href="login.html" class="btn btn-outline btn-lg">
-            <span>Demo Access (1-Click)</span>
-          </a>
+
+          <button onclick="openSimulationModal()" class="btn" style="background: rgba(255, 255, 255, 0.12); color: #FFFFFF; font-weight: 800; padding: 0.75rem 1.25rem; font-size: 0.875rem; border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.25); cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; backdrop-filter: blur(8px);">
+            <span>🎬 Live Workflow Simulation</span>
+          </button>
         </div>
 
-        <!-- Interactive Aerial Parcel Map Showcase Directly on Landing Page -->
-        <div id="schematic" style="max-width: 1040px; margin: 0 auto; text-align: left;">
-          <div id="landing-parcel-map"></div>
+        <!-- Microclimate Pill Strip -->
+        <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.75rem; color: #A7F3D0;">
+          <span style="display: flex; align-items: center; gap: 0.35rem;">
+            <span style="color: #34D399;">●</span> Live WeatherAPI Telemetry
+          </span>
+          <span>•</span>
+          <span>Paddy BPT-5204 (Kharif)</span>
+          <span>•</span>
+          <span>Machilipatnam Delta Belt</span>
         </div>
+      </div>
 
-        <!-- Live Telemetry Strip -->
-        <div class="telemetry-strip">
-          <div>
-            <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: #A7F3D0; letter-spacing: 0.05em;">Acreage Demarcated</span>
-            <p class="tabular-nums font-mono" style="font-size: 2rem; font-weight: 800; color: #FFFFFF; margin-top: 0.25rem;">25.0 Ac</p>
-            <span style="font-size: 0.75rem; color: #E2E8F0;">Green Valley Farm</span>
-          </div>
-          <div>
-            <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: #A7F3D0; letter-spacing: 0.05em;">Farm Health Index</span>
-            <p class="tabular-nums font-mono" style="font-size: 2rem; font-weight: 800; color: #34D399; margin-top: 0.25rem;">82/100</p>
-            <span style="font-size: 0.75rem; color: #E2E8F0;">Optimal Vigor</span>
-          </div>
-          <div>
-            <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: #A7F3D0; letter-spacing: 0.05em;">Active Crop Cycle</span>
-            <p style="font-size: 1.5rem; font-weight: 800; color: #FFFFFF; margin-top: 0.25rem;">Kharif Paddy</p>
-            <span style="font-size: 0.75rem; color: #E2E8F0;">BPT-5204 (Tillering)</span>
-          </div>
-          <div>
-            <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: #A7F3D0; letter-spacing: 0.05em;">Problem Statement</span>
-            <p style="font-size: 1.5rem; font-weight: 800; color: #FFFFFF; margin-top: 0.25rem;">100%</p>
-            <span style="font-size: 0.75rem; color: #E2E8F0;">Phase 2 Ready</span>
-          </div>
-        </div>
-
-        <!-- Precision Feature Grid -->
-        <section id="features" style="padding: 4rem 0;">
-          <div style="text-align: center; max-width: 640px; margin: 0 auto 2.5rem;">
-            <span class="badge badge-success" style="margin-bottom: 0.75rem;">Engineered for Agronomists</span>
-            <h2 style="font-size: 2rem; font-weight: 800;">End-to-End Precision Management</h2>
-            <p style="margin-top: 0.5rem;">Built strictly per agricultural specifications without unnecessary bloat.</p>
-          </div>
-
-          <div class="feature-grid">
-            <div class="feature-card">
-              <div class="feature-icon-box">🗺️</div>
-              <h3 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 0.5rem;">Aerial Parcel Demarcation</h3>
-              <p>Topographical vector map representing exact plot sectors, soil profile composition (pH 6.8), and canal/drip water infrastructure.</p>
+      <!-- Right Drone Imagery Hero Card -->
+      <div>
+        <div class="hero-media-card">
+          <img src="images/hero_drone.jpg" alt="FarmPilot Drone Precision Mapping" class="hero-media-img" onerror="this.src='public/images/hero_drone.jpg'">
+          <div class="hero-media-overlay"></div>
+          
+          <div class="hero-hud-badges">
+            <div class="hud-stat-box">
+              <div style="font-size: 0.625rem; color: #A7F3D0; font-weight: 700; text-transform: uppercase;">AWD Water Depth</div>
+              <div class="font-mono" style="font-size: 1.125rem; font-weight: 800; color: #FFFFFF;">5.0 cm</div>
+              <div style="font-size: 0.5625rem; color: #34D399;">Safe Range (3–7cm)</div>
             </div>
 
-            <div class="feature-card">
-              <div class="feature-icon-box">🌱</div>
-              <h3 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 0.5rem;">Biological Lifecycle Stages</h3>
-              <p>Granular sowing-to-harvest stage tracking (Sowing, Nursery, Transplanting, Tillering, Panicle, Harvest) with target yield simulation.</p>
+            <div class="hud-stat-box">
+              <div style="font-size: 0.625rem; color: #A7F3D0; font-weight: 700; text-transform: uppercase;">Soil Moisture</div>
+              <div class="font-mono" style="font-size: 1.125rem; font-weight: 800; color: #60A5FA;">31%</div>
+              <div style="font-size: 0.5625rem; color: #93C5FD;">Threshold: 28%</div>
             </div>
 
-            <div class="feature-card">
-              <div class="feature-icon-box">📋</div>
-              <h3 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 0.5rem;">Operational Task Queue</h3>
-              <p>Priority-driven field activity execution with overdue alerts, 1-click completion status, and chemical application protocols.</p>
+            <div class="hud-stat-box">
+              <div style="font-size: 0.625rem; color: #A7F3D0; font-weight: 700; text-transform: uppercase;">Next Irrigation</div>
+              <div class="font-mono" style="font-size: 1.125rem; font-weight: 800; color: #FCD34D;">36 hrs</div>
+              <div style="font-size: 0.5625rem; color: #FDE68A;">Scheduled 06:30 AM</div>
             </div>
-
-            <div class="feature-card">
-              <div class="feature-icon-box">💰</div>
-              <h3 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 0.5rem;">Financial & Input Ledgers</h3>
-              <p>Track Kharif seasonal budget outlay against seeds, fertilizers, crop protection, and labor with real-time margin projections.</p>
-            </div>
-
-            <div class="feature-card">
-              <div class="feature-icon-box">🧠</div>
-              <h3 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 0.5rem;">Explainable AI Advisory</h3>
-              <p>Evidence-backed recommendations diagnosing soil nutrient deficiencies (Zinc &lt; 0.6 ppm) and prescribing precise remediation steps.</p>
-            </div>
-
-            <div class="feature-card">
-              <div class="feature-icon-box">⚡</div>
-              <h3 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 0.5rem;">Zero-Build Performance</h3>
-              <p>Pure HTML, CSS, and Vanilla JS architecture. Loads instantaneously in any browser with 100% offline resilience and live Supabase sync.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- Final CTA Banner -->
-        <div style="background: linear-gradient(135deg, #143D30 0%, #0D2820 100%); color: #FFFFFF; border-radius: var(--radius-xl); padding: 4rem 2rem; margin: 3rem 0; text-align: center;">
-          <h2 style="font-size: 2.25rem; font-weight: 800; color: #FFFFFF; margin-bottom: 1rem;">
-            Ready to Experience Modern Precision Agronomy?
-          </h2>
-          <p style="color: #A7F3D0; font-size: 1.125rem; max-width: 600px; margin: 0 auto 2rem;">
-            Explore the live dashboard, manage plots, and test operations immediately.
-          </p>
-          <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-            <a href="dashboard.html" class="btn btn-primary btn-lg" style="background-color: #34D399; color: #0D2820;">
-              Enter Command Center →
-            </a>
-            <a href="login.html" class="btn btn-outline btn-lg" style="border-color: #34D399; color: #FFFFFF;">
-              Sign In with Demo Account
-            </a>
           </div>
         </div>
       </div>
-    </section>
-  </main>
+    </div>
+  </section>
+
+  <!-- 9-Step Operational Pipeline Showcase (Problem Statement Blueprint) -->
+  <section class="pipeline-section" id="pipeline">
+    <div style="text-align: center; max-width: 720px; margin: 0 auto 2.5rem;">
+      <span class="badge badge-success" style="font-size: 0.75rem;">COMPLETE OPERATIONAL WORKFLOW</span>
+      <h2 style="font-size: 2rem; font-weight: 900; color: var(--color-text-primary); letter-spacing: -0.02em; margin-top: 0.5rem;">
+        From Soil Sensor to Verifiable Farm Profitability
+      </h2>
+      <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin-top: 0.5rem;">
+        FarmPilot replaces fragmented spreadsheets with an event-driven loop that links microclimates, AWD flooding, labour costs, and financial ledgers.
+      </p>
+    </div>
+
+    <div class="pipeline-grid">
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">1</div>
+        <div style="font-size: 1.25rem; margin-bottom: 0.35rem;">📡</div>
+        <div style="font-size: 0.75rem; font-weight: 800;">IoT Sensor</div>
+        <div style="font-size: 0.625rem; color: var(--color-text-secondary); margin-top: 2px;">Moisture: 31%</div>
+      </div>
+
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">2</div>
+        <div style="font-size: 1.25rem; margin-bottom: 0.35rem;">🧠</div>
+        <div style="font-size: 0.75rem; font-weight: 800;">AI Engine</div>
+        <div style="font-size: 0.625rem; color: var(--color-text-secondary); margin-top: 2px;">Vigor & Tension</div>
+      </div>
+
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">3</div>
+        <div style="font-size: 1.25rem; margin-bottom: 0.35rem;">🔔</div>
+        <div style="font-size: 0.75rem; font-weight: 800;">Irrig. Alert</div>
+        <div style="font-size: 0.625rem; color: var(--color-text-secondary); margin-top: 2px;">Due in 18h</div>
+      </div>
+
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">4</div>
+        <div style="font-size: 1.25rem; margin-bottom: 0.35rem;">👷</div>
+        <div style="font-size: 0.75rem; font-weight: 800;">Labour Shift</div>
+        <div style="font-size: 0.625rem; color: var(--color-text-secondary); margin-top: 2px;">8 Workers</div>
+      </div>
+
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">5</div>
+        <div style="font-size: 1.25rem; margin-bottom: 0.35rem;">💧</div>
+        <div style="font-size: 0.75rem; font-weight: 800;">AWD Flood</div>
+        <div style="font-size: 0.625rem; color: var(--color-text-secondary); margin-top: 2px;">4,500 L Water</div>
+      </div>
+
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">6</div>
+        <div style="font-size: 1.25rem; margin-bottom: 0.35rem;">💰</div>
+        <div style="font-size: 0.75rem; font-weight: 800;">Cost Ledger</div>
+        <div style="font-size: 0.625rem; color: var(--color-text-secondary); margin-top: 2px;">₹1,500 Labour</div>
+      </div>
+
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">7</div>
+        <div style="font-size: 1.25rem; margin-bottom: 0.35rem;">📜</div>
+        <div style="font-size: 0.75rem; font-weight: 800;">Audit Trail</div>
+        <div style="font-size: 0.625rem; color: var(--color-text-secondary); margin-top: 2px;">Forensic Diff</div>
+      </div>
+
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">8</div>
+        <div style="font-size: 1.25rem; margin-bottom: 0.35rem;">📊</div>
+        <div style="font-size: 0.75rem; font-weight: 800;">Dashboard</div>
+        <div style="font-size: 0.625rem; color: var(--color-text-secondary); margin-top: 2px;">Live Metrics</div>
+      </div>
+
+      <div class="pipeline-step" style="background: #F0FDF4; border-color: #86EFAC;">
+        <div class="pipeline-step-num" style="background: #059669; color: #FFFFFF;">9</div>
+        <div style="font-size: 1.25rem; margin-bottom: 0.35rem;">📈</div>
+        <div style="font-size: 0.75rem; font-weight: 800; color: #065F46;">Profitability</div>
+        <div style="font-size: 0.625rem; color: #047857; margin-top: 2px;">₹71,800 Net</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Deep Dive 1: AWD Irrigation Management -->
+  <section style="background: #FFFFFF; padding: 5rem 2rem; border-top: 1px solid var(--color-border);" id="irrigation">
+    <div style="max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.1fr; gap: 3.5rem; align-items: center;">
+      <div>
+        <span class="badge" style="background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; margin-bottom: 0.75rem;">
+          💧 FIRST-CLASS MODULE
+        </span>
+        <h2 style="font-size: 2.125rem; font-weight: 900; color: #0F172A; letter-spacing: -0.02em; margin: 0 0 1rem;">
+          Alternate Wetting & Drying (AWD) Water Balance
+        </h2>
+        <p style="font-size: 0.9375rem; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 1.5rem;">
+          Paddy fields do not require continuous flooding. FarmPilot’s AWD protocol maintains a calibrated safe submersion range (3.0 – 7.0 cm), saving 28% water, slashing borewell power costs, and curtailing anaerobic methane emissions.
+        </p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.75rem;">
+          <div style="background: #F8FAFC; padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+            <div style="font-size: 0.75rem; font-weight: 700; color: #64748B;">LATEST SUBMERSION</div>
+            <div class="font-mono" style="font-size: 1.25rem; font-weight: 800; color: #1E293B; margin-top: 0.2rem;">4,500 L</div>
+            <div style="font-size: 0.6875rem; color: #059669; font-weight: 700;">Completed 06:30 AM</div>
+          </div>
+          <div style="background: #F8FAFC; padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+            <div style="font-size: 0.75rem; font-weight: 700; color: #64748B;">NEXT SCHEDULED</div>
+            <div class="font-mono" style="font-size: 1.25rem; font-weight: 800; color: #2563EB; margin-top: 0.2rem;">In 36 Hours</div>
+            <div style="font-size: 0.6875rem; color: #D97706; font-weight: 700;">12 Sep • 06:30 AM</div>
+          </div>
+        </div>
+
+        <a href="dashboard.html" class="btn btn-outline" style="border-color: #2563EB; color: #1D4ED8; font-weight: 800;">
+          <span>Inspect Irrigation Widgets on Dashboard</span>
+          <span>→</span>
+        </a>
+      </div>
+
+      <div>
+        <div style="border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--color-border); box-shadow: var(--shadow-lg);">
+          <img src="images/irrigation_sensor.jpg" alt="AWD Soil Moisture Telemetry Sensor" style="width: 100%; height: 360px; object-fit: cover; display: block;" onerror="this.src='public/images/irrigation_sensor.jpg'">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Deep Dive 2: Labour Management & Shift Allocation -->
+  <section style="background: #F8FAFC; padding: 5rem 2rem; border-top: 1px solid var(--color-border);" id="labour">
+    <div style="max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1.1fr 1fr; gap: 3.5rem; align-items: center;">
+      <div>
+        <div style="border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--color-border); box-shadow: var(--shadow-lg);">
+          <img src="images/labour_shift.jpg" alt="FarmPilot Labour Shift Management" style="width: 100%; height: 360px; object-fit: cover; display: block;" onerror="this.src='public/images/labour_shift.jpg'">
+        </div>
+      </div>
+
+      <div>
+        <span class="badge" style="background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; margin-bottom: 0.75rem;">
+          👷 LABOUR OPERATIONS & SHIFTS
+        </span>
+        <h2 style="font-size: 2.125rem; font-weight: 900; color: #0F172A; letter-spacing: -0.02em; margin: 0 0 1rem;">
+          Daily Shift Rostering & Expense Computation
+        </h2>
+        <p style="font-size: 0.9375rem; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 1.5rem;">
+          Track exactly how many workers worked in each shift, which parcel they operated on, and their calculated expense ($Workers \times Hours \times Rate$). Tomorrow’s 8-worker shift is pre-planned and ready for dispatch.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.75rem;">
+          <div style="background: #FFFFFF; padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); text-align: center;">
+            <div style="font-size: 0.6875rem; font-weight: 700; color: #92400E;">MORNING</div>
+            <div class="font-mono" style="font-size: 1.25rem; font-weight: 800; color: #78350F; margin-top: 0.15rem;">12</div>
+            <div style="font-size: 0.625rem; color: #B45309;">Workers</div>
+          </div>
+          <div style="background: #FFFFFF; padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); text-align: center;">
+            <div style="font-size: 0.6875rem; font-weight: 700; color: #1E40AF;">AFTERNOON</div>
+            <div class="font-mono" style="font-size: 1.25rem; font-weight: 800; color: #1E3A8A; margin-top: 0.15rem;">8</div>
+            <div style="font-size: 0.625rem; color: #1D4ED8;">Workers</div>
+          </div>
+          <div style="background: #FFFFFF; padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); text-align: center;">
+            <div style="font-size: 0.6875rem; font-weight: 700; color: #4338CA;">TODAY COST</div>
+            <div class="font-mono" style="font-size: 1.125rem; font-weight: 800; color: #059669; margin-top: 0.15rem;">₹12,450</div>
+            <div style="font-size: 0.625rem; color: #059669;">↑ 8.4% vs y'day</div>
+          </div>
+        </div>
+
+        <a href="labour.html" class="btn btn-outline" style="border-color: #F59E0B; color: #B45309; font-weight: 800;">
+          <span>Open Dedicated Labour Hub</span>
+          <span>→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4-Role Architecture Showcase Section -->
+  <section class="roles-section" id="roles">
+    <div style="max-width: 1240px; margin: 0 auto;">
+      <div style="text-align: center; max-width: 720px; margin: 0 auto;">
+        <span class="badge badge-success" style="font-size: 0.75rem;">ROLE-BASED AUTHORIZATION</span>
+        <h2 style="font-size: 2rem; font-weight: 900; color: var(--color-text-primary); letter-spacing: -0.02em; margin-top: 0.5rem;">
+          One Enterprise Tenant. Four Tailored Roles.
+        </h2>
+        <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin-top: 0.5rem;">
+          All users log in to <strong>Green Valley Agriculture Ltd</strong>, with permissions enforced at route guard and Postgres Row-Level Security levels.
+        </p>
+      </div>
+
+      <div class="role-grid">
+        <!-- Role: Owner -->
+        <div class="role-card" style="border-top: 4px solid #10B981;">
+          <div>
+            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">👑</div>
+            <h3 style="font-size: 1.125rem; font-weight: 800; color: #14532D; margin: 0 0 0.25rem;">Farm Owner</h3>
+            <span class="badge" style="background: #DCFCE7; color: #166534; font-size: 0.6875rem;">Executive Administrator</span>
+            <p style="font-size: 0.8125rem; color: var(--color-text-secondary); line-height: 1.5; margin: 0.75rem 0 1.25rem;">
+              Unrestricted administrative oversight, multi-farm ownership, financial ledgers, audit history, role governance, and 1-click View-As simulation.
+            </p>
+          </div>
+          <button onclick="FarmPilotAuth.switchPersona('OWNER')" class="btn btn-primary btn-sm" style="width: 100%; background: #059669; font-weight: 800;">
+            <span>Log In as Owner</span>
+            <span>✓</span>
+          </button>
+        </div>
+
+        <!-- Role: Manager -->
+        <div class="role-card" style="border-top: 4px solid #3B82F6;">
+          <div>
+            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">👔</div>
+            <h3 style="font-size: 1.125rem; font-weight: 800; color: #1E3A8A; margin: 0 0 0.25rem;">Field Manager</h3>
+            <span class="badge" style="background: #DBEAFE; color: #1E40AF; font-size: 0.6875rem;">Operations Lead</span>
+            <p style="font-size: 0.8125rem; color: var(--color-text-secondary); line-height: 1.5; margin: 0.75rem 0 1.25rem;">
+              Supervises demarcated parcels, manages AWD flooding runs, plans tomorrow's labour shifts, and logs agrochemical stock applications.
+            </p>
+          </div>
+          <button onclick="FarmPilotAuth.switchPersona('MANAGER')" class="btn btn-primary btn-sm" style="width: 100%; background: #2563EB; font-weight: 800;">
+            <span>Log In as Manager</span>
+            <span>✓</span>
+          </button>
+        </div>
+
+        <!-- Role: Labour -->
+        <div class="role-card" style="border-top: 4px solid #F59E0B;">
+          <div>
+            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">🚜</div>
+            <h3 style="font-size: 1.125rem; font-weight: 800; color: #78350F; margin: 0 0 0.25rem;">Field Labour</h3>
+            <span class="badge" style="background: #FEF3C7; color: #92400E; font-size: 0.6875rem;">Field Operator</span>
+            <p style="font-size: 0.8125rem; color: var(--color-text-secondary); line-height: 1.5; margin: 0.75rem 0 1.25rem;">
+              Mobile PWA view with zero distractions: today's assigned shift, field location, AWD tube submersion dipstick verification, and task completion.
+            </p>
+          </div>
+          <button onclick="FarmPilotAuth.switchPersona('WORKER')" class="btn btn-primary btn-sm" style="width: 100%; background: #D97706; font-weight: 800;">
+            <span>Log In as Labour</span>
+            <span>✓</span>
+          </button>
+        </div>
+
+        <!-- Role: Consultant -->
+        <div class="role-card" style="border-top: 4px solid #A855F7;">
+          <div>
+            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">🔬</div>
+            <h3 style="font-size: 1.125rem; font-weight: 800; color: #581C87; margin: 0 0 0.25rem;">Consultant</h3>
+            <span class="badge" style="background: #F3E8FF; color: #6B21A8; font-size: 0.6875rem;">Principal Agronomist</span>
+            <p style="font-size: 0.8125rem; color: var(--color-text-secondary); line-height: 1.5; margin: 0.75rem 0 1.25rem;">
+              Evaluates NDVI equivalent crop vigor, diagnoses bacterial leaf blight risks, prescribes micro-nutrient schedules, and audits health indices.
+            </p>
+          </div>
+          <button onclick="FarmPilotAuth.switchPersona('CONSULTANT')" class="btn btn-primary btn-sm" style="width: 100%; background: #9333EA; font-weight: 800;">
+            <span>Log In as Consultant</span>
+            <span>✓</span>
+          </button>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 2.5rem;">
+        <a href="roles.html" class="btn btn-outline" style="font-size: 0.875rem; font-weight: 800; padding: 0.65rem 1.25rem;">
+          <span>Explore 12-Module Roles & Permissions Matrix Window</span>
+          <span>→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Demo Simulation Modal -->
+  <div class="sim-modal-overlay" id="simulation-modal">
+    <div class="sim-modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.75rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.5rem;">🎬</span>
+          <h3 style="font-size: 1.25rem; font-weight: 900; margin: 0; color: var(--color-text-primary);">
+            FarmPilot Live Operational Scenario Simulation
+          </h3>
+        </div>
+        <button onclick="closeSimulationModal()" style="background:none; border:none; font-size: 1.25rem; cursor:pointer; color: #64748B;">✕</button>
+      </div>
+
+      <div style="margin-bottom: 1.25rem;">
+        <p style="font-size: 0.875rem; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">
+          Experience how FarmPilot executes the complete agritech loop in real time. Choose a trigger below to watch the event propagate from sensors to audit history:
+        </p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.5rem;">
+        <!-- Scenario 1 -->
+        <button onclick="runScenario(1)" class="btn" style="text-align: left; padding: 1rem; border: 1.5px solid #93C5FD; background: #EFF6FF; border-radius: var(--radius-md); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 0.875rem; font-weight: 800; color: #1E40AF;">Scenario 1: Soil Moisture Drops Below Threshold (31% → 22%)</div>
+            <div style="font-size: 0.75rem; color: #1E3A8A; margin-top: 2px;">Triggers AI recommendation, schedules AWD flood in 18h, and dispatches manager alert.</div>
+          </div>
+          <span style="font-size: 1.25rem;">💧</span>
+        </button>
+
+        <!-- Scenario 2 -->
+        <button onclick="runScenario(2)" class="btn" style="text-align: left; padding: 1rem; border: 1.5px solid #FCD34D; background: #FFFBEB; border-radius: var(--radius-md); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 0.875rem; font-weight: 800; color: #92400E;">Scenario 2: Tomorrow Morning Labour Shift Mobilization</div>
+            <div style="font-size: 0.75rem; color: #78350F; margin-top: 2px;">Dispatches 8 workers across North Block & Plot B, registers ₹2,000 wage outlay.</div>
+          </div>
+          <span style="font-size: 1.25rem;">👷</span>
+        </button>
+
+        <!-- Scenario 3 -->
+        <button onclick="runScenario(3)" class="btn" style="text-align: left; padding: 1rem; border: 1.5px solid #86EFAC; background: #F0FDF4; border-radius: var(--radius-md); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 0.875rem; font-weight: 800; color: #166534;">Scenario 3: AWD Submersion Complete & Forensic Diff Logged</div>
+            <div style="font-size: 0.75rem; color: #14532D; margin-top: 2px;">Records 4,500 L water meter reading, resets countdown, and creates immutable audit record.</div>
+          </div>
+          <span style="font-size: 1.25rem;">📜</span>
+        </button>
+      </div>
+
+      <div id="sim-feedback-box" style="display: none; padding: 1rem; border-radius: var(--radius-md); background: #F8FAFC; border: 1px solid var(--color-border); font-size: 0.8125rem;">
+      </div>
+    </div>
+  </div>
 
   <!-- Footer -->
-  <footer style="border-top: 1px solid var(--color-border); padding: 3rem 1.5rem; background-color: var(--color-surface); font-size: 0.8125rem; color: var(--color-text-secondary);">
-    <div class="container-xl" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: gap; gap: 1.5rem;">
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <span style="font-weight: 800; color: var(--color-text-primary);">FarmPilot OS</span>
-        <span>•</span>
-        <span>Precision Agronomy Command Platform</span>
-      </div>
+  <footer style="background: #0F172A; color: #94A3B8; padding: 4rem 2rem 2rem; border-top: 1px solid rgba(255,255,255,0.1);">
+    <div style="max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2.5rem; margin-bottom: 3rem;">
       <div>
-        <span>Phase 2 Productized SaaS • Connected to Supabase</span>
+        <div style="display: flex; align-items: center; gap: 0.5rem; color: #FFFFFF; font-size: 1.25rem; font-weight: 800; margin-bottom: 0.75rem;">
+          <span>🌱</span> FarmPilot OS
+        </div>
+        <p style="font-size: 0.8125rem; line-height: 1.6; color: #64748B;">
+          Enterprise precision agronomic command center. Built for national-level agritech evaluation with live AWD telemetry and forensic auditability.
+        </p>
       </div>
+
+      <div>
+        <h4 style="font-size: 0.875rem; font-weight: 800; color: #FFFFFF; margin-bottom: 1rem;">Core Modules</h4>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.8125rem;">
+          <a href="dashboard.html" style="color: #94A3B8; text-decoration: none;">Executive Dashboard</a>
+          <a href="activities.html" style="color: #94A3B8; text-decoration: none;">AWD & Field Tasks</a>
+          <a href="labour.html" style="color: #94A3B8; text-decoration: none;">Labour & Shift Planner</a>
+          <a href="roles.html" style="color: #94A3B8; text-decoration: none;">12-Module Roles Matrix</a>
+          <a href="audit.html" style="color: #94A3B8; text-decoration: none;">Forensic Audit Ledger</a>
+        </div>
+      </div>
+
+      <div>
+        <h4 style="font-size: 0.875rem; font-weight: 800; color: #FFFFFF; margin-bottom: 1rem;">Live Telemetry</h4>
+        <div style="font-size: 0.8125rem; line-height: 1.6; color: #64748B;">
+          <div>Location: <strong>Machilipatnam, AP (16.18° N, 81.13° E)</strong></div>
+          <div>Condition: <strong style="color: #34D399;">31.5°C • Overcast</strong></div>
+          <div>Tenant: <strong>Green Valley Agriculture Ltd</strong></div>
+          <div>Postgres RLS: <strong style="color: #34D399;">Enforced & Isolated</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align: center; font-size: 0.75rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem; color: #475569;">
+      © 2026 FarmPilot Precision Agronomic OS • Built for High-Impact National Hackathon
     </div>
   </footer>
 
   <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
-  <script src="js/parcel-map.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/audit.js"></script>
+  <script src="js/weather.js"></script>
   <script>
-    // Initialize the interactive parcel map on the landing page!
     document.addEventListener('DOMContentLoaded', () => {
-      window.initParcelMap('landing-parcel-map');
+      // Fetch live weather if available
+      if (window.FarmPilotWeather) {
+        window.FarmPilotWeather.getMachilipatnamWeather().then(w => {
+          if (w) {
+            const ribbon = document.getElementById('ribbon-weather');
+            if (ribbon) ribbon.textContent = `☀️ Machilipatnam: ${w.temp}°C • ${w.desc}`;
+          }
+        });
+      }
     });
+
+    function openSimulationModal() {
+      document.getElementById('simulation-modal').classList.add('active');
+    }
+
+    function closeSimulationModal() {
+      document.getElementById('simulation-modal').classList.remove('active');
+    }
+
+    function runScenario(num) {
+      const box = document.getElementById('sim-feedback-box');
+      box.style.display = 'block';
+
+      if (num === 1) {
+        box.style.background = '#EFF6FF';
+        box.style.borderColor = '#93C5FD';
+        box.innerHTML = `
+          <strong style="color: #1D4ED8;">✓ Scenario 1 Dispatched!</strong>
+          <p style="color: #1E3A8A; margin: 0.35rem 0 0.5rem; line-height: 1.5;">
+            Soil tension sensor reported 22% moisture. AI Recommendation triggered: <em>"Irrigate within 18 hours (4,200–4,600 L suggested)"</em>. Alert queued for Rajesh Patel (Field Manager).
+          </p>
+          <a href="dashboard.html" class="btn btn-primary btn-sm" style="background: #2563EB;">View on Dashboard →</a>
+        `;
+        if (window.FarmPilotAudit) {
+          window.FarmPilotAudit.log({
+            module: 'Farm Intelligence',
+            action: 'MOISTURE_ALERT',
+            field: 'North Block (Plot A)',
+            old_value: 'Moisture: 31%',
+            new_value: 'Moisture: 22% (Critical Tension)',
+            reason: 'IoT Sensor simulation triggered low threshold'
+          });
+        }
+      } else if (num === 2) {
+        box.style.background = '#FFFBEB';
+        box.style.borderColor = '#FCD34D';
+        box.innerHTML = `
+          <strong style="color: #92400E;">✓ Scenario 2 Dispatched!</strong>
+          <p style="color: #78350F; margin: 0.35rem 0 0.5rem; line-height: 1.5;">
+            Morning shift pre-flight confirmed: 8 workers assigned (3 Weeding, 2 AWD Flooding, 1 Fertilizer, 2 Tomato Harvest). Labour outlay calculated: <strong>₹2,000</strong>.
+          </p>
+          <a href="labour.html" class="btn btn-primary btn-sm" style="background: #D97706;">View Labour Hub →</a>
+        `;
+        if (window.FarmPilotAudit) {
+          window.FarmPilotAudit.log({
+            module: 'Labour Management',
+            action: 'SHIFT_DISPATCH',
+            field: 'Central Sector & North Block',
+            old_value: 'Unallocated Shift',
+            new_value: '8 Labourers Mobilized (06:00 AM)',
+            reason: 'Shift supervisor confirmed morning attendance'
+          });
+        }
+      } else if (num === 3) {
+        box.style.background = '#F0FDF4';
+        box.style.borderColor = '#86EFAC';
+        box.innerHTML = `
+          <strong style="color: #166534;">✓ Scenario 3 Dispatched!</strong>
+          <p style="color: #14532D; margin: 0.35rem 0 0.5rem; line-height: 1.5;">
+            Water balance ledger recorded 4,500 L AWD flooding event. Water depth verified at 5.0 cm. Next irrigation scheduled for 12 Sep 06:30 AM. Immutable audit diff appended!
+          </p>
+          <a href="audit.html" class="btn btn-primary btn-sm" style="background: #059669;">Inspect Forensic Audit Log →</a>
+        `;
+        if (window.FarmPilotAudit) {
+          window.FarmPilotAudit.log({
+            module: 'Irrigation & AWD',
+            action: 'AWD_SUBMERSION_COMPLETE',
+            field: 'North Block (Plot A)',
+            old_value: 'Water Depth: 2.1 cm',
+            new_value: 'Water Depth: 5.0 cm (4,500 L Delivered)',
+            reason: 'AWD cycle submersion completed successfully'
+          });
+        }
+      }
+    }
   </script>
 </body>
 </html>

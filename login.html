@@ -139,17 +139,69 @@
           </button>
         </div>
 
+        <!-- 4 1-Click Role Login Cards for Hackathon Evaluation -->
+        <div style="margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-size: 0.75rem; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.04em;">
+              Select Role Persona (Green Valley Agri Ltd)
+            </span>
+            <span style="font-size: 0.6875rem; color: #059669; font-weight: 700;">1-Click Instant Login</span>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <!-- Owner Card -->
+            <button type="button" onclick="window.FarmPilotAuth.switchPersona('OWNER')" class="role-login-card" style="text-align: left; padding: 0.65rem 0.75rem; border-radius: var(--radius-md); background: #F0FDF4; border: 1.5px solid #86EFAC; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#10B981'; this.style.transform='translateY(-1px)'" onmouseout="this.style.borderColor='#86EFAC'; this.style.transform='none'">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 1.1rem;">👑</span>
+                <span style="font-size: 0.5625rem; font-weight: 800; background: #DCFCE7; color: #166534; padding: 0.1rem 0.35rem; border-radius: 4px;">FULL ACCESS</span>
+              </div>
+              <div style="font-size: 0.8125rem; font-weight: 800; color: #14532D; margin-top: 0.25rem;">Farm Owner</div>
+              <div style="font-size: 0.625rem; color: #166534; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Siddharth Saladi</div>
+            </button>
+
+            <!-- Manager Card -->
+            <button type="button" onclick="window.FarmPilotAuth.switchPersona('MANAGER')" class="role-login-card" style="text-align: left; padding: 0.65rem 0.75rem; border-radius: var(--radius-md); background: #EFF6FF; border: 1.5px solid #93C5FD; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#3B82F6'; this.style.transform='translateY(-1px)'" onmouseout="this.style.borderColor='#93C5FD'; this.style.transform='none'">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 1.1rem;">👔</span>
+                <span style="font-size: 0.5625rem; font-weight: 800; background: #DBEAFE; color: #1E40AF; padding: 0.1rem 0.35rem; border-radius: 4px;">OPERATIONS</span>
+              </div>
+              <div style="font-size: 0.8125rem; font-weight: 800; color: #1E3A8A; margin-top: 0.25rem;">Field Manager</div>
+              <div style="font-size: 0.625rem; color: #1E40AF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Rajesh Patel</div>
+            </button>
+
+            <!-- Labour / Worker Card -->
+            <button type="button" onclick="window.FarmPilotAuth.switchPersona('WORKER')" class="role-login-card" style="text-align: left; padding: 0.65rem 0.75rem; border-radius: var(--radius-md); background: #FFFBEB; border: 1.5px solid #FCD34D; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#F59E0B'; this.style.transform='translateY(-1px)'" onmouseout="this.style.borderColor='#FCD34D'; this.style.transform='none'">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 1.1rem;">🚜</span>
+                <span style="font-size: 0.5625rem; font-weight: 800; background: #FEF3C7; color: #92400E; padding: 0.1rem 0.35rem; border-radius: 4px;">FIELD TASKS</span>
+              </div>
+              <div style="font-size: 0.8125rem; font-weight: 800; color: #78350F; margin-top: 0.25rem;">Field Labour</div>
+              <div style="font-size: 0.625rem; color: #92400E; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Ravi Kumar</div>
+            </button>
+
+            <!-- Consultant Card -->
+            <button type="button" onclick="window.FarmPilotAuth.switchPersona('CONSULTANT')" class="role-login-card" style="text-align: left; padding: 0.65rem 0.75rem; border-radius: var(--radius-md); background: #FAF5FF; border: 1.5px solid #D8B4FE; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#A855F7'; this.style.transform='translateY(-1px)'" onmouseout="this.style.borderColor='#D8B4FE'; this.style.transform='none'">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 1.1rem;">🔬</span>
+                <span style="font-size: 0.5625rem; font-weight: 800; background: #F3E8FF; color: #6B21A8; padding: 0.1rem 0.35rem; border-radius: 4px;">ADVISORY</span>
+              </div>
+              <div style="font-size: 0.8125rem; font-weight: 800; color: #581C87; margin-top: 0.25rem;">Consultant</div>
+              <div style="font-size: 0.625rem; color: #6B21A8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Dr. Anita Rao</div>
+            </button>
+          </div>
+        </div>
+
         <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
           <span style="flex: 1; height: 1px; background-color: var(--color-border);"></span>
-          <span style="font-size: 0.6875rem; font-weight: 700; color: var(--color-text-tertiary); text-transform: uppercase;">Or with Demo / Email</span>
+          <span style="font-size: 0.6875rem; font-weight: 700; color: var(--color-text-tertiary); text-transform: uppercase;">Or Sign In with Credentials</span>
           <span style="flex: 1; height: 1px; background-color: var(--color-border);"></span>
         </div>
 
         <!-- 1-Click Demo Credentials Quick-Fill Button -->
-        <div style="margin-bottom: 1.25rem;">
-          <button type="button" id="btn-demo-fill" class="btn btn-secondary" style="width: 100%; border-color: #34D399; background: #F0FDF4; color: #143D30; padding: 0.65rem;">
+        <div style="margin-bottom: 1rem;">
+          <button type="button" id="btn-demo-fill" class="btn btn-secondary" style="width: 100%; border-color: #34D399; background: #F0FDF4; color: #143D30; padding: 0.65rem; font-size: 0.8125rem;">
             <span style="font-size: 1rem;">⚡</span>
-            <span>Fill Demo Credentials (1-Click)</span>
+            <span>Fill Owner Credentials (farmer@greenvalley.in)</span>
           </button>
         </div>
 
@@ -186,7 +238,7 @@
           </button>
         </form>
 
-        <div style="margin-top: 2rem; text-align: center;">
+        <div style="margin-top: 1.5rem; text-align: center;">
           <a href="index.html" style="font-size: 0.8125rem; font-weight: 600; color: var(--color-text-secondary); text-decoration: none;">
             ← Return to Landing Page
           </a>
@@ -224,18 +276,19 @@
         </button>
       </div>
 
-      <!-- Step 2: Verify 6-Digit OTP -->
+      <!-- Step 2: Enter 6-Digit OTP -->
       <div id="reset-step-2" style="display: none;">
-        <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-bottom: 1rem; line-height: 1.5;">
-          A 6-digit verification code has been dispatched to <strong id="reset-target-email-disp" style="color: var(--color-text-primary);"></strong>. Please enter it below:
+        <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-bottom: 0.75rem; line-height: 1.5;">
+          Enter the 6-digit code sent to <strong id="reset-target-email-disp" style="color: var(--color-text-primary);"></strong>:
         </p>
-        <div class="form-group" style="text-align: center;">
-          <label class="form-label" for="reset-otp-input" style="text-align: center; display: block;">Enter 6-Digit Verification Code</label>
-          <input type="text" id="reset-otp-input" maxlength="6" class="form-input font-mono" placeholder="••••••" style="font-size: 1.5rem; letter-spacing: 10px; text-align: center; font-weight: 800; padding: 0.65rem;" autocomplete="one-time-code">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; font-size: 0.75rem;">
-            <span id="otp-timer-text" style="color: #059669; font-weight: 700;">⏱️ Valid for 10:00</span>
-            <button type="button" id="btn-resend-otp" style="background: none; border: none; color: #059669; font-weight: 700; cursor: pointer; text-decoration: underline;">Resend Code</button>
-          </div>
+        <div class="form-group">
+          <input type="text" id="reset-otp-input" class="form-input font-mono" maxlength="6" placeholder="• • • • • •" style="font-size: 1.5rem; text-align: center; letter-spacing: 0.4rem; font-weight: 800;">
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; font-size: 0.75rem;">
+          <span style="color: var(--color-text-secondary);">Didn't receive email?</span>
+          <button type="button" id="btn-resend-otp" style="background: none; border: none; color: #059669; font-weight: 700; cursor: pointer; text-decoration: underline;">
+            Resend OTP
+          </button>
         </div>
         <button type="button" id="btn-verify-otp" class="btn btn-primary" style="width: 100%; padding: 0.75rem; margin-top: 1rem;">
           <span>Verify OTP Code</span>
@@ -276,6 +329,7 @@
   <script src="js/config.js"></script>
   <script src="js/supabase.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/audit.js"></script>
   <script src="js/weather.js"></script>
   <script>
     const GOOGLE_CLIENT_ID = '502673401378-6vieatqhs9cp0s9oo9ga5tpnb7rpkvng.apps.googleusercontent.com';
@@ -288,7 +342,12 @@
 
       // Check if already authenticated
       if (window.FarmPilotAuth.isAuthenticated()) {
-        window.location.href = 'dashboard.html';
+        const role = window.FarmPilotAuth.getEffectiveRole();
+        if (role === 'WORKER') {
+          window.location.href = 'worker.html';
+        } else {
+          window.location.href = 'dashboard.html';
+        }
         return;
       }
 

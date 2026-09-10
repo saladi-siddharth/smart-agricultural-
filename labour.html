@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmPilot — Labour & Shift Management</title>
+  <meta name="description" content="Manage daily labour shifts, worker rosters, hourly rates, crop-level labour expenditure, and next-shift allocation.">
+  
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <style>
+    .shift-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .shift-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+    }
+    .shift-morning::before { background: #F59E0B; }
+    .shift-afternoon::before { background: #3B82F6; }
+    .shift-night::before { background: #6366F1; }
+    .shift-cost::before { background: #10B981; }
+
+    .labour-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+    }
+    .labour-table th {
+      background: var(--color-surface-secondary);
+      padding: 0.75rem 1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 2px solid var(--color-border);
+      text-align: left;
+    }
+    .labour-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: middle;
+    }
+    .labour-table tr:hover td {
+      background: rgba(248, 250, 252, 0.85);
+    }
+
+    .tree-node {
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      color: var(--color-text-primary);
+      padding: 0.35rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-layout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="app-content">
+        <!-- Page Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+              <span style="font-size: 1.5rem;">👷</span>
+              <h1 style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); letter-spacing: -0.02em; margin: 0;">
+                Labour Shifts & Expense Operations
+              </h1>
+              <span class="badge badge-success" style="font-size: 0.6875rem;">Active Kharif Roster</span>
+            </div>
+            <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin: 0;">
+              Real-time attendance tracking, shift allocation across demarcated parcels, hourly rate computations, and next shift planning.
+            </p>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <button onclick="openAssignModal()" class="btn btn-primary" style="font-size: 0.8125rem;">
+              <span>+ Assign Labour</span>
+              <span>👷</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Shift & Expense KPI Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
+          <!-- Morning Shift -->
+          <div class="shift-card shift-morning">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.75rem; font-weight: 800; color: #92400E; text-transform: uppercase;">☀️ Morning Shift (06:00 - 12:00)</span>
+              <span class="badge" style="background: #FEF3C7; color: #B45309; font-weight: 800;">12 Workers</span>
+            </div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: var(--color-text-primary); margin-bottom: 0.25rem;">
+              12 / 12 Active
+            </div>
+            <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0;">
+              Weeding, AWD sluice inspection, and basal fertilizer dressing.
+            </p>
+          </div>
+
+          <!-- Afternoon Shift -->
+          <div class="shift-card shift-afternoon">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.75rem; font-weight: 800; color: #1E40AF; text-transform: uppercase;">⛅ Afternoon Shift (13:00 - 19:00)</span>
+              <span class="badge" style="background: #DBEAFE; color: #1D4ED8; font-weight: 800;">8 Workers</span>
+            </div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: var(--color-text-primary); margin-bottom: 0.25rem;">
+              8 / 8 Working
+            </div>
+            <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0;">
+              Tomato trellising, AWD submersion monitoring, canal maintenance.
+            </p>
+          </div>
+
+          <!-- Night Shift -->
+          <div class="shift-card shift-night">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.75rem; font-weight: 800; color: #4338CA; text-transform: uppercase;">🌙 Night Guard (20:00 - 02:00)</span>
+              <span class="badge" style="background: #E0E7FF; color: #4338CA; font-weight: 800;">4 Workers</span>
+            </div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: var(--color-text-primary); margin-bottom: 0.25rem;">
+              4 Scheduled
+            </div>
+            <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0;">
+              Borewell pumping & AWD water level guard.
+            </p>
+          </div>
+
+          <!-- Cost Ledger KPI -->
+          <div class="shift-card shift-cost">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.75rem; font-weight: 800; color: #065F46; text-transform: uppercase;">💰 Today's Labour Cost</span>
+              <span class="badge" style="background: #DCFCE7; color: #166534; font-weight: 800;">↑ 8.4%</span>
+            </div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: #059669; margin-bottom: 0.25rem;" id="disp-today-labour-cost">
+              ₹12,450
+            </div>
+            <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0;">
+              Cumulative Paddy Kharif: <strong>₹1,24,500</strong> / ₹1.5L Budget
+            </p>
+          </div>
+        </div>
+
+        <!-- Next Shift Planning Roster (Problem Statement Feature #6) -->
+        <div class="card" style="margin-bottom: 1.75rem; background: linear-gradient(135deg, #0F2E23 0%, #164E3D 100%); color: #FFFFFF; border: 1px solid #10B981; padding: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+            <div>
+              <span class="badge" style="background: rgba(52, 211, 153, 0.2); color: #A7F3D0; border: 1px solid rgba(52, 211, 153, 0.4); margin-bottom: 0.5rem;">
+                OPERATIONAL PLANNING • NEXT SHIFT
+              </span>
+              <h2 style="font-size: 1.25rem; font-weight: 800; color: #FFFFFF; margin: 0;">
+                Tomorrow — Morning Shift (06:00 AM) • 8 Labourers Scheduled
+              </h2>
+              <p style="font-size: 0.8125rem; color: #A7F3D0; margin: 0.25rem 0 0;">
+                Pre-allocated field parcel deployment to execute AWD submersion and harvest picking.
+              </p>
+            </div>
+            <button onclick="openAssignModal()" class="btn" style="background: #10B981; color: #FFFFFF; font-weight: 800; border: none; padding: 0.5rem 1rem; border-radius: 6px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);">
+              <span>+ Add Worker to Shift</span>
+            </button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; background: rgba(0, 0, 0, 0.2); border-radius: var(--radius-md); padding: 1.25rem; border: 1px solid rgba(255, 255, 255, 0.1);">
+            <div>
+              <div style="font-size: 0.875rem; font-weight: 800; color: #34D399; margin-bottom: 0.5rem;">
+                🌾 North Block (Plot A • Paddy BPT-5204) — 6 Workers
+              </div>
+              <div class="tree-node" style="color: #E2E8F0;">
+                <span>├──</span> <strong style="color: #FCD34D;">3 workers</strong> → Manual Weeding & Silt Clearance
+              </div>
+              <div class="tree-node" style="color: #E2E8F0;">
+                <span>├──</span> <strong style="color: #60A5FA;">2 workers</strong> → AWD Sluice Gate Flooding & Water Depth Gauge
+              </div>
+              <div class="tree-node" style="color: #E2E8F0;">
+                <span>└──</span> <strong style="color: #34D399;">1 worker</strong> → Granular Urea Top-Dressing
+              </div>
+            </div>
+
+            <div style="border-left: 1px solid rgba(255, 255, 255, 0.15); padding-left: 1rem;">
+              <div style="font-size: 0.875rem; font-weight: 800; color: #F87171; margin-bottom: 0.5rem;">
+                🍅 Central Sector (Plot B • Tomato NS-501) — 2 Workers
+              </div>
+              <div class="tree-node" style="color: #E2E8F0;">
+                <span>└──</span> <strong style="color: #FCA5A5;">2 workers</strong> → Early Morning First Picking & Quality Grading
+              </div>
+              <div style="margin-top: 1rem; font-size: 0.75rem; color: #CBD5E1;">
+                Supervisor: <strong>Rajesh Patel</strong> • Mobilization Time: <strong>05:45 AM</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Today's Worker Attendance & Cost Ledger Table -->
+        <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 2rem;">
+          <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: var(--color-surface-secondary);">
+            <div>
+              <h3 style="font-size: 1.0625rem; font-weight: 800; margin: 0 0 0.25rem; color: var(--color-text-primary);">
+                Today's Worker Attendance & Cost Ledger
+              </h3>
+              <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0;">
+                Formula: <span class="font-mono" style="font-weight: 700; color: #059669;">Total Cost = Workers × Hours × Daily/Hourly Rate</span>
+              </p>
+            </div>
+            <span class="font-mono" style="font-size: 0.6875rem; color: #059669; font-weight: 700; background: #ECFDF5; padding: 0.25rem 0.5rem; border-radius: 4px; border: 1px solid #A7F3D0;">
+              24 Workers on Roster
+            </span>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="labour-table">
+              <thead>
+                <tr>
+                  <th style="width: 18%;">Labour Name</th>
+                  <th style="width: 17%;">Shift</th>
+                  <th style="width: 16%;">Field Parcel</th>
+                  <th style="width: 17%;">Assigned Task</th>
+                  <th style="width: 10%;">Hours</th>
+                  <th style="width: 11%;">Total Cost</th>
+                  <th style="width: 11%;">Status & Payment</th>
+                </tr>
+              </thead>
+              <tbody id="labour-table-body">
+                <!-- Injected dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- + Assign Labour Modal -->
+  <div class="modal-overlay" id="assign-labour-modal">
+    <div class="modal-content" style="max-width: 480px; padding: 1.75rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.75rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.25rem;">👷</span>
+          <h3 style="font-size: 1.125rem; font-weight: 800; margin: 0; color: var(--color-text-primary);">Assign Field Labour</h3>
+        </div>
+        <button type="button" onclick="closeAssignModal()" style="background:none; border:none; font-size: 1.25rem; cursor:pointer; color: #64748B;">✕</button>
+      </div>
+
+      <form id="assign-labour-form" onsubmit="handleAssignSubmit(event)">
+        <div class="form-group">
+          <label class="form-label" for="labour-name">Worker Name</label>
+          <input type="text" id="labour-name" class="form-input" required placeholder="e.g. Ramesh Naidu" value="Ramesh Naidu">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label" for="labour-shift">Shift</label>
+            <select id="labour-shift" class="form-input">
+              <option value="Morning (06:00 - 12:00)">Morning (06:00 - 12:00)</option>
+              <option value="Afternoon (13:00 - 19:00)">Afternoon (13:00 - 19:00)</option>
+              <option value="Night (20:00 - 02:00)">Night (20:00 - 02:00)</option>
+              <option value="Tomorrow Morning">Tomorrow Morning</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="labour-field">Field Parcel</label>
+            <select id="labour-field" class="form-input">
+              <option value="North Block (Plot A)">North Block (Plot A)</option>
+              <option value="Central Sector (Plot B)">Central Sector (Plot B)</option>
+              <option value="Delta Lowlands (Plot C)">Delta Lowlands (Plot C)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="labour-task">Operational Task</label>
+          <select id="labour-task" class="form-input">
+            <option value="Weeding & AWD Pipe Check">Weeding & AWD Pipe Check</option>
+            <option value="AWD Submersion Irrigation">AWD Submersion Irrigation</option>
+            <option value="Fertilizer Top-Dressing (Urea)">Fertilizer Top-Dressing (Urea)</option>
+            <option value="Harvesting & Quality Grading">Harvesting & Quality Grading</option>
+            <option value="Staking & Trellising">Staking & Trellising</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label" for="labour-hours">Hours Worked</label>
+            <input type="number" id="labour-hours" class="form-input" min="1" max="12" value="6" oninput="calcCostPreview()">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="labour-rate">Rate (₹ / Hour)</label>
+            <input type="number" id="labour-rate" class="form-input" min="50" max="1000" value="250" oninput="calcCostPreview()">
+          </div>
+        </div>
+
+        <div style="background: #F0FDF4; border: 1px solid #A7F3D0; padding: 0.75rem 1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.8125rem; font-weight: 700; color: #166534;">Calculated Total Cost:</span>
+          <span class="font-mono" id="cost-preview-disp" style="font-size: 1.125rem; font-weight: 800; color: #047857;">₹1,500</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">
+          <span>Confirm Assignment & Record in Audit Trail</span>
+          <span>✓</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/audit.js"></script>
+  <script src="js/labour.js"></script>
+  <script src="js/weather.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      FarmPilotApp.init('labour');
+      renderLabourTable();
+
+      window.addEventListener('farmpilot:labour-updated', () => {
+        renderLabourTable();
+      });
+    });
+
+    function renderLabourTable() {
+      const data = window.FarmPilotLabour.getData();
+      const tbody = document.getElementById('labour-table-body');
+      const costDisp = document.getElementById('disp-today-labour-cost');
+
+      if (costDisp) {
+        costDisp.textContent = `₹${data.shifts_summary.today_cost.toLocaleString('en-IN')}`;
+      }
+
+      if (!tbody) return;
+
+      tbody.innerHTML = data.today_workers.map(w => `
+        <tr>
+          <td>
+            <div style="font-weight: 800; color: var(--color-text-primary); display: flex; align-items: center; gap: 0.4rem;">
+              <span style="font-size: 1rem;">👷</span>
+              <span>${w.name}</span>
+            </div>
+            <div style="font-size: 0.6875rem; color: var(--color-text-secondary);">${w.crop}</div>
+          </td>
+          <td>
+            <span class="badge" style="background: var(--color-surface-secondary); color: var(--color-text-primary); border: 1px solid var(--color-border); font-size: 0.6875rem;">
+              ${w.shift}
+            </span>
+          </td>
+          <td>
+            <span style="font-weight: 600; color: var(--color-text-primary);">${w.field}</span>
+          </td>
+          <td>
+            <span style="font-weight: 600; color: #1E3A8A;">${w.task}</span>
+          </td>
+          <td>
+            <span class="font-mono tabular-nums" style="font-weight: 700;">${w.hours} hrs</span>
+            <div style="font-size: 0.625rem; color: var(--color-text-secondary);">@ ₹${w.rate}/h</div>
+          </td>
+          <td>
+            <span class="font-mono tabular-nums" style="font-weight: 800; color: #059669; font-size: 0.9375rem;">
+              ₹${w.total_cost.toLocaleString('en-IN')}
+            </span>
+          </td>
+          <td>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+              <span class="badge ${w.status === 'Completed' ? 'badge-success' : w.status === 'Working' ? 'badge-primary' : 'badge-warning'}" style="font-size: 0.625rem; width: fit-content;">
+                ${w.status}
+              </span>
+              <span style="font-size: 0.6875rem; font-weight: 700; color: ${w.payment === 'Paid' ? '#059669' : '#D97706'};">
+                ${w.payment}
+              </span>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openAssignModal() {
+      document.getElementById('assign-labour-modal').classList.add('active');
+      calcCostPreview();
+    }
+
+    function closeAssignModal() {
+      document.getElementById('assign-labour-modal').classList.remove('active');
+    }
+
+    function calcCostPreview() {
+      const hours = parseFloat(document.getElementById('labour-hours')?.value) || 6;
+      const rate = parseFloat(document.getElementById('labour-rate')?.value) || 250;
+      const total = hours * rate;
+      const disp = document.getElementById('cost-preview-disp');
+      if (disp) disp.textContent = `₹${total.toLocaleString('en-IN')}`;
+    }
+
+    function handleAssignSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('labour-name').value.trim();
+      const shift = document.getElementById('labour-shift').value;
+      const field = document.getElementById('labour-field').value;
+      const task = document.getElementById('labour-task').value;
+      const hours = document.getElementById('labour-hours').value;
+      const rate = document.getElementById('labour-rate').value;
+
+      window.FarmPilotLabour.assignWorker({
+        name, shift, field, task, hours, rate
+      });
+
+      closeAssignModal();
+      FarmPilotApp.showToast(`✓ Assigned ${name} to ${task} (${hours}h • ₹${hours * rate})!`, 'success');
+      renderLabourTable();
+    }
+  </script>
+</body>
+</html>

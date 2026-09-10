@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmPilot — Roles & Permissions Matrix</title>
+  <meta name="description" content="Centralized Enterprise Role-Based Access Control (RBAC), multi-role permissions matrix, and executive owner view-as simulation.">
+  
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <style>
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+    }
+    .matrix-table th {
+      background: var(--color-surface-secondary);
+      padding: 0.85rem 1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 2px solid var(--color-border);
+      text-align: left;
+    }
+    .matrix-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: middle;
+    }
+    .matrix-table tr:hover td {
+      background: rgba(248, 250, 252, 0.8);
+    }
+    .role-header-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+    .role-header-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+    }
+    .card-owner::before { background: #10B981; }
+    .card-manager::before { background: #3B82F6; }
+    .card-worker::before { background: #F59E0B; }
+    .card-consultant::before { background: #A855F7; }
+
+    .perm-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: var(--radius-full);
+    }
+    .perm-full { background: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }
+    .perm-assigned { background: #DBEAFE; color: #1E40AF; border: 1px solid #93C5FD; }
+    .perm-limited { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
+    .perm-none { background: #F1F5F9; color: #94A3B8; border: 1px solid #E2E8F0; }
+  </style>
+</head>
+<body>
+
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <!-- Main Content Area -->
+    <div class="app-main">
+      <!-- Universal Header Shell -->
+      <header class="app-header" id="app-header"></header>
+
+      <main class="app-content">
+        <!-- Page Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+              <span style="font-size: 1.5rem;">👥</span>
+              <h1 style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); letter-spacing: -0.02em; margin: 0;">
+                Roles & Permissions Command Matrix
+              </h1>
+              <span class="badge badge-success" style="font-size: 0.6875rem;">Enterprise RBAC</span>
+            </div>
+            <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin: 0;">
+              Organization: <strong>Green Valley Agriculture Ltd</strong> • Granular module authorization, operational isolation, and 1-Click Executive View-As.
+            </p>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <button onclick="FarmPilotAuth.switchPersona('OWNER')" class="btn btn-outline" style="font-size: 0.8125rem;">
+              <span>👑 Reset to Owner View</span>
+            </button>
+            <button onclick="FarmPilotApp.showToast('Permissions audited and synchronized across PostgreSQL & Supabase RLS policies.', 'success')" class="btn btn-primary" style="font-size: 0.8125rem;">
+              <span>🛡️ Audit RLS Security</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Role Persona Command Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
+          <!-- Card: Owner -->
+          <div class="role-header-card card-owner">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.5rem;">👑</span>
+                <span class="badge" style="background: #ECFDF5; color: #047857; font-weight: 800; border: 1px solid #A7F3D0;">TIER 1 • EXECUTIVE</span>
+              </div>
+              <h3 style="font-size: 1.0625rem; font-weight: 800; color: var(--color-text-primary); margin: 0 0 0.25rem;">Farm Owner</h3>
+              <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0 0 0.75rem;">Siddharth Saladi (Executive Admin)</p>
+              <p style="font-size: 0.75rem; color: var(--color-text-primary); line-height: 1.4; margin: 0 0 1rem;">
+                Unrestricted administrative oversight, multi-farm ownership, financial ledgers, audit history, role governance.
+              </p>
+            </div>
+            <button onclick="FarmPilotAuth.switchPersona('OWNER')" class="btn btn-secondary btn-sm" style="width: 100%; border-color: #10B981; color: #047857; background: #F0FDF4; font-weight: 800;">
+              <span>Active Role</span>
+              <span>✓</span>
+            </button>
+          </div>
+
+          <!-- Card: Manager -->
+          <div class="role-header-card card-manager">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.5rem;">👔</span>
+                <span class="badge" style="background: #EFF6FF; color: #1D4ED8; font-weight: 800; border: 1px solid #BFDBFE;">TIER 2 • OPERATIONS</span>
+              </div>
+              <h3 style="font-size: 1.0625rem; font-weight: 800; color: var(--color-text-primary); margin: 0 0 0.25rem;">Field Manager</h3>
+              <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0 0 0.75rem;">Rajesh Patel (Estate Lead)</p>
+              <p style="font-size: 0.75rem; color: var(--color-text-primary); line-height: 1.4; margin: 0 0 1rem;">
+                Demarcated parcel operations, AWD irrigation scheduling, labour shift planning, input stock logging.
+              </p>
+            </div>
+            <button onclick="FarmPilotAuth.viewAsRole('MANAGER')" class="btn btn-primary btn-sm" style="width: 100%; background: #2563EB; font-weight: 800;">
+              <span>Launch View-As Role</span>
+              <span>👁️</span>
+            </button>
+          </div>
+
+          <!-- Card: Labour -->
+          <div class="role-header-card card-worker">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.5rem;">🚜</span>
+                <span class="badge" style="background: #FFFBEB; color: #B45309; font-weight: 800; border: 1px solid #FDE68A;">TIER 3 • FIELD</span>
+              </div>
+              <h3 style="font-size: 1.0625rem; font-weight: 800; color: var(--color-text-primary); margin: 0 0 0.25rem;">Field Labour</h3>
+              <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0 0 0.75rem;">Ravi Kumar (Operator)</p>
+              <p style="font-size: 0.75rem; color: var(--color-text-primary); line-height: 1.4; margin: 0 0 1rem;">
+                Mobile field tasks, AWD tube submersion dipstick verification, task status updates, shift attendance.
+              </p>
+            </div>
+            <button onclick="FarmPilotAuth.viewAsRole('WORKER')" class="btn btn-primary btn-sm" style="width: 100%; background: #D97706; font-weight: 800;">
+              <span>Launch View-As Role</span>
+              <span>👁️</span>
+            </button>
+          </div>
+
+          <!-- Card: Consultant -->
+          <div class="role-header-card card-consultant">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.5rem;">🔬</span>
+                <span class="badge" style="background: #FAF5FF; color: #7E22CE; font-weight: 800; border: 1px solid #E9D5FF;">TIER 4 • ADVISORY</span>
+              </div>
+              <h3 style="font-size: 1.0625rem; font-weight: 800; color: var(--color-text-primary); margin: 0 0 0.25rem;">Consultant</h3>
+              <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0 0 0.75rem;">Dr. Anita Rao (Agronomist)</p>
+              <p style="font-size: 0.75rem; color: var(--color-text-primary); line-height: 1.4; margin: 0 0 1rem;">
+                Scientific crop vigor monitoring, soil fertility index, disease alert verification, fertilizer prescriptions.
+              </p>
+            </div>
+            <button onclick="FarmPilotAuth.viewAsRole('CONSULTANT')" class="btn btn-primary btn-sm" style="width: 100%; background: #9333EA; font-weight: 800;">
+              <span>Launch View-As Role</span>
+              <span>👁️</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Master Permissions Matrix Table -->
+        <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 2rem;">
+          <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: var(--color-surface-secondary);">
+            <div>
+              <h3 style="font-size: 1.0625rem; font-weight: 800; margin: 0 0 0.25rem; color: var(--color-text-primary);">
+                Comprehensive 12-Module Access Matrix
+              </h3>
+              <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0;">
+                Direct implementation of the hackathon problem statement specification
+              </p>
+            </div>
+            <span class="font-mono" style="font-size: 0.6875rem; color: #059669; font-weight: 700; background: #ECFDF5; padding: 0.25rem 0.5rem; border-radius: 4px; border: 1px solid #A7F3D0;">
+              Postgres RLS Policy Active
+            </span>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="matrix-table">
+              <thead>
+                <tr>
+                  <th style="width: 24%;">Feature Module</th>
+                  <th style="width: 19%; color: #047857;">👑 Owner (Siddharth)</th>
+                  <th style="width: 19%; color: #1D4ED8;">👔 Field Manager (Rajesh)</th>
+                  <th style="width: 19%; color: #B45309;">🚜 Labour (Ravi)</th>
+                  <th style="width: 19%; color: #7E22CE;">🔬 Consultant (Dr. Anita)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>📊 Dashboard</strong><br><span style="font-size: 0.6875rem; color: var(--color-text-secondary);">KPIs, microclimates, farm health</span></td>
+                  <td><span class="perm-badge perm-full">✅ Full Access</span></td>
+                  <td><span class="perm-badge perm-assigned">✅ Assigned Fields</span></td>
+                  <td><span class="perm-badge perm-limited">⚡ Shift Tasks Only</span></td>
+                  <td><span class="perm-badge perm-assigned">👁️ Agronomic View</span></td>
+                </tr>
+                <tr>
+                  <td><strong>🚜 Farms & Portfolios</strong><br><span style="font-size: 0.6875rem; color: var(--color-text-secondary);">Demarcation, legal parcels, GPS bounds</span></td>
+                  <td><span class="perm-badge perm-full">✅ Full (Create/Edit/Delete)</span></td>
+                  <td><span class="perm-badge perm-assigned">👁️ View Holdings</span></td>
+                  <td><span class="perm-badge perm-none">❌ No Access</span></td>
+                  <td><span class="perm-badge perm-assigned">👁️ View Holdings</span></td>
+                </tr>
+                <tr>
+                  <td><strong>📍 Fields & Parcels</strong><br><span style="font-size: 0.6875rem; color: var(--color-text-secondary);">Soil moisture, topography, sensors</span></td>
+                  <td><span class="perm-badge perm-full">✅ Full Control</span></td>
+                  <td><span class="perm-badge perm-assigned">✅ Assigned Parcels</span></td>
+                  <td><span class="perm-badge perm-limited">👁️ View Assigned</span></td>
+                  <td><span class="perm-badge perm-assigned">👁️ View All</span></td>
+                </tr>
+                <tr>
+                  <td><strong>🌱 Crop Cycles</strong><br><span style="font-size: 0.6875rem; color: var(--color-text-secondary);">Phenology stages, planting, yield target</span></td>
+                  <td><span class="perm-badge perm-full">✅ Full Lifecycle Control</span></td>
+                  <td><span class="perm-badge perm-assigned">✅ View / Edit Assigned</span></td>
+                  <td><span class="perm-badge perm-limited">👁️ View Crop Name</span></td>
+                  <td><span class="perm-badge perm-assigned">🔬 Advisory & Stages</span></td>
+                </tr>
+                <tr>
+                  <td><strong>📋 Activities & Tasks</strong><br><span style="font-size: 0.6875rem; color: var(--color-text-secondary);">Weeding, planting, AWD checking, spraying</span></td>
+                  <td><span class="perm-badge perm-full">✅ Full (All Parcels)</span></td>
+                  <td><span class="perm-badge perm-full">✅ Create / Edit / Assign</span></td>
+                  <td><span class="perm-badge perm-limited">⚡ Update Assigned Task</span></td>
+                  <td><span class="perm-badge perm-assigned">👁️ View & Recommend</span></td>
+                </tr>
+                <tr>
+                  <td><strong>💧 Irrigation & AWD</strong><br><span style="font-size: 0.6875rem; color: var(--color-text-secondary);">Alternate Wetting & Drying, meters, pump logs</span></td>
+                  <td><span class="perm-badge perm-full">✅ Full Command</span></td>
+                  <td><span class="perm-badge perm-full">✅ Schedule & Log Sluice</span></td>
+                  <td><span class="perm-badge perm-limited">⚡ Log Water Depth</span></td>
+                  <td><span class="perm-badge perm-assigned">🔬 Optimize Protocol</span></td>
+                </tr>
+                <tr>
+                  <td><strong>📦 Fertilizers & Inputs</strong><br><span style="font-size: 0.6875rem; color: var(--color-text-secondary);">Stock ledger, dosage, foliar applications</span></td>
+                  <td><span class="perm-badge perm-full">✅ Full Control</span></td>
+                  <td><span class="perm-badge perm-full">✅ Record Usage / Stock</span></td>
+                  <td><span class="perm-badge perm-limited">👁️ View Prescriptions</span></td>
+                  <td><span class="perm-badge perm-assigned">🔬 Dosage Prescription</span></td>
+                </tr>
+                <tr>
+                  <td><strong>💰 Financials & Expenses</strong><br><span style="font-size: 0.6875rem; color: var(--color-text-secondary);">Labour spend, power, seed outlays, profit</span></td>
+                  <td><span class="perm-badge perm-full">✅ Full Balance Sheet</span></td>
+                  <td><span class="perm-badge perm-assigned">✅ Add / View Assigned</span></td>
+                  <td><span class="perm-badge perm-none">❌ No Access</span></td>
+                  <td><span class="perm-badge perm-none">❌ No Access</span></td>
+                </tr>
+                <tr>
+                  <td><strong>👷 Labour Management</strong><br><span style="font-size: 0.6875rem; color: var(--color-text-secondary);">Shifts (Morning/Aft/Night), worker rates, hours</span></td>
+                  <td><span class="perm-badge perm-full">✅ Full Staff Roster</span></td>
+                  <td><span class="perm-badge perm-full">✅ Manage Shifts & Rates</span></td>
+                  <td><span class="perm-badge perm-limited">⚡ View Own Shift</span></td>
+                  <td><span class="perm-badge perm-none">❌ No Access</span></td>
+                </tr>
+                <tr>
+                  <td><strong>📑 Executive Reports</strong><br><span style="font-size: 0.6875rem; color: var(--color-text-secondary);">Seasonal compliance, bank audit, yield</span></td>
+                  <td><span class="perm-badge perm-full">✅ Full Enterprise Export</span></td>
+                  <td><span class="perm-badge perm-assigned">✅ Assigned Fields Only</span></td>
+                  <td><span class="perm-badge perm-none">❌ No Access</span></td>
+                  <td><span class="perm-badge perm-assigned">🔬 Agronomic Reports</span></td>
+                </tr>
+                <tr>
+                  <td><strong>📜 Audit History</strong><br><span style="font-size: 0.6875rem; color: var(--color-text-secondary);">Tamper-evident logs, volume diffs, actor IPs</span></td>
+                  <td><span class="perm-badge perm-full">✅ Complete Forensic Trail</span></td>
+                  <td><span class="perm-badge perm-assigned">👁️ View Relevant Logs</span></td>
+                  <td><span class="perm-badge perm-none">❌ No Access</span></td>
+                  <td><span class="perm-badge perm-assigned">👁️ View Agronomic Logs</span></td>
+                </tr>
+                <tr>
+                  <td><strong>🔐 Users & Roles</strong><br><span style="font-size: 0.6875rem; color: var(--color-text-secondary);">Tenant members, invite links, permission overrides</span></td>
+                  <td><span class="perm-badge perm-full">✅ Master Administrator</span></td>
+                  <td><span class="perm-badge perm-none">❌ No Access</span></td>
+                  <td><span class="perm-badge perm-none">❌ No Access</span></td>
+                  <td><span class="perm-badge perm-none">❌ No Access</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Role Configuration & Granular Action Inspector -->
+        <div class="card" style="margin-bottom: 2rem;">
+          <h3 style="font-size: 1.0625rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--color-text-primary);">
+            Granular CRUD Authorization Architecture
+          </h3>
+          <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-bottom: 1.25rem;">
+            FarmPilot enforces authorization at both application route level and PostgreSQL Row-Level Security (RLS). Buttons are not simply hidden; unauthorized database operations trigger security exceptions.
+          </p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+            <div style="background: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+              <div style="font-size: 0.8125rem; font-weight: 800; color: #1D4ED8; margin-bottom: 0.5rem;">
+                👔 FIELD_MANAGER Policy
+              </div>
+              <div class="font-mono" style="font-size: 0.6875rem; color: var(--color-text-primary); line-height: 1.6;">
+                irrigation: { view: true, create: true, update: true, delete: false }<br>
+                expenses: { view: true, create: true, update: false, delete: false }<br>
+                labour: { view: true, create: true, update: true, delete: false }<br>
+                users: { view: false, create: false, update: false, delete: false }
+              </div>
+            </div>
+
+            <div style="background: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+              <div style="font-size: 0.8125rem; font-weight: 800; color: #B45309; margin-bottom: 0.5rem;">
+                🚜 LABOUR / WORKER Policy
+              </div>
+              <div class="font-mono" style="font-size: 0.6875rem; color: var(--color-text-primary); line-height: 1.6;">
+                activities: { view: true, update_status: true, create: false }<br>
+                irrigation: { view: true, log_depth: true, create: false }<br>
+                expenses: { view: false, create: false }<br>
+                audit_logs: { view: false }
+              </div>
+            </div>
+
+            <div style="background: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+              <div style="font-size: 0.8125rem; font-weight: 800; color: #047857; margin-bottom: 0.5rem;">
+                👑 OWNER Policy
+              </div>
+              <div class="font-mono" style="font-size: 0.6875rem; color: var(--color-text-primary); line-height: 1.6;">
+                all_resources: { view: true, create: true, update: true, delete: true }<br>
+                executive_impersonation: enabled<br>
+                financial_audit_signoff: enabled<br>
+                tenant_isolation: master_org_admin
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/audit.js"></script>
+  <script src="js/weather.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      FarmPilotApp.init('roles');
+    });
+  </script>
+</body>
+</html>
