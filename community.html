@@ -243,6 +243,187 @@
       margin-bottom: 1rem;
       box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
     }
+
+    /* ==========================================================================
+       Left-Side Floating Message Port Dock & Action Triggers
+       ========================================================================== */
+    .left-side-message-dock {
+      position: fixed;
+      left: calc(272px + 1.25rem);
+      bottom: 2rem;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+      color: #FFFFFF;
+      padding: 0.6rem 1.1rem 0.6rem 0.65rem;
+      border-radius: 9999px;
+      box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.45), 0 8px 16px -6px rgba(0, 0, 0, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(12px);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+      text-decoration: none;
+    }
+    .left-side-message-dock:hover {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 16px 32px -4px rgba(5, 150, 105, 0.6), 0 10px 20px -5px rgba(0, 0, 0, 0.25);
+      border-color: rgba(255, 255, 255, 0.5);
+      background: linear-gradient(135deg, #065F46 0%, #10B981 100%);
+    }
+    .left-side-message-dock:active {
+      transform: translateY(0) scale(0.97);
+    }
+    .left-side-message-dock:focus-visible {
+      outline: 3px solid #34D399;
+      outline-offset: 3px;
+    }
+    .left-msg-dock-icon-wrap {
+      position: relative;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .left-side-message-dock:hover .left-msg-dock-icon-wrap {
+      transform: rotate(-8deg) scale(1.08);
+      background: rgba(255, 255, 255, 0.28);
+    }
+    .left-msg-svg-icon {
+      width: 22px;
+      height: 22px;
+      stroke: #FFFFFF;
+      stroke-width: 2.2;
+      transition: stroke 0.2s ease;
+    }
+    .left-msg-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #DC2626;
+      color: #FFFFFF;
+      font-size: 0.6875rem;
+      font-weight: 800;
+      min-width: 19px;
+      height: 19px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 5px;
+      border: 2px solid #064E3B;
+      box-shadow: 0 2px 6px rgba(220, 38, 38, 0.6);
+      animation: leftBadgePulse 2s infinite;
+    }
+    @keyframes leftBadgePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.18); box-shadow: 0 0 10px rgba(239, 68, 68, 0.85); }
+    }
+    .left-msg-pulse {
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid #34D399;
+      opacity: 0;
+      animation: leftMsgPing 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+      pointer-events: none;
+    }
+    @keyframes leftMsgPing {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      70%, 100% { transform: scale(1.45); opacity: 0; }
+    }
+    .left-msg-dock-label {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      line-height: 1.2;
+    }
+    .left-msg-title {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.01em;
+    }
+    .left-msg-sub {
+      font-size: 0.66rem;
+      font-weight: 600;
+      color: #A7F3D0;
+    }
+
+    .left-header-message-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: #FFFFFF;
+      border: none;
+      padding: 0.5rem 0.95rem;
+      border-radius: var(--radius-md);
+      font-weight: 800;
+      font-size: 0.8125rem;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+      transition: all 0.2s ease;
+    }
+    .left-header-message-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
+      background: linear-gradient(135deg, #047857 0%, #065F46 100%);
+    }
+
+    .left-side-icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+      border: 1.5px solid #10B981;
+      color: #047857;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-2xs);
+      flex-shrink: 0;
+    }
+    .left-side-icon-btn:hover {
+      background: #D1FAE5;
+      transform: scale(1.08) translateY(-1px);
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+      border-color: #059669;
+    }
+
+    /* Dynamic Sidebar Adjustments */
+    .app-sidebar.collapsed ~ .app-main .left-side-message-dock,
+    body.sidebar-collapsed .left-side-message-dock {
+      left: calc(76px + 1.25rem);
+    }
+
+    @media (max-width: 1024px) {
+      .left-side-message-dock {
+        left: 1.25rem;
+        bottom: 1.5rem;
+      }
+    }
+    @media (max-width: 600px) {
+      .left-msg-dock-label {
+        display: none;
+      }
+      .left-side-message-dock {
+        padding: 0.5rem;
+        border-radius: 50%;
+        width: 52px;
+        height: 52px;
+        justify-content: center;
+      }
+    }
   </style>
 </head>
 <body>
@@ -276,7 +457,7 @@
           </div>
 
           <!-- Page Header -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
             <div>
               <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
                 <span style="font-size: 1.5rem;">🌐</span>
@@ -297,15 +478,48 @@
             </div>
           </div>
 
+          <!-- Left-Side Direct Messages Port Action Bar -->
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; background: #FFFFFF; border: 1.5px solid #A7F3D0; border-radius: var(--radius-lg); padding: 0.75rem 1.15rem; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.06);">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <button type="button" id="left-header-message-btn" class="left-header-message-btn" onclick="openMessagingDrawer()" title="Open Direct Messages Port (Alt + M)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  <line x1="8" y1="9" x2="16" y2="9"></line>
+                  <line x1="8" y1="13" x2="13" y2="13"></line>
+                </svg>
+                <span>Direct Messages Port</span>
+                <span id="left-header-unread-badge" class="badge" style="background: #DC2626; color: #FFFFFF; font-size: 0.65rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 999px; display: none;">1 Pending</span>
+              </button>
+              <span style="font-size: 0.8125rem; color: var(--color-text-secondary); font-weight: 600;">
+                Direct 1-on-1 farmer messaging channel with first-time permission gatekeeper
+              </span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+              <span class="badge badge-success" style="font-size: 0.6875rem;">🟢 Instant Port</span>
+              <span style="font-size: 0.7rem; color: var(--color-text-tertiary); font-family: var(--font-mono);">[Alt+M]</span>
+            </div>
+          </div>
+
           <!-- ========================================================================= -->
           <!-- COMMUNITY USER DIRECTORY & DIRECT MESSAGING SEARCH BAR                    -->
           <!-- ========================================================================= -->
           <div class="card" style="margin-bottom: 1.5rem; background: #FFFFFF; border: 1.5px solid var(--color-border); box-shadow: 0 4px 14px rgba(0,0,0,0.03); padding: 1.1rem; border-radius: var(--radius-lg);">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.85rem;">
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <span style="font-size: 1.25rem;">🔍</span>
-                <span style="font-size: 0.95rem; font-weight: 800; color: var(--color-text-primary);">Search Farmers, Agronomists & Operators</span>
-                <span class="badge badge-success" style="font-size: 0.65rem;">Direct Messaging</span>
+              <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <button type="button" onclick="openMessagingDrawer()" id="left-directory-message-btn" class="left-side-icon-btn" title="Open Messages Port" aria-label="Open Messages Port">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    <line x1="8" y1="9" x2="16" y2="9"></line>
+                    <line x1="8" y1="13" x2="13" y2="13"></line>
+                  </svg>
+                </button>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.4rem;">
+                    <span style="font-size: 0.95rem; font-weight: 800; color: var(--color-text-primary);">Search Farmers, Agronomists & Operators</span>
+                    <span class="badge badge-success" style="font-size: 0.65rem;">Direct Messaging</span>
+                  </div>
+                  <span style="font-size: 0.7rem; color: var(--color-text-tertiary);">Click message icon to launch conversations port</span>
+                </div>
               </div>
 
               <!-- Direct Messages Platform Drawer Trigger with Notification Badge -->
@@ -408,6 +622,25 @@
 
         </div>
       </main>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- LEFT-SIDE FLOATING DIRECT MESSAGING PORT DOCK LAUNCHER                     -->
+  <!-- ========================================================================= -->
+  <div id="left-message-port-trigger" class="left-side-message-dock" onclick="openMessagingDrawer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openMessagingDrawer();}" role="button" tabindex="0" title="Open Direct Messages Port (Alt + M)" aria-label="Open Direct Messages Port">
+    <div class="left-msg-dock-icon-wrap">
+      <svg class="left-msg-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        <line x1="8" y1="9" x2="16" y2="9"></line>
+        <line x1="8" y1="13" x2="13" y2="13"></line>
+      </svg>
+      <span id="left-msg-unread-badge" class="left-msg-badge" style="display: none;">1</span>
+      <span class="left-msg-pulse"></span>
+    </div>
+    <div class="left-msg-dock-label">
+      <span class="left-msg-title">Messages Port</span>
+      <span class="left-msg-sub">Direct Farm Chat</span>
     </div>
   </div>
 
@@ -1399,6 +1632,8 @@
       const pending = window.FarmPilotMessaging.getPendingRequests(me);
       const headerBadge = document.getElementById('header-unread-msg-badge');
       const tabBadge = document.getElementById('requests-tab-badge');
+      const leftBadge = document.getElementById('left-msg-unread-badge');
+      const leftHeaderBadge = document.getElementById('left-header-unread-badge');
 
       if (headerBadge) {
         if (pending.length > 0) {
@@ -1413,7 +1648,33 @@
         tabBadge.textContent = pending.length;
         tabBadge.style.display = pending.length > 0 ? 'inline-block' : 'none';
       }
+
+      if (leftBadge) {
+        if (pending.length > 0) {
+          leftBadge.textContent = pending.length;
+          leftBadge.style.display = 'flex';
+        } else {
+          leftBadge.style.display = 'none';
+        }
+      }
+
+      if (leftHeaderBadge) {
+        if (pending.length > 0) {
+          leftHeaderBadge.textContent = `${pending.length} Pending`;
+          leftHeaderBadge.style.display = 'inline-block';
+        } else {
+          leftHeaderBadge.style.display = 'none';
+        }
+      }
     }
+
+    // Global keyboard shortcut Alt+M to open messages port
+    window.addEventListener('keydown', (e) => {
+      if ((e.altKey && (e.key === 'm' || e.key === 'M')) || (e.ctrlKey && e.shiftKey && (e.key === 'M' || e.key === 'm'))) {
+        e.preventDefault();
+        openMessagingDrawer();
+      }
+    });
 
     // Initialize badges on load
     window.addEventListener('farmpilot:message-sent', () => {

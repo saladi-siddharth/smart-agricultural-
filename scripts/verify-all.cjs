@@ -340,7 +340,19 @@ assert(archDoc.includes('Disaster Recovery'), 'docs/production-architecture.md m
 
 console.log('✓ Enterprise Soil & Farm Health Center, Cryptographic JWT Auth, Queues & Production Resilience PASSED');
 
-console.log('\n🎉 ALL 11 AUTOMATED VERIFICATION SUITES PASSED (100% OPERATIONAL EXCELLENCE)!');
+// 12. Community Page Left-Side Message Icon & Messaging Port Verification
+const commHtml = fs.readFileSync('community.html', 'utf8');
+assert(commHtml.includes('left-message-port-trigger'), 'community.html missing left-message-port-trigger floating dock ID');
+assert(commHtml.includes('left-side-message-dock'), 'community.html missing left-side-message-dock CSS class');
+assert(commHtml.includes('left-msg-unread-badge'), 'community.html missing left-msg-unread-badge ID');
+assert(commHtml.includes('left-header-message-btn'), 'community.html missing left-header-message-btn ID');
+assert(commHtml.includes('left-directory-message-btn'), 'community.html missing left-directory-message-btn ID');
+assert(commHtml.includes('openMessagingDrawer()'), 'community.html missing openMessagingDrawer trigger function call');
+assert(commHtml.includes('messaging-modal'), 'community.html missing messaging-modal container');
+assert(commHtml.includes('Alt+M') || commHtml.includes('altKey'), 'community.html missing Alt+M keyboard shortcut for messages port');
+console.log('✓ Community Page Left-Side Message Icon & Messaging Port verification PASSED');
+
+console.log('\n🎉 ALL 12 AUTOMATED VERIFICATION SUITES PASSED (100% OPERATIONAL EXCELLENCE)!');
 
 
 
