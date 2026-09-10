@@ -14,10 +14,7 @@ import CropDetailPage from '@/pages/CropDetailPage';
 import ActivitiesPage from '@/pages/ActivitiesPage';
 import InputsPage from '@/pages/InputsPage';
 import ExpensesPage from '@/pages/ExpensesPage';
-import IrrigationPage from '@/pages/IrrigationPage';
-import HarvestPage from '@/pages/HarvestPage';
 import IntelligencePage from '@/pages/IntelligencePage';
-import ReportsPage from '@/pages/ReportsPage';
 import { Loader2 } from 'lucide-react';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -68,10 +65,7 @@ export default function App() {
             <Route path="/activities" element={<ActivitiesPage />} />
             <Route path="/inputs" element={<InputsPage />} />
             <Route path="/expenses" element={<ExpensesPage />} />
-            <Route path="/irrigation" element={<IrrigationPage />} />
-            <Route path="/harvest" element={<HarvestPage />} />
             <Route path="/intelligence" element={<IntelligencePage />} />
-            <Route path="/reports" element={<ReportsPage />} />
           </Route>
 
           {/* Fallback */}

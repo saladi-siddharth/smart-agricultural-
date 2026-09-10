@@ -3,7 +3,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import {
   LayoutDashboard, Tractor, Map, Leaf, ClipboardList,
-  Package, Wallet, Droplets, Wheat, Brain, FileBarChart,
+  Package, Wallet, Brain,
   LogOut, Menu, X, ChevronDown, Bell, User,
   Sprout
 } from 'lucide-react';
@@ -16,10 +16,7 @@ const navItems = [
   { to: '/activities', icon: ClipboardList, label: 'Activities' },
   { to: '/inputs', icon: Package, label: 'Inputs' },
   { to: '/expenses', icon: Wallet, label: 'Expenses' },
-  { to: '/irrigation', icon: Droplets, label: 'Irrigation' },
-  { to: '/harvest', icon: Wheat, label: 'Harvest' },
   { to: '/intelligence', icon: Brain, label: 'Intelligence' },
-  { to: '/reports', icon: FileBarChart, label: 'Reports' },
 ];
 
 export default function AppLayout() {

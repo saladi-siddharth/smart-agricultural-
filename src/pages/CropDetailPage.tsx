@@ -22,6 +22,8 @@ import {
   BarChart3, TrendingUp, Sparkles, Loader2, ChevronRight
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { CropStageTimeline } from '@/components/crop/CropStageTimeline';
+import { CropProfitabilityCard } from '@/components/crop/CropProfitabilityCard';
 
 export default function CropDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -235,10 +237,9 @@ export default function CropDetailPage() {
       {/* Tabs */}
       <div className="flex items-center gap-2 border-b border-[var(--color-border-light)] pb-2">
         {[
-          { id: 'timeline', label: 'Activities & Timeline' },
-          { id: 'finances', label: 'Financials & Cost Breakdown' },
-          { id: 'inputs', label: `Inputs (${inputs.length})` },
-          { id: 'irrigation', label: `Irrigation (${irrigationLogs.length})` },
+          { id: 'timeline', label: 'Operations & Timeline' },
+          { id: 'finances', label: 'Financials & P&L' },
+          { id: 'inputs', label: `Inputs & Resources (${inputs.length})` },
         ].map(tab => (
           <button
             key={tab.id}
@@ -256,7 +257,10 @@ export default function CropDetailPage() {
 
       {/* Tab 1: Activities & Timeline */}
       {activeTab === 'timeline' && (
-        <div className="space-y-4">
+        <div className="space-y-6">
+          {/* Biological Crop Stages Timeline */}
+          <CropStageTimeline activities={activities} />
+
           {overdueCount > 0 && (
             <div className="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -353,90 +357,94 @@ export default function CropDetailPage() {
 
       {/* Tab 2: Finances */}
       {activeTab === 'finances' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-2xl border border-[var(--color-border-light)] p-6 shadow-xs">
-            <h3 className="text-base font-bold text-[var(--color-text-primary)] mb-4">
-              Cost Distribution by Category
-            </h3>
-            {financials?.costBreakdown && financials.costBreakdown.length > 0 ? (
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={financials.costBreakdown}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={55}
-                      outerRadius={85}
-                      paddingAngle={4}
-                      dataKey="amount"
-                      nameKey="category"
-                    >
-                      {financials.costBreakdown.map((entry, idx) => (
-                        <Cell key={`cell-${idx}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(val: any) => [`₹${Number(val).toLocaleString()}`, 'Amount']}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            ) : (
-              <p className="text-xs text-[var(--color-text-muted)] text-center py-12">No expense entries recorded</p>
-            )}
+        <div className="space-y-6">
+          <CropProfitabilityCard financials={financials} cropName={crop.crop_name} />
 
-            <div className="space-y-2 mt-4">
-              {financials?.costBreakdown.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between text-xs py-1 border-b border-gray-100">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: item.color }} />
-                    <span className="font-medium text-[var(--color-text-primary)]">{item.category}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-bold text-[var(--color-text-primary)]">{formatCurrency(item.amount)}</span>
-                    <span className="text-[var(--color-text-muted)] w-10 text-right">{item.percentage}%</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-[var(--color-border-light)] p-6 shadow-xs flex flex-col justify-between">
-            <div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white rounded-2xl border border-[var(--color-border-light)] p-6 shadow-xs">
               <h3 className="text-base font-bold text-[var(--color-text-primary)] mb-4">
-                Profit & Loss Simulation
+                Cost Distribution by Category
               </h3>
-
-              <div className="space-y-4">
-                <div className="p-4 rounded-xl bg-[var(--color-surface-secondary)] border border-[var(--color-border-light)]">
-                  <span className="text-xs text-[var(--color-text-secondary)]">Total Input & Operating Investment</span>
-                  <p className="text-xl font-bold text-[var(--color-text-primary)] mt-1">
-                    {formatCurrency(financials?.totalCost || 0)}
-                  </p>
+              {financials?.costBreakdown && financials.costBreakdown.length > 0 ? (
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={financials.costBreakdown}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={55}
+                        outerRadius={85}
+                        paddingAngle={4}
+                        dataKey="amount"
+                        nameKey="category"
+                      >
+                        {financials.costBreakdown.map((entry, idx) => (
+                          <Cell key={`cell-${idx}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(val: any) => [`₹${Number(val).toLocaleString()}`, 'Amount']}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
+              ) : (
+                <p className="text-xs text-[var(--color-text-muted)] text-center py-12">No expense entries recorded</p>
+              )}
 
-                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-100">
-                  <span className="text-xs text-emerald-800">Gross Harvest Value (Target)</span>
-                  <p className="text-xl font-bold text-emerald-800 mt-1">
-                    {formatCurrency(financials?.estimatedRevenue || 0)}
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-xl gradient-primary text-white">
-                  <span className="text-xs text-white/80">Projected Farm Net Profit</span>
-                  <p className="text-2xl font-bold mt-1">
-                    {formatCurrency(financials?.estimatedProfit || 0)}
-                  </p>
-                  <p className="text-xs text-white/80 mt-1">
-                    ROI / Profit Margin: {financials?.profitMargin || 0}%
-                  </p>
-                </div>
+              <div className="space-y-2 mt-4">
+                {financials?.costBreakdown.map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between text-xs py-1 border-b border-gray-100">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: item.color }} />
+                      <span className="font-medium text-[var(--color-text-primary)]">{item.category}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-bold text-[var(--color-text-primary)]">{formatCurrency(item.amount)}</span>
+                      <span className="text-[var(--color-text-muted)] w-10 text-right">{item.percentage}%</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-[var(--color-border-light)] text-xs text-[var(--color-text-muted)]">
-              Calculations derived from live expense ledgers, input procurement receipts, and target harvest yield pricing.
+            <div className="bg-white rounded-2xl border border-[var(--color-border-light)] p-6 shadow-xs flex flex-col justify-between">
+              <div>
+                <h3 className="text-base font-bold text-[var(--color-text-primary)] mb-4">
+                  Profit & Loss Simulation
+                </h3>
+
+                <div className="space-y-4">
+                  <div className="p-4 rounded-xl bg-[var(--color-surface-secondary)] border border-[var(--color-border-light)]">
+                    <span className="text-xs text-[var(--color-text-secondary)]">Total Input & Operating Investment</span>
+                    <p className="text-xl font-bold text-[var(--color-text-primary)] mt-1">
+                      {formatCurrency(financials?.totalCost || 0)}
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-100">
+                    <span className="text-xs text-emerald-800">Gross Harvest Value (Target)</span>
+                    <p className="text-xl font-bold text-emerald-800 mt-1">
+                      {formatCurrency(financials?.estimatedRevenue || 0)}
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-xl gradient-primary text-white">
+                    <span className="text-xs text-white/80">Projected Farm Net Profit</span>
+                    <p className="text-2xl font-bold mt-1">
+                      {formatCurrency(financials?.estimatedProfit || 0)}
+                    </p>
+                    <p className="text-xs text-white/80 mt-1">
+                      ROI / Profit Margin: {financials?.profitMargin || 0}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-[var(--color-border-light)] text-xs text-[var(--color-text-muted)]">
+                Calculations derived from live expense ledgers, input procurement receipts, and target harvest yield pricing.
+              </div>
             </div>
           </div>
         </div>
@@ -469,41 +477,6 @@ export default function CropDetailPage() {
                     <td className="py-3 font-bold text-[var(--color-primary-700)]">{formatCurrency(inp.cost)}</td>
                     <td className="py-3 text-[var(--color-text-muted)]">{inp.used_date}</td>
                     <td className="py-3 text-[var(--color-text-secondary)]">{inp.supplier || '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 4: Irrigation */}
-      {activeTab === 'irrigation' && (
-        <div className="bg-white rounded-2xl border border-[var(--color-border-light)] p-6 shadow-xs">
-          <h3 className="text-base font-bold text-[var(--color-text-primary)] mb-4">
-            Water & Irrigation Records
-          </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="border-b border-[var(--color-border-light)] text-[var(--color-text-secondary)] uppercase">
-                <tr>
-                  <th className="pb-3 font-semibold">Date</th>
-                  <th className="pb-3 font-semibold">Source</th>
-                  <th className="pb-3 font-semibold">Method</th>
-                  <th className="pb-3 font-semibold">Duration</th>
-                  <th className="pb-3 font-semibold">Water Volume</th>
-                  <th className="pb-3 font-semibold">Cost</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--color-border-light)]">
-                {irrigationLogs.map(log => (
-                  <tr key={log.id} className="hover:bg-[var(--color-surface-secondary)]">
-                    <td className="py-3 font-medium text-[var(--color-text-primary)]">{log.irrigation_date}</td>
-                    <td className="py-3">{log.water_source}</td>
-                    <td className="py-3">{log.method || 'Flood'}</td>
-                    <td className="py-3">{log.duration_minutes} mins</td>
-                    <td className="py-3 font-bold">{log.water_quantity.toLocaleString()} {log.water_unit}</td>
-                    <td className="py-3 font-bold text-[var(--color-primary-700)]">₹{log.cost}</td>
                   </tr>
                 ))}
               </tbody>
