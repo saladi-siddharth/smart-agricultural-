@@ -92,17 +92,17 @@
         <!-- Microclimate Box -->
         <div style="background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: var(--radius-lg); padding: 1.25rem; max-width: 420px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-            <span style="font-size: 0.75rem; font-weight: 700; color: #A7F3D0;">☀️ FIELD SENSORS ONLINE</span>
+            <span style="font-size: 0.75rem; font-weight: 700; color: #A7F3D0;">☀️ FIELD SENSORS ONLINE (Machilipatnam)</span>
             <span class="font-mono" style="font-size: 0.625rem; color: #34D399; font-weight: 800;">16.1809° N, 81.1378° E</span>
           </div>
           <div style="display: flex; justify-content: space-between; align-items: baseline;">
-            <span class="tabular-nums font-mono" style="font-size: 2rem; font-weight: 800; color: #FFFFFF;">28°C</span>
-            <span style="font-size: 0.8125rem; color: #D1FAE5; font-weight: 600;">Sunny • Optimal Soil Vigor</span>
+            <span class="tabular-nums font-mono" id="login-weather-temp" style="font-size: 2rem; font-weight: 800; color: #FFFFFF;">31.5°C</span>
+            <span id="login-weather-desc" style="font-size: 0.8125rem; color: #D1FAE5; font-weight: 600;">Overcast • Optimal Soil Vigor</span>
           </div>
           <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #CBD5E1; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-            <span>💧 64% Humidity</span>
-            <span>💨 12 km/h Wind</span>
-            <span>🧪 pH 6.8 Loam</span>
+            <span id="login-weather-humidity">💧 63% Humidity</span>
+            <span id="login-weather-wind">💨 21.6 km/h Wind</span>
+            <span id="login-weather-precip">🌧️ 0mm Rain</span>
           </div>
         </div>
       </div>
@@ -276,10 +276,16 @@
   <script src="js/config.js"></script>
   <script src="js/supabase.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/weather.js"></script>
   <script>
     const GOOGLE_CLIENT_ID = '502673401378-6vieatqhs9cp0s9oo9ga5tpnb7rpkvng.apps.googleusercontent.com';
 
     document.addEventListener('DOMContentLoaded', () => {
+      // Update real-time weather telemetry
+      if (window.FarmPilotWeather) {
+        window.FarmPilotWeather.updateWidgets();
+      }
+
       // Check if already authenticated
       if (window.FarmPilotAuth.isAuthenticated()) {
         window.location.href = 'dashboard.html';

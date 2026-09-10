@@ -28,6 +28,10 @@ window.FarmPilotApp = {
     });
 
     this.updateHealthUI();
+
+    if (window.FarmPilotWeather) {
+      window.FarmPilotWeather.updateWidgets();
+    }
   },
 
   updateHealthUI(healthData) {
@@ -285,22 +289,22 @@ window.FarmPilotApp = {
         `).join('')}
 
         <!-- Microclimate Weather Telemetry Widget -->
-        <div class="weather-telemetry-card">
+        <div class="weather-telemetry-card" id="sidebar-weather-widget">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
             <span style="font-weight: 800; color: var(--color-forest); display: flex; align-items: center; gap: 0.35rem;">
-              ☀️ Field Microclimate
+              <span id="weather-icon">☀️</span> Field Microclimate
             </span>
-            <span class="font-mono" style="font-size: 0.5625rem; font-weight: 800; background: #FFFFFF; padding: 0.1rem 0.35rem; border-radius: 4px; color: #059669;">
+            <span class="font-mono" id="weather-status-badge" style="font-size: 0.5625rem; font-weight: 800; background: #FFFFFF; padding: 0.1rem 0.35rem; border-radius: 4px; color: #059669;">
               LIVE
             </span>
           </div>
           <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.4rem;">
-            <span class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary);">28°C</span>
-            <span style="font-size: 0.6875rem; font-weight: 700; color: var(--color-emerald-dark);">Sunny • Optimal</span>
+            <span class="tabular-nums font-mono" id="weather-temp" style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary);">31.5°C</span>
+            <span id="weather-desc" style="font-size: 0.6875rem; font-weight: 700; color: var(--color-emerald-dark);">Overcast • Optimal</span>
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; font-size: 0.625rem; color: var(--color-text-secondary); pt-1; border-top: 1px solid rgba(220, 252, 231, 0.8);">
-            <span>💧 64% Humid</span>
-            <span>💨 12 km/h WNW</span>
+            <span id="weather-humidity">💧 63% Humid</span>
+            <span id="weather-wind">💨 21.6 km/h NNW</span>
           </div>
         </div>
       </nav>
@@ -344,6 +348,10 @@ window.FarmPilotApp = {
         </div>
       </div>
     `;
+
+    if (window.FarmPilotWeather) {
+      window.FarmPilotWeather.updateWidgets();
+    }
   },
 
   async renderHeader() {

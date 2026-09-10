@@ -35,4 +35,11 @@ assert(authJs.includes('resetPassword'), 'resetPassword missing in auth');
 assert(authJs.includes('loginWithGoogle'), 'loginWithGoogle missing in auth');
 console.log('✓ js/auth.js authentication suite verification PASSED');
 
+// 5. js/weather.js & WeatherAPI key verification
+const weatherJs = fs.readFileSync('js/weather.js', 'utf8');
+assert(weatherJs.includes('60fa809504254064809123619261009'), 'WeatherAPI key missing in weather.js');
+assert(weatherJs.includes('getCurrentWeather') && weatherJs.includes('updateWidgets'), 'Weather methods missing');
+console.log('✓ js/weather.js WeatherAPI (60fa809504254064809123619261009) verification PASSED');
+
 console.log('🎉 ALL AUTOMATED VERIFICATION CHECKS PASSED!');
+

@@ -478,6 +478,25 @@ function buildOtpEmailHtml({ otp, email }) {
     return;
   }
 
+  // API Endpoint: Live Weather Microclimate Telemetry Proxy (WeatherAPI.com)
+  if (pathname === '/api/weather' && req.method === 'GET') {
+    const lat = parsedUrl.searchParams.get('lat') || '16.1809';
+    const lon = parsedUrl.searchParams.get('lon') || '81.1378';
+    const apiKey = process.env.WEATHER_API_KEY || env.WEATHER_API_KEY || '60fa809504254064809123619261009';
+
+    try {
+      const weatherRes = await fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&aqi=no`);
+      const weatherData = await weatherRes.json();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(weatherData));
+    } catch (e) {
+      console.error('Weather proxy error:', e);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
   // Static File Serving
   let filePath = path.join(__dirname, pathname === '/' ? 'index.html' : pathname);
 
