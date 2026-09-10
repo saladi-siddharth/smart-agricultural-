@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { ToastContainer, showToast } from '@/components/common/ToastNotification';
 import { CommandPaletteModal } from '@/components/common/CommandPaletteModal';
+import { motion } from 'framer-motion';
 
 interface NavGroup {
   label: string;
@@ -89,7 +90,7 @@ export default function AppLayout() {
   const pageTitle = currentNav?.label || 'Command Center';
 
   return (
-    <div className="flex h-screen bg-[var(--color-surface-canvas)] overflow-hidden">
+    <div className="flex h-screen bg-[#FBFBFA] overflow-hidden">
       {/* Mobile Drawer Overlay */}
       {sidebarOpen && (
         <div
@@ -102,25 +103,25 @@ export default function AppLayout() {
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50
-          bg-white border-r border-[var(--color-border-subtle)]
+          bg-white border-r border-[#E5E8EB]
           flex flex-col transition-all duration-200 ease-in-out
-          ${collapsed ? 'lg:w-[68px]' : 'lg:w-[256px]'}
-          ${sidebarOpen ? 'w-[256px] translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          ${collapsed ? 'lg:w-[72px]' : 'lg:w-[260px]'}
+          ${sidebarOpen ? 'w-[260px] translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         {/* Brand Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-[var(--color-border-subtle)]">
-          <NavLink to="/dashboard" className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-[var(--color-primary-800)] flex items-center justify-center text-white flex-shrink-0 shadow-xs">
-              <Sprout className="w-4 h-4" />
+        <div className="h-16 flex items-center justify-between px-4 border-b border-[#E5E8EB]">
+          <NavLink to="/dashboard" className="flex items-center gap-3 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-[#143D30] flex items-center justify-center text-white flex-shrink-0 shadow-xs">
+              <Sprout className="w-4 h-4 text-emerald-400" />
             </div>
             {(!collapsed || sidebarOpen) && (
               <div className="min-w-0">
-                <span className="text-sm font-bold text-[var(--color-text-title)] tracking-tight block truncate">
+                <span className="text-sm font-bold text-[#0F172A] tracking-tight block truncate">
                   FarmPilot
                 </span>
-                <span className="text-[10px] font-semibold text-[var(--color-primary-600)] tracking-wider uppercase block truncate">
-                  Precision OS
+                <span className="text-[10px] font-bold text-[#059669] tracking-wider uppercase block truncate">
+                  Agronomic OS
                 </span>
               </div>
             )}
@@ -135,11 +136,11 @@ export default function AppLayout() {
         </div>
 
         {/* Navigation Sections */}
-        <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-5">
+        <nav className="flex-1 overflow-y-auto py-5 px-3 space-y-6">
           {NAV_GROUPS.map(group => (
             <div key={group.label} className="space-y-1">
               {(!collapsed || sidebarOpen) && (
-                <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-faint)] mb-1">
+                <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-[#94A3B8] mb-1.5">
                   {group.label}
                 </p>
               )}
@@ -153,11 +154,11 @@ export default function AppLayout() {
                     onClick={() => setSidebarOpen(false)}
                     title={collapsed ? item.label : undefined}
                     className={({ isActive }) => `
-                      flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold
-                      transition-colors relative
+                      flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold
+                      transition-all relative
                       ${isActive
-                        ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-800)]'
-                        : 'text-[var(--color-text-muted)] hover:bg-slate-50 hover:text-[var(--color-text-title)]'
+                        ? 'bg-[#F0FDF4] text-[#143D30] font-bold shadow-xs'
+                        : 'text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
                       }
                       ${collapsed && !sidebarOpen ? 'justify-center px-2' : ''}
                     `}
@@ -168,10 +169,10 @@ export default function AppLayout() {
                     )}
 
                     {(!collapsed || sidebarOpen) && item.badge && (
-                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                         item.badge.includes('Overdue')
                           ? 'bg-red-50 text-red-700 border border-red-200'
-                          : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-[#DCFCE7] text-[#143D30]'
                       }`}>
                         {item.badge}
                       </span>
@@ -184,11 +185,11 @@ export default function AppLayout() {
         </nav>
 
         {/* Sidebar Footer & Collapse Toggle */}
-        <div className="border-t border-[var(--color-border-subtle)] p-2">
+        <div className="border-t border-[#E5E8EB] p-3 space-y-2">
           {/* Collapse Toggle for Desktop */}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="hidden lg:flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-[var(--color-text-muted)] hover:bg-slate-50 hover:text-[var(--color-text-title)] transition-colors mb-1"
+            className="hidden lg:flex w-full items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A] transition-colors"
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {collapsed ? (
@@ -205,37 +206,37 @@ export default function AppLayout() {
           <div className="relative">
             <button
               onClick={() => setProfileOpen(!profileOpen)}
-              className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-slate-50 transition-colors ${
+              className={`w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-[#F8FAFC] transition-colors ${
                 collapsed && !sidebarOpen ? 'justify-center' : ''
               }`}
             >
-              <div className="w-7 h-7 rounded-full bg-[var(--color-primary-100)] text-[var(--color-primary-800)] flex items-center justify-center text-xs font-bold flex-shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-[#F0FDF4] text-[#143D30] border border-[#DCFCE7] flex items-center justify-center text-xs font-bold flex-shrink-0">
                 {displayName.charAt(0).toUpperCase()}
               </div>
 
               {(!collapsed || sidebarOpen) && (
                 <>
                   <div className="flex-1 text-left min-w-0">
-                    <p className="text-xs font-semibold text-[var(--color-text-title)] truncate">{displayName}</p>
-                    <p className="text-[10px] text-[var(--color-text-faint)] truncate">{user?.email}</p>
+                    <p className="text-xs font-bold text-[#0F172A] truncate">{displayName}</p>
+                    <p className="text-[10px] text-[#94A3B8] truncate">{user?.email}</p>
                   </div>
-                  <ChevronDown className={`w-3.5 h-3.5 text-[var(--color-text-faint)] transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 text-[#94A3B8] transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
                 </>
               )}
             </button>
 
             {profileOpen && (
-              <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-[var(--color-border-subtle)] rounded-xl shadow-lg overflow-hidden animate-scale-in z-50">
-                <div className="p-3 border-b border-[var(--color-border-subtle)]">
-                  <p className="text-xs font-bold text-[var(--color-text-title)]">{displayName}</p>
-                  <p className="text-[11px] text-[var(--color-text-muted)] truncate">{user?.email}</p>
-                  <span className="mt-1.5 inline-block text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+              <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-[#E5E8EB] rounded-xl shadow-xl overflow-hidden animate-scale-in z-50">
+                <div className="p-3 border-b border-[#E5E8EB]">
+                  <p className="text-xs font-bold text-[#0F172A]">{displayName}</p>
+                  <p className="text-[11px] text-[#64748B] truncate">{user?.email}</p>
+                  <span className="mt-1.5 inline-block text-[10px] font-bold text-[#143D30] bg-[#F0FDF4] px-2 py-0.5 rounded border border-[#DCFCE7]">
                     Active Farm Manager
                   </span>
                 </div>
                 <button
                   onClick={handleSignOut}
-                  className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Sign out</span>
@@ -249,7 +250,7 @@ export default function AppLayout() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Stitch Top Command Header */}
-        <header className="h-16 bg-white border-b border-[var(--color-border-subtle)] flex items-center justify-between px-4 lg:px-8 flex-shrink-0">
+        <header className="h-16 bg-white/85 backdrop-blur-md border-b border-[#E5E8EB] flex items-center justify-between px-4 lg:px-8 flex-shrink-0 sticky top-0 z-30">
           {/* Left: Mobile Toggle & Breadcrumbs */}
           <div className="flex items-center gap-3 min-w-0">
             <button
@@ -260,37 +261,37 @@ export default function AppLayout() {
             </button>
 
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-[var(--color-text-muted)] font-medium">FarmPilot</span>
-              <span className="text-[var(--color-border-strong)]">/</span>
-              <span className="font-bold text-[var(--color-text-title)]">{pageTitle}</span>
+              <span className="text-[#64748B] font-medium">FarmPilot</span>
+              <span className="text-[#CBD5E1]">/</span>
+              <span className="font-bold text-[#0F172A]">{pageTitle}</span>
             </div>
           </div>
 
           {/* Center: Contextual Farm Switcher Pill */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--color-surface-muted)] border border-[var(--color-border-subtle)] text-xs">
+          <div className="hidden md:flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-[#F8FAFC] border border-[#E5E8EB] text-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-bold text-[var(--color-text-title)]">Green Valley Farm</span>
-            <span className="text-[11px] text-[var(--color-text-muted)]">25.0 Acres</span>
-            <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-100/60 px-1.5 py-0.2 rounded">Kharif 2026</span>
+            <span className="font-bold text-[#0F172A]">Green Valley Farm</span>
+            <span className="text-[11px] text-[#64748B]">25.0 Acres</span>
+            <span className="text-[10px] font-bold text-[#143D30] bg-[#DCFCE7] px-1.5 py-0.2 rounded">Kharif 2026</span>
           </div>
 
-          {/* Right Actions: Command Search, Notifications, Demo Reset */}
-          <div className="flex items-center gap-2">
+          {/* Right Actions: Command Search, Notifications */}
+          <div className="flex items-center gap-2.5">
             {/* Command Search Trigger */}
             <button
               onClick={() => setCommandPaletteOpen(true)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--color-border-subtle)] bg-slate-50 hover:bg-slate-100 text-xs text-[var(--color-text-muted)] transition-colors cursor-pointer"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#E5E8EB] bg-[#F8FAFC] hover:bg-[#F1F5F9] text-xs text-[#64748B] transition-colors cursor-pointer"
             >
-              <Search className="w-3.5 h-3.5 text-[var(--color-text-muted)]" />
+              <Search className="w-3.5 h-3.5 text-[#64748B]" />
               <span className="hidden sm:inline">Search commands</span>
-              <kbd className="hidden sm:inline px-1.5 py-0.2 bg-white border border-slate-200 rounded text-[10px] font-mono">⌘K</kbd>
+              <kbd className="hidden sm:inline px-1.5 py-0.2 bg-white border border-[#CBD5E1] rounded text-[10px] font-mono">⌘K</kbd>
             </button>
 
             {/* Notifications Popover */}
             <div className="relative">
               <button
                 onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className="p-2 rounded-lg text-[var(--color-text-muted)] hover:bg-slate-100 relative transition-colors cursor-pointer"
+                className="p-2 rounded-lg text-[#64748B] hover:bg-[#F8FAFC] relative transition-colors cursor-pointer"
                 title="Operational Notifications"
               >
                 <Bell className="w-4 h-4" />
@@ -298,10 +299,10 @@ export default function AppLayout() {
               </button>
 
               {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white border border-[var(--color-border-subtle)] rounded-xl shadow-xl p-3 z-50 animate-scale-in">
-                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-[var(--color-border-subtle)]">
-                    <span className="text-xs font-bold text-[var(--color-text-title)]">Alert Center</span>
-                    <span className="text-[10px] font-semibold text-red-700 bg-red-50 px-2 py-0.5 rounded-full border border-red-200">
+                <div className="absolute right-0 mt-2 w-80 bg-white border border-[#E5E8EB] rounded-xl shadow-xl p-3 z-50 animate-scale-in">
+                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#E5E8EB]">
+                    <span className="text-xs font-bold text-[#0F172A]">Alert Center</span>
+                    <span className="text-[10px] font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded-full border border-red-200">
                       1 Action Required
                     </span>
                   </div>
@@ -310,19 +311,19 @@ export default function AppLayout() {
                     <div className="p-2.5 rounded-lg bg-red-50/50 border border-red-100 text-xs">
                       <div className="flex items-center gap-1.5 text-red-800 font-bold mb-0.5">
                         <AlertTriangle className="w-3.5 h-3.5" />
-                        <span>Fertilizer Application Overdue</span>
+                        <span>Zinc Application Overdue</span>
                       </div>
                       <p className="text-[11px] text-red-700 leading-normal">
-                        Zinc Sulfate Spray is 2 days behind schedule in Field A.
+                        Zinc Sulfate Spray is 2 days behind schedule in Field Block A.
                       </p>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-emerald-50/50 border border-emerald-100 text-xs">
-                      <div className="flex items-center gap-1.5 text-emerald-800 font-bold mb-0.5">
+                    <div className="p-2.5 rounded-lg bg-[#F0FDF4] border border-[#DCFCE7] text-xs">
+                      <div className="flex items-center gap-1.5 text-[#143D30] font-bold mb-0.5">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         <span>Budget Health Optimal</span>
                       </div>
-                      <p className="text-[11px] text-emerald-700 leading-normal">
+                      <p className="text-[11px] text-[#166534] leading-normal">
                         Total spend is tracking 8% under Kharif season planned outlay.
                       </p>
                     </div>
@@ -335,7 +336,7 @@ export default function AppLayout() {
 
         {/* Viewport Canvas */}
         <main className="flex-1 overflow-y-auto">
-          <div className="p-4 lg:p-8 max-w-[1440px] mx-auto">
+          <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
             <Outlet />
           </div>
         </main>

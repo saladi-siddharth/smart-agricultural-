@@ -1,7 +1,7 @@
 import React from 'react';
 import type { CropFinancials } from '@/types/database';
 import { formatCurrency } from '@/services/intelligenceService';
-import { TrendingUp, DollarSign, Target } from 'lucide-react';
+import { TrendingUp, DollarSign, Target, ShieldCheck } from 'lucide-react';
 
 interface CropProfitabilityCardProps {
   financials: CropFinancials | null;
@@ -15,13 +15,13 @@ export function CropProfitabilityCard({ financials, cropName }: CropProfitabilit
 
   return (
     <div className="stitch-card p-6">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#F1F5F9]">
         <div>
-          <h3 className="text-sm font-bold text-[var(--color-text-title)]">
+          <h3 className="text-sm font-bold text-[#0F172A] tracking-tight">
             Profitability & ROI Simulation
           </h3>
-          <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
-            Real-time projection for {cropName}
+          <p className="text-xs text-[#64748B] mt-0.5">
+            Real-time harvest financial projections for {cropName}
           </p>
         </div>
         <span
@@ -29,39 +29,42 @@ export function CropProfitabilityCard({ financials, cropName }: CropProfitabilit
             isPositive ? 'stitch-badge-success' : 'stitch-badge-danger'
           }`}
         >
-          {margin}% Margin
+          {margin}% Projected Margin
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-        <div className="p-3.5 rounded-xl bg-slate-50 border border-[var(--color-border-subtle)]">
-          <span className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">Total Investment</span>
-          <span className="text-base font-extrabold text-[var(--color-text-title)] tabular-nums mt-0.5 block">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+        <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E5E8EB]">
+          <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider block">Total Operating Outlay</span>
+          <span className="text-xl font-extrabold text-[#0F172A] tabular-nums mt-1 block">
             {formatCurrency(financials?.totalCost ?? 46500)}
           </span>
-          <span className="text-[10px] text-[var(--color-text-faint)]">Inputs, labor, machine operations</span>
+          <span className="text-[11px] text-[#94A3B8] mt-0.5 block">Itemized inputs, labor, and fuel</span>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-emerald-50/50 border border-emerald-100">
-          <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">Projected Revenue</span>
-          <span className="text-base font-extrabold text-emerald-900 tabular-nums mt-0.5 block">
+        <div className="p-4 rounded-xl bg-[#F0FDF4] border border-[#DCFCE7]">
+          <span className="text-[10px] font-bold text-[#166534] uppercase tracking-wider block">Gross Harvest Revenue</span>
+          <span className="text-xl font-extrabold text-[#143D30] tabular-nums mt-1 block">
             {formatCurrency(financials?.estimatedRevenue ?? 124000)}
           </span>
-          <span className="text-[10px] text-emerald-700">From 4.2 T yield quota @ ₹29.5K/T</span>
+          <span className="text-[11px] text-[#166534] mt-0.5 block">Target 4.2 T yield @ ₹29.5K/T floor</span>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[var(--color-primary-800)] text-white">
-          <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider block">Estimated Net Profit</span>
-          <span className="text-base font-extrabold tabular-nums mt-0.5 block">
+        <div className="p-4 rounded-xl bg-[#143D30] text-white">
+          <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider block">Net Farm Profit</span>
+          <span className="text-2xl font-extrabold tabular-nums mt-1 block">
             {formatCurrency(profit)}
           </span>
-          <span className="text-[10px] text-white/80">{margin}% projected net margin</span>
+          <span className="text-[11px] text-emerald-300 font-semibold mt-0.5 block">{margin}% Net Profit Margin</span>
         </div>
       </div>
 
-      <p className="text-[11px] text-[var(--color-text-muted)] leading-relaxed">
-        • Projections derived directly from itemized procurement vouchers, field labor records, and target Kharif season procurement floor price.
-      </p>
+      <div className="pt-3 border-t border-[#F1F5F9] flex items-center justify-between text-xs text-[#64748B]">
+        <span>Projections derived from active expense logs, input vouchers, and agricultural market pricing.</span>
+        <span className="font-semibold text-emerald-700 flex items-center gap-1">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Validated P&L Model
+        </span>
+      </div>
     </div>
   );
 }

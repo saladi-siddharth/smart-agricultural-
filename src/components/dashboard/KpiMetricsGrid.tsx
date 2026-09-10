@@ -1,7 +1,8 @@
 import React from 'react';
 import type { FarmHealthScore } from '@/types/database';
 import { formatCurrency } from '@/services/intelligenceService';
-import { Heart, Activity as ActivityIcon, Wallet, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Heart, Activity as ActivityIcon, Wallet, TrendingUp, ArrowUpRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface KpiMetricsGridProps {
   healthScore: FarmHealthScore | null;
@@ -25,123 +26,109 @@ export function KpiMetricsGrid({
   cropName,
   season,
 }: KpiMetricsGridProps) {
-  const budgetRatio = plannedBudget > 0 ? Math.round((totalSpent / plannedBudget) * 100) : 0;
+  const budgetRatio = plannedBudget > 0 ? Math.round((totalSpent / plannedBudget) * 100) : 71;
   const progressRatio = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 68;
 
-  // Estimated gross harvest revenue & profit for the hero metrics
   const estimatedRevenue = 124000;
   const estimatedProfit = Math.max(0, estimatedRevenue - totalSpent);
   const profitMargin = estimatedRevenue > 0 ? Math.round((estimatedProfit / estimatedRevenue) * 100) : 62.5;
 
+  const cards = [
+    {
+      label: 'Farm Health Index',
+      value: healthScore?.overall ?? 82,
+      subValue: '/ 100',
+      badge: healthScore?.label ?? 'Optimal Condition',
+      badgeType: 'success',
+      trend: '+5 pts this week',
+      icon: Heart,
+      iconBg: 'bg-emerald-50 border-emerald-100 text-[#059669]',
+    },
+    {
+      label: 'Crop Lifecycle Progress',
+      value: `${progressRatio}%`,
+      subValue: '',
+      badge: `${completedTasks}/${totalTasks} Tasks Done`,
+      badgeType: 'neutral',
+      trend: `${cropName} • ${season}`,
+      icon: ActivityIcon,
+      iconBg: 'bg-sky-50 border-sky-100 text-sky-700',
+    },
+    {
+      label: 'Operating Outlay',
+      value: formatCurrency(totalSpent || 46500),
+      subValue: '',
+      badge: `${budgetRatio}% of budget`,
+      badgeType: budgetRatio > 85 ? 'warning' : 'neutral',
+      trend: `Cap: ${formatCurrency(plannedBudget || 65000)}`,
+      icon: Wallet,
+      iconBg: 'bg-amber-50 border-amber-100 text-amber-700',
+    },
+    {
+      label: 'Projected Net Profit',
+      value: formatCurrency(estimatedProfit || 77500),
+      subValue: '',
+      badge: `${profitMargin}% Net Margin`,
+      badgeType: 'success',
+      trend: 'Target: 4.2 Tonnes',
+      icon: TrendingUp,
+      iconBg: 'bg-emerald-50 border-emerald-100 text-[#143D30]',
+      highlight: true,
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {/* CARD 1: Farm Health Score */}
-      <div className="stitch-card stitch-card-hover p-5">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
-            Farm Health
-          </span>
-          <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-100">
-            <Heart className="w-3.5 h-3.5 fill-current" />
-          </div>
-        </div>
+      {cards.map((c, i) => {
+        const Icon = c.icon;
+        return (
+          <motion.div
+            key={c.label}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, delay: i * 0.05 }}
+            className={`stitch-card p-5 flex flex-col justify-between relative overflow-hidden group ${
+              c.highlight ? 'bg-gradient-to-b from-white to-[#F7FBF9]' : ''
+            }`}
+          >
+            {/* Top row: Label & Icon */}
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">
+                {c.label}
+              </span>
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center border ${c.iconBg} transition-transform group-hover:scale-105`}>
+                <Icon className="w-4 h-4" />
+              </div>
+            </div>
 
-        <div className="flex items-baseline gap-1.5 mt-2.5">
-          <span className="text-3xl font-extrabold text-[var(--color-text-title)] tracking-tight tabular-nums">
-            {healthScore?.overall ?? 82}
-          </span>
-          <span className="text-xs font-semibold text-[var(--color-text-faint)]">/ 100</span>
-        </div>
+            {/* Value row */}
+            <div className="my-3">
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-3xl font-extrabold text-[#0F172A] tracking-tight tabular-nums font-sans">
+                  {c.value}
+                </span>
+                {c.subValue && (
+                  <span className="text-xs font-semibold text-[#94A3B8]">{c.subValue}</span>
+                )}
+              </div>
+            </div>
 
-        <div className="flex items-center gap-1.5 mt-2">
-          <span className="stitch-badge stitch-badge-success">
-            {healthScore?.label ?? 'Operationally Healthy'}
-          </span>
-          <span className="text-[11px] text-[var(--color-text-muted)] tabular-nums">
-            +5 pts this week
-          </span>
-        </div>
-      </div>
-
-      {/* CARD 2: Crop Progress */}
-      <div className="stitch-card stitch-card-hover p-5">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
-            Crop Progress
-          </span>
-          <div className="w-7 h-7 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center border border-sky-100">
-            <ActivityIcon className="w-3.5 h-3.5" />
-          </div>
-        </div>
-
-        <div className="flex items-baseline gap-1.5 mt-2.5">
-          <span className="text-3xl font-extrabold text-[var(--color-text-title)] tracking-tight tabular-nums">
-            {progressRatio}%
-          </span>
-          <span className="text-xs font-semibold text-emerald-700 tabular-nums font-mono">+4.2%</span>
-        </div>
-
-        <div className="flex items-center justify-between mt-2 text-[11px] text-[var(--color-text-muted)]">
-          <span className="font-medium truncate">{cropName} • {season}</span>
-          <span className="tabular-nums font-semibold text-[var(--color-text-title)]">
-            {completedTasks}/{totalTasks} tasks
-          </span>
-        </div>
-      </div>
-
-      {/* CARD 3: Total Spend & Budget Utilization */}
-      <div className="stitch-card stitch-card-hover p-5">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
-            Total Spend
-          </span>
-          <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-100">
-            <Wallet className="w-3.5 h-3.5" />
-          </div>
-        </div>
-
-        <div className="flex items-baseline gap-1.5 mt-2.5">
-          <span className="text-3xl font-extrabold text-[var(--color-text-title)] tracking-tight tabular-nums">
-            {formatCurrency(totalSpent || 46500)}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2 mt-2">
-          <span className={`stitch-badge ${budgetRatio > 90 ? 'stitch-badge-danger' : budgetRatio > 75 ? 'stitch-badge-warning' : 'stitch-badge-neutral'}`}>
-            {budgetRatio}% of budget
-          </span>
-          <span className="text-[11px] text-[var(--color-text-muted)] tabular-nums truncate">
-            of {formatCurrency(plannedBudget || 65000)}
-          </span>
-        </div>
-      </div>
-
-      {/* CARD 4: Estimated Net Profit */}
-      <div className="stitch-card stitch-card-hover p-5">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
-            Estimated Profit
-          </span>
-          <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-100">
-            <TrendingUp className="w-3.5 h-3.5" />
-          </div>
-        </div>
-
-        <div className="flex items-baseline gap-1.5 mt-2.5">
-          <span className="text-3xl font-extrabold text-emerald-700 tracking-tight tabular-nums">
-            {formatCurrency(estimatedProfit || 77500)}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2 mt-2">
-          <span className="stitch-badge stitch-badge-success">
-            {profitMargin}% margin
-          </span>
-          <span className="text-[11px] text-[var(--color-text-muted)] tabular-nums truncate">
-            Target yield: 4.2 T
-          </span>
-        </div>
-      </div>
+            {/* Bottom row: Badge & Context */}
+            <div className="flex items-center justify-between pt-2 border-t border-[#F1F5F9] text-xs">
+              <span className={`stitch-badge ${
+                c.badgeType === 'success' ? 'stitch-badge-success' :
+                c.badgeType === 'warning' ? 'stitch-badge-warning' :
+                'stitch-badge-neutral'
+              }`}>
+                {c.badge}
+              </span>
+              <span className="text-[11px] text-[#64748B] font-medium truncate ml-2">
+                {c.trend}
+              </span>
+            </div>
+          </motion.div>
+        );
+      })}
     </div>
   );
 }

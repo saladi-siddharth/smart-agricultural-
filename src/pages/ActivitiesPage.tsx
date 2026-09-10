@@ -7,10 +7,11 @@ import type { Activity, ActivityInsert, Farm, CropCycle, Field } from '@/types/d
 import { ACTIVITY_TYPE_LABELS } from '@/types/database';
 import {
   Plus, ClipboardList, CheckCircle2, Clock, AlertTriangle,
-  X, Loader2, Calendar, Trash2, Check, Search
+  X, Loader2, Calendar, Trash2, Check, Search, Filter
 } from 'lucide-react';
-import { showToast } from '@/components/common/ToastNotification';
+import { showToast, triggerConfetti } from '@/components/common/ToastNotification';
 import { SlideOverDrawer } from '@/components/common/SlideOverDrawer';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type FilterStatus = 'ALL' | 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'OVERDUE';
 
@@ -60,6 +61,7 @@ export default function ActivitiesPage() {
       }
     } catch (err) {
       console.error(err);
+      showToast.error('Failed to load activities');
     } finally {
       setLoading(false);
     }
@@ -99,11 +101,13 @@ export default function ActivitiesPage() {
         notes: '',
       };
       await activityService.create(payload);
-      showToast.success('Operation Created', `"${title.trim()}" scheduled for ${plannedDate}.`);
+      showToast.success('Operation Created', `"${title.trim()}" scheduled.`);
       resetForm();
       await loadData();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to save');
+      const msg = err instanceof Error ? err.message : 'Failed to save';
+      setError(msg);
+      showToast.error(msg);
     } finally {
       setSaving(false);
     }
@@ -113,7 +117,8 @@ export default function ActivitiesPage() {
     setCompletingId(id);
     try {
       await activityService.complete(id);
-      showToast.success('Operation Completed', `"${actTitle}" resolved. Farm Health index updated!`);
+      triggerConfetti();
+      showToast.success('Operation Completed', `"${actTitle}" marked as complete!`);
       if (selectedActivity?.id === id) {
         setSelectedActivity(null);
       }
@@ -130,13 +135,14 @@ export default function ActivitiesPage() {
     if (!confirm('Are you sure you want to delete this activity?')) return;
     try {
       await activityService.delete(id);
-      showToast.info('Operation Deleted', 'Activity removed from queue.');
+      showToast.info('Operation Deleted', 'Activity removed.');
       if (selectedActivity?.id === id) {
         setSelectedActivity(null);
       }
       await loadData();
     } catch (err) {
       console.error(err);
+      showToast.error('Failed to delete activity');
     }
   };
 
@@ -175,8 +181,8 @@ export default function ActivitiesPage() {
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="h-8 w-48 bg-slate-200 animate-pulse rounded-lg" />
-        {[1, 2, 3, 4].map(i => <div key={i} className="h-16 rounded-xl bg-slate-100 animate-pulse" />)}
+        <div className="h-8 w-48 bg-[#E2E8F0] animate-pulse rounded-lg" />
+        {[1, 2, 3, 4].map(i => <div key={i} className="h-16 rounded-xl bg-white border border-[#E5E8EB] animate-pulse" />)}
       </div>
     );
   }
@@ -184,22 +190,26 @@ export default function ActivitiesPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E5E8EB]">
         <div>
-          <h1 className="text-xl font-bold text-[var(--color-text-title)]">Field Operations Ledger</h1>
-          <p className="text-xs text-[var(--color-text-muted)] mt-0.5">Track, schedule, and complete agricultural activities</p>
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#143D30] uppercase tracking-wider mb-1">
+            <ClipboardList className="w-3.5 h-3.5" />
+            <span>Operational Log</span>
+          </div>
+          <h1 className="text-2xl font-bold text-[#0F172A] tracking-tight">Field Operations Ledger</h1>
+          <p className="text-xs text-[#64748B] mt-0.5">Track, schedule, and complete agricultural activities with full audit trail</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
-          className="stitch-btn-primary px-4 py-2 text-xs gap-1.5 self-start sm:self-auto cursor-pointer"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#143D30] hover:bg-[#1A4D3E] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-3.5 h-3.5" />
           <span>New Operation</span>
         </button>
       </div>
 
       {/* Filter Tabs & Search Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex gap-1.5 flex-wrap">
           {([
             ['ALL', `All (${counts.all})`],
@@ -210,10 +220,10 @@ export default function ActivitiesPage() {
             <button
               key={key}
               onClick={() => setFilter(key)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 filter === key
-                  ? key === 'OVERDUE' ? 'bg-red-600 text-white' : 'bg-[var(--color-primary-800)] text-white'
-                  : 'bg-white border border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:text-[var(--color-text-title)]'
+                  ? key === 'OVERDUE' ? 'bg-red-600 text-white shadow-xs' : 'bg-[#143D30] text-white shadow-xs'
+                  : 'bg-white border border-[#E5E8EB] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
               }`}
             >
               {label}
@@ -222,14 +232,14 @@ export default function ActivitiesPage() {
         </div>
 
         {/* Search */}
-        <div className="relative w-full sm:w-64">
-          <Search className="w-3.5 h-3.5 text-[var(--color-text-faint)] absolute left-3 top-1/2 transform -translate-y-1/2" />
+        <div className="relative w-full sm:w-72">
+          <Search className="w-3.5 h-3.5 text-[#94A3B8] absolute left-3 top-1/2 transform -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Search operations..."
-            className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-[var(--color-border-subtle)] rounded-lg outline-none focus:border-[var(--color-primary-600)] text-[var(--color-text-title)]"
+            placeholder="Search operations, crops..."
+            className="w-full pl-9 pr-3 py-2 text-xs bg-white border border-[#E5E8EB] rounded-lg outline-none focus:border-[#143D30] focus:ring-1 focus:ring-[#143D30] text-[#0F172A] placeholder-[#94A3B8] transition-colors"
           />
         </div>
       </div>
@@ -237,92 +247,99 @@ export default function ActivitiesPage() {
       {/* Activity List */}
       {filtered.length === 0 ? (
         <div className="stitch-card p-12 text-center">
-          <ClipboardList className="w-10 h-10 mx-auto mb-2 text-[var(--color-text-faint)]" />
-          <p className="text-xs font-semibold text-[var(--color-text-title)]">No operations matching criteria</p>
-          <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">Try clearing your search query or filter selection.</p>
+          <ClipboardList className="w-10 h-10 mx-auto mb-2 text-[#94A3B8]" />
+          <p className="text-sm font-bold text-[#0F172A]">No operations matching criteria</p>
+          <p className="text-xs text-[#64748B] mt-1">Try clearing your search query or switching tabs.</p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {filtered.map(activity => {
-            const isCompleted = activity.computedStatus === 'COMPLETED';
-            const isOverdue = activity.isOverdue;
-            const isCompleting = completingId === activity.id;
+        <div className="space-y-3">
+          <AnimatePresence mode="popLayout">
+            {filtered.map(activity => {
+              const isCompleted = activity.computedStatus === 'COMPLETED';
+              const isOverdue = activity.isOverdue;
+              const isCompleting = completingId === activity.id;
 
-            return (
-              <div
-                key={activity.id}
-                onClick={() => setSelectedActivity(activity)}
-                className={`stitch-card p-3.5 flex items-center justify-between gap-4 cursor-pointer hover:border-slate-300 transition-all ${
-                  isOverdue ? 'border-red-200 bg-red-50/10' : ''
-                }`}
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                    isCompleted ? 'bg-emerald-50 text-emerald-700' :
-                    isOverdue ? 'bg-red-50 text-red-700' :
-                    'bg-slate-100 text-slate-600'
-                  }`}>
-                    {isCompleted ? <CheckCircle2 className="w-4 h-4" /> :
-                     isOverdue ? <AlertTriangle className="w-4 h-4" /> :
-                     <Clock className="w-4 h-4" />}
-                  </div>
-
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <p className={`text-xs font-bold truncate ${
-                        isCompleted ? 'line-through text-[var(--color-text-faint)]' : 'text-[var(--color-text-title)]'
-                      }`}>
-                        {activity.title}
-                      </p>
-
-                      <span className={`stitch-badge ${
-                        isOverdue ? 'stitch-badge-danger' :
-                        isCompleted ? 'stitch-badge-success' :
-                        'stitch-badge-warning'
-                      }`}>
-                        {isOverdue ? 'Overdue' : activity.status}
-                      </span>
-
-                      <span className="text-[10px] text-[var(--color-text-faint)] font-mono">
-                        {ACTIVITY_TYPE_LABELS[activity.activity_type] || activity.activity_type}
-                      </span>
+              return (
+                <motion.div
+                  key={activity.id}
+                  layout
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.18 }}
+                  onClick={() => setSelectedActivity(activity)}
+                  className={`stitch-card p-4 flex items-center justify-between gap-4 cursor-pointer hover:border-[#CBD5E1] transition-all group ${
+                    isOverdue ? 'border-red-200 bg-red-50/20' : ''
+                  }`}
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                      isCompleted ? 'bg-[#F0FDF4] text-[#143D30] border border-[#DCFCE7]' :
+                      isOverdue ? 'bg-red-50 text-red-700 border border-red-200' :
+                      'bg-[#F8FAFC] text-[#64748B] border border-[#E5E8EB]'
+                    }`}>
+                      {isCompleted ? <CheckCircle2 className="w-4 h-4" /> :
+                       isOverdue ? <AlertTriangle className="w-4 h-4" /> :
+                       <Clock className="w-4 h-4" />}
                     </div>
 
-                    <div className="flex items-center gap-3 text-[11px] text-[var(--color-text-muted)]">
-                      <span className="flex items-center gap-1 font-mono">
-                        <Calendar className="w-3 h-3 text-[var(--color-text-faint)]" />
-                        Planned: {activity.planned_date}
-                      </span>
-                      {activity.crop_cycle && (
-                        <span>• {(activity.crop_cycle as any).crop_name}</span>
-                      )}
-                      <span>• Est: ₹{activity.estimated_cost}</span>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <p className={`text-xs font-bold truncate group-hover:text-[#143D30] transition-colors ${
+                          isCompleted ? 'line-through text-[#94A3B8]' : 'text-[#0F172A]'
+                        }`}>
+                          {activity.title}
+                        </p>
+
+                        <span className={`stitch-badge ${
+                          isOverdue ? 'stitch-badge-danger' :
+                          isCompleted ? 'stitch-badge-success' :
+                          'stitch-badge-warning'
+                        }`}>
+                          {isOverdue ? 'Overdue' : activity.status}
+                        </span>
+
+                        <span className="text-[10px] text-[#94A3B8] font-mono uppercase">
+                          {ACTIVITY_TYPE_LABELS[activity.activity_type] || activity.activity_type}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-3 text-xs text-[#64748B] flex-wrap">
+                        <span className="flex items-center gap-1 font-mono text-[11px]">
+                          <Calendar className="w-3.5 h-3.5 text-[#94A3B8]" />
+                          Planned: {activity.planned_date}
+                        </span>
+                        {activity.crop_cycle && (
+                          <span>• {(activity.crop_cycle as any).crop_name}</span>
+                        )}
+                        <span className="tabular-nums">• Est: ₹{activity.estimated_cost}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                  {!isCompleted && (
+                  <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                    {!isCompleted && (
+                      <button
+                        onClick={() => handleComplete(activity.id, activity.title)}
+                        disabled={isCompleting}
+                        className="stitch-btn-primary px-3 py-1.5 text-xs gap-1 cursor-pointer disabled:opacity-50"
+                      >
+                        {isCompleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                        <span>Complete</span>
+                      </button>
+                    )}
                     <button
-                      onClick={() => handleComplete(activity.id, activity.title)}
-                      disabled={isCompleting}
-                      className="stitch-btn-primary px-3 py-1 text-xs gap-1 cursor-pointer disabled:opacity-50"
+                      onClick={() => handleDelete(activity.id)}
+                      className="p-1.5 rounded-lg text-[#94A3B8] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                      title="Delete activity"
                     >
-                      {isCompleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
-                      <span>Complete</span>
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
-                  )}
-                  <button
-                    onClick={() => handleDelete(activity.id)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                    title="Delete activity"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </div>
       )}
 
@@ -335,40 +352,40 @@ export default function ActivitiesPage() {
       >
         {selectedActivity && (
           <div className="space-y-4">
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-[var(--color-border-subtle)] space-y-2 text-xs">
+            <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E5E8EB] space-y-2.5 text-xs">
               <div className="flex justify-between">
-                <span className="text-[var(--color-text-muted)]">Status:</span>
-                <span className="font-bold">{selectedActivity.status}</span>
+                <span className="text-[#64748B]">Status:</span>
+                <span className="font-bold text-[#0F172A]">{selectedActivity.status}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--color-text-muted)]">Activity Type:</span>
-                <span className="font-semibold">{selectedActivity.activity_type.replace('_', ' ')}</span>
+                <span className="text-[#64748B]">Activity Type:</span>
+                <span className="font-semibold text-[#0F172A]">{selectedActivity.activity_type.replace('_', ' ')}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--color-text-muted)]">Priority:</span>
-                <span className="font-semibold">{selectedActivity.priority}</span>
+                <span className="text-[#64748B]">Priority:</span>
+                <span className="font-semibold text-[#0F172A]">{selectedActivity.priority}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--color-text-muted)]">Planned Date:</span>
-                <span className="font-mono">{selectedActivity.planned_date}</span>
+                <span className="text-[#64748B]">Planned Date:</span>
+                <span className="font-mono text-[#0F172A]">{selectedActivity.planned_date}</span>
               </div>
               {selectedActivity.completed_date && (
                 <div className="flex justify-between">
-                  <span className="text-[var(--color-text-muted)]">Completed Date:</span>
-                  <span className="font-mono text-emerald-700">{selectedActivity.completed_date}</span>
+                  <span className="text-[#64748B]">Completed Date:</span>
+                  <span className="font-mono text-emerald-700 font-bold">{selectedActivity.completed_date}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-[var(--color-text-muted)]">Estimated Cost:</span>
-                <span className="font-mono font-bold">₹{selectedActivity.estimated_cost}</span>
+                <span className="text-[#64748B]">Estimated Cost:</span>
+                <span className="font-mono font-bold text-[#0F172A]">₹{selectedActivity.estimated_cost}</span>
               </div>
             </div>
 
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block mb-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B] block mb-1">
                 Operation Notes & Description
               </span>
-              <p className="text-xs text-[var(--color-text-title)] leading-relaxed p-3 bg-white border border-[var(--color-border-subtle)] rounded-xl">
+              <p className="text-xs text-[#0F172A] leading-relaxed p-3.5 bg-white border border-[#E5E8EB] rounded-xl">
                 {selectedActivity.description || 'No specialized agronomic notes provided for this task.'}
               </p>
             </div>
@@ -389,41 +406,41 @@ export default function ActivitiesPage() {
 
       {/* Creation Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30 backdrop-blur-xs animate-fade-in">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-[var(--color-border-subtle)] animate-scale-in">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[var(--color-border-subtle)]">
-              <h2 className="text-sm font-bold text-[var(--color-text-title)]">Schedule Field Operation</h2>
-              <button onClick={resetForm} className="p-1 rounded text-slate-400 hover:text-slate-600">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fade-in" onClick={() => setShowForm(false)}>
+          <div className="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl border border-[#E5E8EB] animate-scale-in" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#E5E8EB]">
+              <h2 className="text-sm font-bold text-[#0F172A]">Schedule Field Operation</h2>
+              <button onClick={resetForm} className="p-1 rounded text-[#94A3B8] hover:text-[#0F172A]">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {error && (
-              <div className="p-2.5 rounded-lg bg-red-50 text-red-700 text-xs mb-3">
+              <div className="p-2.5 rounded-lg bg-red-50 text-red-700 text-xs mb-3 font-medium">
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
+            <form onSubmit={handleSubmit} className="space-y-3 text-xs">
               <div>
-                <label className="block font-medium text-[var(--color-text-title)] mb-1">Operation Title *</label>
+                <label className="block font-semibold text-[#334155] mb-1">Operation Title *</label>
                 <input
                   type="text"
                   required
                   value={title}
                   onChange={e => setTitle(e.target.value)}
                   placeholder="e.g. Zinc Sulfate Foliar Application"
-                  className="w-full px-3 py-2 border border-[var(--color-border-subtle)] rounded-lg outline-none focus:border-[var(--color-primary-600)]"
+                  className="w-full px-3 py-2 border border-[#CBD5E1] bg-[#F8FAFC] rounded-lg outline-none focus:bg-white focus:ring-1 focus:ring-[#143D30]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-medium text-[var(--color-text-title)] mb-1">Operation Type</label>
+                  <label className="block font-semibold text-[#334155] mb-1">Operation Type</label>
                   <select
                     value={activityType}
                     onChange={e => setActivityType(e.target.value)}
-                    className="w-full px-3 py-2 border border-[var(--color-border-subtle)] rounded-lg outline-none bg-white"
+                    className="w-full px-3 py-2 border border-[#CBD5E1] bg-[#F8FAFC] rounded-lg outline-none focus:bg-white focus:ring-1 focus:ring-[#143D30]"
                   >
                     <option value="LAND_PREPARATION">Land Preparation</option>
                     <option value="SOWING">Sowing / Planting</option>
@@ -437,11 +454,11 @@ export default function ActivitiesPage() {
                 </div>
 
                 <div>
-                  <label className="block font-medium text-[var(--color-text-title)] mb-1">Priority</label>
+                  <label className="block font-semibold text-[#334155] mb-1">Priority</label>
                   <select
                     value={priority}
                     onChange={e => setPriority(e.target.value)}
-                    className="w-full px-3 py-2 border border-[var(--color-border-subtle)] rounded-lg outline-none bg-white"
+                    className="w-full px-3 py-2 border border-[#CBD5E1] bg-[#F8FAFC] rounded-lg outline-none focus:bg-white focus:ring-1 focus:ring-[#143D30]"
                   >
                     <option value="LOW">Low</option>
                     <option value="MEDIUM">Medium</option>
@@ -453,51 +470,51 @@ export default function ActivitiesPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-medium text-[var(--color-text-title)] mb-1">Planned Date *</label>
+                  <label className="block font-semibold text-[#334155] mb-1">Planned Date *</label>
                   <input
                     type="date"
                     required
                     value={plannedDate}
                     onChange={e => setPlannedDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-[var(--color-border-subtle)] rounded-lg outline-none bg-white font-mono"
+                    className="w-full px-3 py-2 border border-[#CBD5E1] bg-[#F8FAFC] rounded-lg outline-none focus:bg-white font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-medium text-[var(--color-text-title)] mb-1">Estimated Cost (₹)</label>
+                  <label className="block font-semibold text-[#334155] mb-1">Estimated Cost (₹)</label>
                   <input
                     type="number"
                     value={estimatedCost}
                     onChange={e => setEstimatedCost(e.target.value)}
                     placeholder="e.g. 2500"
-                    className="w-full px-3 py-2 border border-[var(--color-border-subtle)] rounded-lg outline-none font-mono"
+                    className="w-full px-3 py-2 border border-[#CBD5E1] bg-[#F8FAFC] rounded-lg outline-none focus:bg-white font-mono"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-medium text-[var(--color-text-title)] mb-1">Description & Agronomic Notes</label>
+                <label className="block font-semibold text-[#334155] mb-1">Description & Agronomic Notes</label>
                 <textarea
                   rows={3}
                   value={description}
                   onChange={e => setDescription(e.target.value)}
                   placeholder="Specific dosage, targeted plot area, labor allocated..."
-                  className="w-full px-3 py-2 border border-[var(--color-border-subtle)] rounded-lg outline-none"
+                  className="w-full px-3 py-2 border border-[#CBD5E1] bg-[#F8FAFC] rounded-lg outline-none focus:bg-white resize-none"
                 />
               </div>
 
-              <div className="pt-2 flex justify-end gap-2">
+              <div className="pt-2 flex justify-end gap-2.5 border-t border-[#E5E8EB]">
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="stitch-btn-secondary px-3 py-2 text-xs cursor-pointer"
+                  className="px-3 py-2 border border-[#CBD5E1] rounded-lg text-xs font-medium text-[#475569] hover:bg-[#F1F5F9]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="stitch-btn-primary px-4 py-2 text-xs cursor-pointer disabled:opacity-50"
+                  className="stitch-btn-primary px-4 py-2 text-xs"
                 >
                   {saving ? 'Scheduling...' : 'Schedule Operation'}
                 </button>
