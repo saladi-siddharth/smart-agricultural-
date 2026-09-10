@@ -5,15 +5,20 @@
   "type": "module",
   "description": "FarmPilot — Precision Agronomic Operating System built with pure HTML5, CSS3, and JavaScript connected to Supabase backend",
   "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview",
     "start": "node server.js",
-    "dev": "node server.js",
-    "serve": "npx serve -l 5173 .",
+    "serve": "node server.js",
+    "migrate": "node scripts/migrate.js",
+    "seed": "node scripts/seed.js",
     "test": "node -e \"console.log('All static pages and assets ready')\""
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0"
   },
   "devDependencies": {
-    "serve": "^14.2.4"
+    "serve": "^14.2.4",
+    "vite": "^8.2.2"
   }
 }
