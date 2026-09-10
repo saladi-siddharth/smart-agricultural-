@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmPilot — Financial Outlay & Expenses</title>
+  <meta name="description" content="Financial outlay tracking, Kharif budget monitoring, and operational expense ledger.">
+  
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <div class="app-layout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="app-content">
+        <div class="app-content-inner animate-fade-in">
+          
+          <!-- Header Bar -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);">
+            <div>
+              <span class="badge badge-success" style="margin-bottom: 0.35rem;">Financial Accounting</span>
+              <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--color-text-primary);">
+                Expenses & Budget Ledger
+              </h1>
+              <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                Audit seasonal budget allocations, categorize input expenditures, and monitor operational burn rate
+              </p>
+            </div>
+
+            <button onclick="document.getElementById('add-expense-modal').classList.add('active')" class="btn btn-primary btn-sm">
+              <span>+ Record New Expense</span>
+            </button>
+          </div>
+
+          <!-- Kharif Budget Progress Card -->
+          <div class="card" style="border-top: 4px solid var(--color-forest);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.75rem;">
+              <div>
+                <h3 style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary);">Kharif 2026 Season Budget Utilization</h3>
+                <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.2rem;">
+                  Total Outlay Target: ₹50,000.00 • Active Cycle: Paddy BPT-5204 (10.0 Acres)
+                </p>
+              </div>
+
+              <div style="text-align: right;">
+                <span class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-forest);">
+                  ₹18,500 <span style="font-size: 0.875rem; color: var(--color-text-tertiary);">/ ₹50,000</span>
+                </span>
+                <span class="badge badge-success" style="margin-left: 0.5rem;">37% Utilized</span>
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div style="height: 10px; background-color: var(--color-surface-tertiary); border-radius: var(--radius-full); overflow: hidden; margin: 1rem 0 0.5rem;">
+              <div style="width: 37%; height: 100%; background: linear-gradient(90deg, #059669 0%, #10B981 100%); border-radius: var(--radius-full);"></div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-secondary);">
+              <span>₹18,500 Expended (Optimal Pace)</span>
+              <strong style="color: var(--color-emerald-dark);">₹31,500 Buffer Remaining for Grain Filling & Harvest</strong>
+            </div>
+          </div>
+
+          <!-- Expense Category Ribbon -->
+          <section class="kpi-grid">
+            <div class="kpi-card">
+              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Fertilizers</span>
+              <p class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0;">₹8,100</p>
+              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">44% of total spend</span>
+            </div>
+
+            <div class="kpi-card">
+              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Transplanting Labor</span>
+              <p class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0;">₹5,600</p>
+              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">30% of total spend</span>
+            </div>
+
+            <div class="kpi-card">
+              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Certified Seed</span>
+              <p class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0;">₹3,600</p>
+              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">19% of total spend</span>
+            </div>
+
+            <div class="kpi-card">
+              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Crop Protection</span>
+              <p class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0;">₹1,200</p>
+              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">7% of total spend</span>
+            </div>
+          </section>
+
+          <!-- Expense Table Card -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 style="font-size: 1rem; font-weight: 800;">Itemized Operational Financial Ledger</h3>
+                <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.2rem;">
+                  Receipts, chemical disbursements, and field contractor wage logs
+                </p>
+              </div>
+            </div>
+
+            <div class="data-table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Description & Particulars</th>
+                    <th>Category</th>
+                    <th>Amount (₹)</th>
+                    <th>Date Disbursed</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="expenses-table-body">
+                  <!-- Injected by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add Expense Modal -->
+  <div class="modal-overlay" id="add-expense-modal">
+    <div class="modal-content">
+      <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="font-size: 1.125rem; font-weight: 800;">Record Operational Expense</h3>
+          <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Log material or labor expenditure</p>
+        </div>
+        <button onclick="document.getElementById('add-expense-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8;">✕</button>
+      </div>
+
+      <form id="add-expense-form" style="padding: 1.5rem;">
+        <div class="form-group">
+          <label class="form-label">Expense Description *</label>
+          <input type="text" id="exp-desc" class="form-input" required placeholder="e.g. Zinc Spray Solution & Hand Sprayer Rent">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="exp-cat" class="form-select">
+              <option value="FERTILIZERS">Fertilizers</option>
+              <option value="LABOR">Field Labor</option>
+              <option value="SEEDS">Seed Stock</option>
+              <option value="CROP_PROTECTION">Crop Protection / Pesticides</option>
+              <option value="EQUIPMENT">Machinery & Diesel</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Amount (₹) *</label>
+            <input type="number" id="exp-amount" class="form-input" required placeholder="1400">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Date Disbursed</label>
+          <input type="date" id="exp-date" class="form-input">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; pt-3; border-top: 1px solid var(--color-border);">
+          <button type="button" onclick="document.getElementById('add-expense-modal').classList.remove('active')" class="btn btn-secondary btn-sm">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Record Outlay</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      window.FarmPilotApp.init('expenses');
+
+      document.getElementById('exp-date').value = new Date().toISOString().split('T')[0];
+
+      const tbody = document.getElementById('expenses-table-body');
+      let expenses = await window.FarmPilotDB.getExpenses();
+
+      function render() {
+        tbody.innerHTML = expenses.map(e => `
+          <tr>
+            <td>
+              <strong style="color: var(--color-text-primary); display: block;">${e.description}</strong>
+            </td>
+            <td><span class="badge badge-neutral">${e.category}</span></td>
+            <td class="tabular-nums font-mono" style="font-weight: 800; color: var(--color-text-primary);">
+              ₹${e.amount.toLocaleString('en-IN')}
+            </td>
+            <td class="font-mono" style="font-size: 0.75rem; color: var(--color-text-secondary);">${e.date}</td>
+            <td><span class="badge badge-success">Audited</span></td>
+          </tr>
+        `).join('');
+      }
+
+      render();
+
+      document.getElementById('add-expense-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+          description: document.getElementById('exp-desc').value,
+          category: document.getElementById('exp-cat').value,
+          amount: parseFloat(document.getElementById('exp-amount').value),
+          date: document.getElementById('exp-date').value
+        };
+
+        await window.FarmPilotDB.createExpense(payload);
+        expenses = await window.FarmPilotDB.getExpenses();
+        render();
+        document.getElementById('add-expense-modal').classList.remove('active');
+        window.FarmPilotApp.showToast('Expense recorded successfully in ledger!');
+      });
+    });
+  </script>
+</body>
+</html>

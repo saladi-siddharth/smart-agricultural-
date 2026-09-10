@@ -1,18 +1,302 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="FarmPilot — Operational command center for farm activities, expense tracking, crop lifecycle progress, and agricultural intelligence." />
-    <meta name="theme-color" content="#143D30" />
-    <title>FarmPilot — Agricultural Command Center</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
-  </head>
-  <body class="bg-[#FBFBFA] text-[#0F172A] antialiased selection:bg-[#143D30] selection:text-white">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmPilot — Precision Agronomic OS</title>
+  <meta name="description" content="Next-generation precision agriculture command center integrating aerial parcel schematics, biological crop cycles, operations, and financial telemetry.">
+  
+  <!-- Design System CSS -->
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <style>
+    /* Marketing Landing Page Specific Styles */
+    .hero-section {
+      padding: 5rem 1.5rem 4rem;
+      text-align: center;
+      background: radial-gradient(circle at 50% 20%, rgba(20, 61, 48, 0.05) 0%, transparent 70%);
+      position: relative;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem;
+      border-radius: var(--radius-full);
+      background-color: var(--color-emerald-light);
+      border: 1px solid rgba(5, 150, 105, 0.2);
+      color: var(--color-forest);
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+      font-size: clamp(2.25rem, 5vw, 4rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+      max-width: 900px;
+      margin: 0 auto 1.25rem;
+      color: var(--color-text-primary);
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--color-text-secondary);
+      max-width: 680px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.6;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 3.5rem;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .feature-card {
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+      text-align: left;
+      transition: all var(--transition-base);
+    }
+
+    .feature-card:hover {
+      border-color: var(--color-forest);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .feature-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background-color: var(--color-emerald-subtle);
+      border: 1px solid var(--color-emerald-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .telemetry-strip {
+      background-color: var(--color-forest);
+      color: #FFFFFF;
+      padding: 2rem 1.5rem;
+      border-radius: var(--radius-xl);
+      margin: 3rem 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.5rem;
+      text-align: center;
+    }
+
+    .landing-nav {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--color-border);
+      background-color: var(--color-surface-translucent);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Landing Header -->
+  <header class="landing-nav">
+    <div class="container-xl" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div style="width: 36px; height: 36px; border-radius: 10px; background-color: var(--color-forest); color: #34D399; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800;">
+          🌱
+        </div>
+        <div>
+          <span style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); letter-spacing: -0.02em;">FarmPilot</span>
+          <span style="font-size: 0.625rem; font-weight: 700; color: var(--color-emerald); text-transform: uppercase; margin-left: 0.25rem;">OS</span>
+        </div>
+      </div>
+
+      <nav style="display: flex; align-items: center; gap: 1.75rem; font-size: 0.875rem; font-weight: 600;">
+        <a href="#features" style="color: var(--color-text-secondary); hover:color: var(--color-text-primary);">Features</a>
+        <a href="#schematic" style="color: var(--color-text-secondary); hover:color: var(--color-text-primary);">Parcel Map</a>
+        <a href="#intelligence" style="color: var(--color-text-secondary); hover:color: var(--color-text-primary);">Intelligence</a>
+      </nav>
+
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <a href="login.html" class="btn btn-outline btn-sm">Sign In</a>
+        <a href="dashboard.html" class="btn btn-primary btn-sm">Launch Dashboard →</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main>
+    <section class="hero-section">
+      <div class="container-xl">
+        <div class="hero-badge animate-fade-in">
+          <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #10B981;" class="animate-pulse-glow"></span>
+          Precision Agronomic Operating System • Phase 1
+        </div>
+
+        <h1 class="hero-title animate-fade-in">
+          Command Your Agricultural Operations with Total Precision
+        </h1>
+
+        <p class="hero-subtitle animate-fade-in">
+          The national-level precision farming platform unifying real-time aerial parcel schematics, biological crop lifecycle progression, operations queues, and financial outlay ledgers.
+        </p>
+
+        <div class="hero-cta-group animate-fade-in">
+          <a href="dashboard.html" class="btn btn-primary btn-lg">
+            <span>Launch Command Center</span>
+            <span>→</span>
+          </a>
+          <a href="login.html" class="btn btn-outline btn-lg">
+            <span>Demo Access (1-Click)</span>
+          </a>
+        </div>
+
+        <!-- Interactive Aerial Parcel Map Showcase Directly on Landing Page -->
+        <div id="schematic" style="max-width: 1040px; margin: 0 auto; text-align: left;">
+          <div id="landing-parcel-map"></div>
+        </div>
+
+        <!-- Live Telemetry Strip -->
+        <div class="telemetry-strip">
+          <div>
+            <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: #A7F3D0; letter-spacing: 0.05em;">Acreage Demarcated</span>
+            <p class="tabular-nums font-mono" style="font-size: 2rem; font-weight: 800; color: #FFFFFF; margin-top: 0.25rem;">25.0 Ac</p>
+            <span style="font-size: 0.75rem; color: #E2E8F0;">Green Valley Farm</span>
+          </div>
+          <div>
+            <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: #A7F3D0; letter-spacing: 0.05em;">Farm Health Index</span>
+            <p class="tabular-nums font-mono" style="font-size: 2rem; font-weight: 800; color: #34D399; margin-top: 0.25rem;">82/100</p>
+            <span style="font-size: 0.75rem; color: #E2E8F0;">Optimal Vigor</span>
+          </div>
+          <div>
+            <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: #A7F3D0; letter-spacing: 0.05em;">Active Crop Cycle</span>
+            <p style="font-size: 1.5rem; font-weight: 800; color: #FFFFFF; margin-top: 0.25rem;">Kharif Paddy</p>
+            <span style="font-size: 0.75rem; color: #E2E8F0;">BPT-5204 (Tillering)</span>
+          </div>
+          <div>
+            <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: #A7F3D0; letter-spacing: 0.05em;">Problem Statement</span>
+            <p style="font-size: 1.5rem; font-weight: 800; color: #FFFFFF; margin-top: 0.25rem;">100%</p>
+            <span style="font-size: 0.75rem; color: #E2E8F0;">Phase 1 Compliant</span>
+          </div>
+        </div>
+
+        <!-- Precision Feature Grid -->
+        <section id="features" style="padding: 4rem 0;">
+          <div style="text-align: center; max-width: 640px; margin: 0 auto 2.5rem;">
+            <span class="badge badge-success" style="margin-bottom: 0.75rem;">Engineered for Agronomists</span>
+            <h2 style="font-size: 2rem; font-weight: 800;">End-to-End Precision Management</h2>
+            <p style="margin-top: 0.5rem;">Built strictly per agricultural specifications without unnecessary bloat.</p>
+          </div>
+
+          <div class="feature-grid">
+            <div class="feature-card">
+              <div class="feature-icon-box">🗺️</div>
+              <h3 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 0.5rem;">Aerial Parcel Demarcation</h3>
+              <p>Topographical vector map representing exact plot sectors, soil profile composition (pH 6.8), and canal/drip water infrastructure.</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon-box">🌱</div>
+              <h3 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 0.5rem;">Biological Lifecycle Stages</h3>
+              <p>Granular sowing-to-harvest stage tracking (Sowing, Nursery, Transplanting, Tillering, Panicle, Harvest) with target yield simulation.</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon-box">📋</div>
+              <h3 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 0.5rem;">Operational Task Queue</h3>
+              <p>Priority-driven field activity execution with overdue alerts, 1-click completion status, and chemical application protocols.</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon-box">💰</div>
+              <h3 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 0.5rem;">Financial & Input Ledgers</h3>
+              <p>Track Kharif seasonal budget outlay against seeds, fertilizers, crop protection, and labor with real-time margin projections.</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon-box">🧠</div>
+              <h3 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 0.5rem;">Explainable AI Advisory</h3>
+              <p>Evidence-backed recommendations diagnosing soil nutrient deficiencies (Zinc &lt; 0.6 ppm) and prescribing precise remediation steps.</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon-box">⚡</div>
+              <h3 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 0.5rem;">Zero-Build Performance</h3>
+              <p>Pure HTML, CSS, and Vanilla JS architecture. Loads instantaneously in any browser with 100% offline resilience and live Supabase sync.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Final CTA Banner -->
+        <div style="background: linear-gradient(135deg, #143D30 0%, #0D2820 100%); color: #FFFFFF; border-radius: var(--radius-xl); padding: 4rem 2rem; margin: 3rem 0; text-align: center;">
+          <h2 style="font-size: 2.25rem; font-weight: 800; color: #FFFFFF; margin-bottom: 1rem;">
+            Ready to Experience Modern Precision Agronomy?
+          </h2>
+          <p style="color: #A7F3D0; font-size: 1.125rem; max-width: 600px; margin: 0 auto 2rem;">
+            Explore the live dashboard, manage plots, and test operations immediately.
+          </p>
+          <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+            <a href="dashboard.html" class="btn btn-primary btn-lg" style="background-color: #34D399; color: #0D2820;">
+              Enter Command Center →
+            </a>
+            <a href="login.html" class="btn btn-outline btn-lg" style="border-color: #34D399; color: #FFFFFF;">
+              Sign In with Demo Account
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer style="border-top: 1px solid var(--color-border); padding: 3rem 1.5rem; background-color: var(--color-surface); font-size: 0.8125rem; color: var(--color-text-secondary);">
+    <div class="container-xl" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: gap; gap: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span style="font-weight: 800; color: var(--color-text-primary);">FarmPilot OS</span>
+        <span>•</span>
+        <span>Precision Agronomy Command Platform</span>
+      </div>
+      <div>
+        <span>Phase 1 Standard Implementation • Connected to Supabase</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/parcel-map.js"></script>
+  <script>
+    // Initialize the interactive parcel map on the landing page!
+    document.addEventListener('DOMContentLoaded', () => {
+      window.initParcelMap('landing-parcel-map');
+    });
+  </script>
+</body>
 </html>

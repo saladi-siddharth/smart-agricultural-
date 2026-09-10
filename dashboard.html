@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmPilot — Command Center Dashboard</title>
+  <meta name="description" content="Executive Agronomic Command Center with aerial parcel schematics, operations queue, and financial tracking.">
+  
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <style>
+    .dashboard-two-col {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .gauge-svg-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 0;
+    }
+
+    .pillar-bar {
+      margin-bottom: 0.75rem;
+    }
+
+    .pillar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+      margin-bottom: 0.35rem;
+    }
+
+    .pillar-track {
+      height: 8px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-surface-tertiary);
+      overflow: hidden;
+    }
+
+    .pillar-fill {
+      height: 100%;
+      border-radius: var(--radius-full);
+      background: linear-gradient(90deg, #059669 0%, #10B981 100%);
+      transition: width 0.8s ease-out;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem;
+      border-radius: var(--radius-lg);
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      transition: all var(--transition-fast);
+      margin-bottom: 0.75rem;
+    }
+
+    .task-item:hover {
+      border-color: var(--color-border-strong);
+      box-shadow: var(--shadow-2xs);
+    }
+
+    .task-item.completed {
+      opacity: 0.6;
+      background-color: var(--color-surface-secondary);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-layout">
+    <!-- Executive Sidebar -->
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <!-- Main Viewport -->
+    <div class="app-main">
+      <!-- Sticky Command Header -->
+      <header class="app-header" id="app-header"></header>
+
+      <!-- Dashboard Viewport Content -->
+      <main class="app-content">
+        <div class="app-content-inner animate-fade-in">
+          
+          <!-- Hero KPI Ribbon -->
+          <section class="kpi-grid">
+            <div class="kpi-card">
+              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); letter-spacing: 0.05em;">
+                Total Managed Area
+              </span>
+              <p class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-text-primary); margin: 0.35rem 0 0.2rem;">
+                25.0 <span style="font-size: 0.875rem; font-weight: 600; color: var(--color-text-secondary);">Acres</span>
+              </p>
+              <span style="font-size: 0.75rem; font-weight: 600; color: var(--color-emerald-dark);">
+                ✓ 3 Demarcated Parcels
+              </span>
+            </div>
+
+            <div class="kpi-card">
+              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); letter-spacing: 0.05em;">
+                Active Crop Cycles
+              </span>
+              <p class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-forest); margin: 0.35rem 0 0.2rem;">
+                1 <span style="font-size: 0.875rem; font-weight: 600; color: var(--color-text-secondary);">Cycle</span>
+              </p>
+              <span style="font-size: 0.75rem; font-weight: 600; color: var(--color-text-secondary);">
+                Paddy BPT-5204 (Kharif)
+              </span>
+            </div>
+
+            <div class="kpi-card">
+              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); letter-spacing: 0.05em;">
+                Field Operations
+              </span>
+              <p class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-amber-dark); margin: 0.35rem 0 0.2rem;">
+                1 Overdue
+              </p>
+              <span style="font-size: 0.75rem; font-weight: 600; color: var(--color-amber-dark);">
+                ⚠️ Zinc Sulfate Spray
+              </span>
+            </div>
+
+            <div class="kpi-card">
+              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); letter-spacing: 0.05em;">
+                Kharif Budget Outlay
+              </span>
+              <p class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-text-primary); margin: 0.35rem 0 0.2rem;">
+                ₹18,500
+              </p>
+              <span style="font-size: 0.75rem; font-weight: 600; color: var(--color-emerald-dark);">
+                37% of ₹50,000 Budget
+              </span>
+            </div>
+          </section>
+
+          <!-- Interactive Aerial Parcel Schematic Map Component -->
+          <section>
+            <div id="dashboard-parcel-map"></div>
+          </section>
+
+          <!-- Two-Column Operations & Intelligence Grid -->
+          <div class="dashboard-two-col">
+            <!-- Left Column: Operations & Biological Cycle -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+              
+              <!-- Today's Operations Queue -->
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <h3 style="font-size: 1rem; font-weight: 800;">Today's Operations Priority Queue</h3>
+                    <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.2rem;">
+                      Field activities requiring immediate execution • Click checkmark to complete
+                    </p>
+                  </div>
+                  <a href="activities.html" class="btn btn-secondary btn-sm">View All Activities</a>
+                </div>
+
+                <div id="operations-list">
+                  <!-- Task 1: Overdue -->
+                  <div class="task-item" id="task-row-1">
+                    <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                      <button class="btn-complete-task" data-task-id="act-1" style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--color-amber); background: transparent; color: transparent; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; flex-shrink: 0; margin-top: 2px;">
+                        ✓
+                      </button>
+                      <div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                          <h4 style="font-size: 0.875rem; font-weight: 800; color: var(--color-text-primary);">
+                            Zinc Sulfate Foliar Spray (0.5%)
+                          </h4>
+                          <span class="badge badge-danger">Overdue 2d</span>
+                        </div>
+                        <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                          North Block (Plot A) • Rate: 5kg/ha • Corrects interveinal chlorosis
+                        </p>
+                        <span class="tabular-nums font-mono" style="font-size: 0.6875rem; font-weight: 700; color: var(--color-text-tertiary);">
+                          Estimated Cost: ₹1,400
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Task 2: Pending -->
+                  <div class="task-item" id="task-row-2">
+                    <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                      <button class="btn-complete-task" data-task-id="act-2" style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--color-border-strong); background: transparent; color: transparent; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; flex-shrink: 0; margin-top: 2px;">
+                        ✓
+                      </button>
+                      <div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                          <h4 style="font-size: 0.875rem; font-weight: 800; color: var(--color-text-primary);">
+                            Nitrogen Top-Dressing (Urea 45kg/ha)
+                          </h4>
+                          <span class="badge badge-warning">Due in 2d</span>
+                        </div>
+                        <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                          North Block (Plot A) • Active tillering peak application
+                        </p>
+                        <span class="tabular-nums font-mono" style="font-size: 0.6875rem; font-weight: 700; color: var(--color-text-tertiary);">
+                          Estimated Cost: ₹2,800
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Task 3: Pending -->
+                  <div class="task-item" id="task-row-3">
+                    <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                      <button class="btn-complete-task" data-task-id="act-3" style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--color-border-strong); background: transparent; color: transparent; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; flex-shrink: 0; margin-top: 2px;">
+                        ✓
+                      </button>
+                      <div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                          <h4 style="font-size: 0.875rem; font-weight: 800; color: var(--color-text-primary);">
+                            Stem Borer Pheromone Trap Inspection
+                          </h4>
+                          <span class="badge badge-neutral">Scheduled</span>
+                        </div>
+                        <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                          Central Sector (Plot B) • Inspect 4 traps along field perimeter
+                        </p>
+                        <span class="tabular-nums font-mono" style="font-size: 0.6875rem; font-weight: 700; color: var(--color-text-tertiary);">
+                          Estimated Cost: ₹450
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Crop Biological Lifecycle Progression Card -->
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <h3 style="font-size: 1rem; font-weight: 800;">Biological Crop Lifecycle: Paddy (Rice)</h3>
+                    <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.2rem;">
+                      Variety: BPT-5204 (Samba Mahsuri) • Sown: June 15, 2026
+                    </p>
+                  </div>
+                  <span class="badge badge-success">Tillering Stage</span>
+                </div>
+
+                <!-- 6-Stage Biological Progress Track -->
+                <div class="crop-stage-track">
+                  <div class="crop-stage-line">
+                    <div class="crop-stage-line-progress" style="width: 60%;"></div>
+                  </div>
+
+                  <div class="crop-stage-step completed">
+                    <div class="crop-stage-node">✓</div>
+                    <span style="font-size: 0.6875rem; font-weight: 700; margin-top: 0.5rem; color: var(--color-text-primary);">Land Prep</span>
+                  </div>
+                  <div class="crop-stage-step completed">
+                    <div class="crop-stage-node">✓</div>
+                    <span style="font-size: 0.6875rem; font-weight: 700; margin-top: 0.5rem; color: var(--color-text-primary);">Nursery</span>
+                  </div>
+                  <div class="crop-stage-step completed">
+                    <div class="crop-stage-node">✓</div>
+                    <span style="font-size: 0.6875rem; font-weight: 700; margin-top: 0.5rem; color: var(--color-text-primary);">Transplant</span>
+                  </div>
+                  <div class="crop-stage-step active">
+                    <div class="crop-stage-node animate-pulse-glow">4</div>
+                    <span style="font-size: 0.6875rem; font-weight: 800; margin-top: 0.5rem; color: var(--color-forest);">Tillering</span>
+                  </div>
+                  <div class="crop-stage-step">
+                    <div class="crop-stage-node">5</div>
+                    <span style="font-size: 0.6875rem; font-weight: 600; margin-top: 0.5rem; color: var(--color-text-tertiary);">Panicle</span>
+                  </div>
+                  <div class="crop-stage-step">
+                    <div class="crop-stage-node">6</div>
+                    <span style="font-size: 0.6875rem; font-weight: 600; margin-top: 0.5rem; color: var(--color-text-tertiary);">Harvest</span>
+                  </div>
+                </div>
+
+                <!-- Yield & Revenue Simulation Strip -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.5rem; pt-4; border-top: 1px solid var(--color-border-subtle);">
+                  <div style="background-color: var(--color-surface-secondary); padding: 0.75rem; border-radius: var(--radius-md);">
+                    <span style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Target Yield</span>
+                    <p class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.2rem;">
+                      4.5 <span style="font-size: 0.75rem; font-weight: 600;">tonnes/ha</span>
+                    </p>
+                  </div>
+                  <div style="background-color: var(--color-surface-secondary); padding: 0.75rem; border-radius: var(--radius-md);">
+                    <span style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">MSP Selling Price</span>
+                    <p class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.2rem;">
+                      ₹29,000 <span style="font-size: 0.75rem; font-weight: 600;">/tonne</span>
+                    </p>
+                  </div>
+                  <div style="background-color: var(--color-surface-secondary); padding: 0.75rem; border-radius: var(--radius-md);">
+                    <span style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Target Gross Revenue</span>
+                    <p class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-forest); margin-top: 0.2rem;">
+                      ₹1,30,500
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Health Gauge, Financials & AI Advisory -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+              
+              <!-- Farm Health Gauge Card -->
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <h3 style="font-size: 1rem; font-weight: 800;">Farm Health & Agronomic Balance</h3>
+                    <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.2rem;">
+                      Composite agronomic index computed from soil, water, and pest vectors
+                    </p>
+                  </div>
+                  <span class="badge badge-success">Optimal</span>
+                </div>
+
+                <div class="gauge-svg-container">
+                  <svg width="180" height="180" viewBox="0 0 180 180">
+                    <circle cx="90" cy="90" r="70" stroke="#F1F5F9" stroke-width="14" fill="none"/>
+                    <circle cx="90" cy="90" r="70" stroke="#059669" stroke-width="14" stroke-dasharray="440" stroke-dashoffset="79" stroke-linecap="round" fill="none" style="transition: stroke-dashoffset 1s ease-out;"/>
+                    <text x="90" y="85" text-anchor="middle" font-size="34" font-weight="800" font-family="'JetBrains Mono', monospace" fill="#0F172A">82</text>
+                    <text x="90" y="108" text-anchor="middle" font-size="11" font-weight="700" fill="#059669">/ 100 OPTIMAL</text>
+                  </svg>
+                </div>
+
+                <!-- 4 Pillars -->
+                <div style="margin-top: 1rem;">
+                  <div class="pillar-bar">
+                    <div class="pillar-label">
+                      <span>Soil Vitality & Nutrients</span>
+                      <span class="tabular-nums font-mono">88%</span>
+                    </div>
+                    <div class="pillar-track"><div class="pillar-fill" style="width: 88%;"></div></div>
+                  </div>
+
+                  <div class="pillar-bar">
+                    <div class="pillar-label">
+                      <span>Irrigation & Soil Moisture</span>
+                      <span class="tabular-nums font-mono">84%</span>
+                    </div>
+                    <div class="pillar-track"><div class="pillar-fill" style="width: 84%;"></div></div>
+                  </div>
+
+                  <div class="pillar-bar">
+                    <div class="pillar-label">
+                      <span>Pest Resistance Index</span>
+                      <span class="tabular-nums font-mono">74%</span>
+                    </div>
+                    <div class="pillar-track"><div class="pillar-fill" style="width: 74%;"></div></div>
+                  </div>
+
+                  <div class="pillar-bar">
+                    <div class="pillar-label">
+                      <span>Crop Vigor (NDVI Equivalent)</span>
+                      <span class="tabular-nums font-mono">86%</span>
+                    </div>
+                    <div class="pillar-track"><div class="pillar-fill" style="width: 86%;"></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Financial Outlay Breakdown -->
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <h3 style="font-size: 1rem; font-weight: 800;">Season Financial Outlay</h3>
+                    <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.2rem;">
+                      Total Spend: ₹18,500 / ₹50,000 Budget (37%)
+                    </p>
+                  </div>
+                  <a href="expenses.html" class="btn btn-secondary btn-sm">Ledger →</a>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.625rem;">
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                    <span>Fertilizers (DAP & Urea)</span>
+                    <strong class="tabular-nums font-mono">₹8,100 (44%)</strong>
+                  </div>
+                  <div style="height: 6px; background: #F1F5F9; border-radius: 4px; overflow: hidden;">
+                    <div style="width: 44%; height: 100%; background: #059669;"></div>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                    <span>Transplanting Labor</span>
+                    <strong class="tabular-nums font-mono">₹5,600 (30%)</strong>
+                  </div>
+                  <div style="height: 6px; background: #F1F5F9; border-radius: 4px; overflow: hidden;">
+                    <div style="width: 30%; height: 100%; background: #10B981;"></div>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                    <span>Foundation Seed Stock</span>
+                    <strong class="tabular-nums font-mono">₹3,600 (19%)</strong>
+                  </div>
+                  <div style="height: 6px; background: #F1F5F9; border-radius: 4px; overflow: hidden;">
+                    <div style="width: 19%; height: 100%; background: #34D399;"></div>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                    <span>Crop Protection (Zinc Sulfate)</span>
+                    <strong class="tabular-nums font-mono">₹1,200 (7%)</strong>
+                  </div>
+                  <div style="height: 6px; background: #F1F5F9; border-radius: 4px; overflow: hidden;">
+                    <div style="width: 7%; height: 100%; background: #6EE7B7;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Explainable AI Agronomic Advisory Card -->
+              <div class="card" style="border-left: 4px solid var(--color-amber);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                  <div>
+                    <span class="badge badge-warning" style="margin-bottom: 0.35rem;">High Priority Advisory</span>
+                    <h4 style="font-size: 0.9375rem; font-weight: 800; color: var(--color-text-primary);">
+                      Zinc Deficiency Remediation
+                    </h4>
+                  </div>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 1rem;">
+                  North Block (Plot A) soil test shows 0.4 ppm Zn (critical threshold &lt; 0.6 ppm). Foliar spray of 0.5% Zinc Sulfate + 0.25% lime recommended within 48 hours to avert interveinal chlorosis.
+                </p>
+                <button onclick="document.getElementById('advisory-modal').classList.add('active')" class="btn btn-outline btn-sm" style="width: 100%;">
+                  Inspect Agronomic Protocol →
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Explainable AI Advisory Modal -->
+  <div class="modal-overlay" id="advisory-modal">
+    <div class="modal-content">
+      <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="font-size: 1.125rem; font-weight: 800;">Agronomic Advisory Protocol</h3>
+          <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Evidence-backed remediation guidance</p>
+        </div>
+        <button onclick="document.getElementById('advisory-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8;">✕</button>
+      </div>
+      <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; font-size: 0.8125rem;">
+        <div>
+          <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.25rem;">Diagnostic Trigger:</strong>
+          <p style="color: var(--color-text-secondary);">Soil test ID #ST-2026-088 registered DTPA-extractable Zinc at 0.42 mg/kg in North Block clay loam soil. Threshold for high-yielding paddy varieties (BPT-5204) is 0.60 mg/kg.</p>
+        </div>
+        <div style="background-color: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+          <strong style="color: var(--color-forest); display: block; margin-bottom: 0.25rem;">Recommended Formulation:</strong>
+          <ul style="padding-left: 1.25rem; line-height: 1.6; color: var(--color-text-secondary);">
+            <li>Zinc Sulfate Heptahydrate (21% Zn) at 5 kg/ha.</li>
+            <li>Dissolve in 500 liters of water per hectare.</li>
+            <li>Mix with 2.5 kg slaked lime to prevent leaf scorching.</li>
+            <li>Foliar application timing: Morning hours before 10:00 AM.</li>
+          </ul>
+        </div>
+        <div>
+          <strong style="color: var(--color-text-primary); display: block; margin-bottom: 0.25rem;">Expected Recovery Timeline:</strong>
+          <p style="color: var(--color-text-secondary);">Visual leaf recovery anticipated within 5 to 7 days post-spray. Normal tillering vegetative index restored by Day 10.</p>
+        </div>
+      </div>
+      <div style="padding: 1rem 1.5rem; border-top: 1px solid var(--color-border); display: flex; justify-content: flex-end;">
+        <button onclick="document.getElementById('advisory-modal').classList.remove('active')" class="btn btn-primary btn-sm">Understood & Acknowledged</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="js/parcel-map.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize Shell
+      window.FarmPilotApp.init('dashboard');
+
+      // Initialize Aerial Parcel Map
+      window.initParcelMap('dashboard-parcel-map');
+
+      // 1-Click Complete Task Handlers with Confetti!
+      document.querySelectorAll('.btn-complete-task').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const taskId = btn.getAttribute('data-task-id');
+          const taskRow = btn.closest('.task-item');
+
+          // Trigger celebratory confetti burst at button position!
+          const rect = btn.getBoundingClientRect();
+          window.triggerConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+
+          // Update UI
+          btn.style.backgroundColor = '#059669';
+          btn.style.borderColor = '#059669';
+          btn.style.color = '#FFFFFF';
+          btn.innerHTML = '✓';
+          taskRow.classList.add('completed');
+
+          // Sync with DB
+          await window.FarmPilotDB.completeActivity(taskId);
+          window.FarmPilotApp.showToast('Operation marked as completed! Confetti triggered 🎉');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

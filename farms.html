@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmPilot — Farms & Land Holdings</title>
+  <meta name="description" content="Manage agricultural estates, acreage demarcation, soil chemistry, and irrigation sources.">
+  
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <div class="app-layout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="app-content">
+        <div class="app-content-inner animate-fade-in">
+          
+          <!-- Header Bar -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);">
+            <div>
+              <span class="badge badge-success" style="margin-bottom: 0.35rem;">Agricultural Estates</span>
+              <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--color-text-primary);">
+                Farms & Land Holdings
+              </h1>
+              <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                Configure land boundaries, aerial parcel demarcations, soil profiles, and irrigation infrastructure
+              </p>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <!-- View Switcher -->
+              <div style="display: flex; background: var(--color-surface-tertiary); padding: 0.25rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                <button id="view-btn-schematic" class="btn btn-sm btn-primary" style="padding: 0.35rem 0.75rem;">🗺️ Aerial Schematic</button>
+                <button id="view-btn-grid" class="btn btn-sm btn-ghost" style="padding: 0.35rem 0.75rem; color: var(--color-text-secondary);">📋 Estate Dossiers</button>
+              </div>
+
+              <button onclick="document.getElementById('add-farm-modal').classList.add('active')" class="btn btn-primary btn-sm">
+                <span>+ Register New Estate</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Estate Metrics Ribbon -->
+          <section class="kpi-grid">
+            <div class="kpi-card">
+              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Registered Estates</span>
+              <p class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0;">1</p>
+              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Green Valley Farm</span>
+            </div>
+
+            <div class="kpi-card">
+              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Managed Acreage</span>
+              <p class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-forest); margin: 0.25rem 0;">25.0 Ac</p>
+              <span style="font-size: 0.75rem; color: var(--color-emerald-dark);">100% Allocated & Cultivated</span>
+            </div>
+
+            <div class="kpi-card">
+              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Demarcated Parcels</span>
+              <p class="tabular-nums font-mono" style="font-size: 1.875rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0;">3</p>
+              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Plot A, Plot B, Plot C</span>
+            </div>
+
+            <div class="kpi-card">
+              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Geolocation</span>
+              <p class="font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); margin: 0.5rem 0 0.25rem;">
+                16.1809° N, 81.1378° E
+              </p>
+              <span style="font-size: 0.75rem; color: var(--color-emerald-dark);">Andhra Pradesh, India</span>
+            </div>
+          </section>
+
+          <!-- Aerial Parcel Map View -->
+          <div id="schematic-view-pane">
+            <div id="farms-parcel-map"></div>
+          </div>
+
+          <!-- Estate Dossier Cards View -->
+          <div id="grid-view-pane" style="display: none;">
+            <div id="farms-list-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+              <!-- Farm Card Loaded by JS -->
+            </div>
+          </div>
+
+          <!-- Demarcated Field Sectors Table -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 style="font-size: 1rem; font-weight: 800;">Demarcated Field Parcels</h3>
+                <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.2rem;">
+                  Specific soil characteristics and irrigation networks per parcel
+                </p>
+              </div>
+            </div>
+
+            <div class="data-table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Parcel Sector</th>
+                    <th>Acreage</th>
+                    <th>Soil Composition</th>
+                    <th>Irrigation Network</th>
+                    <th>Active Crop</th>
+                    <th>Biological Status</th>
+                  </tr>
+                </thead>
+                <tbody id="parcels-table-body">
+                  <!-- Injected by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add Farm Modal -->
+  <div class="modal-overlay" id="add-farm-modal">
+    <div class="modal-content">
+      <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="font-size: 1.125rem; font-weight: 800;">Register Agricultural Estate</h3>
+          <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Define boundary territory and soil profile</p>
+        </div>
+        <button onclick="document.getElementById('add-farm-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8;">✕</button>
+      </div>
+
+      <form id="add-farm-form" style="padding: 1.5rem;">
+        <div class="form-group">
+          <label class="form-label">Estate / Farm Name *</label>
+          <input type="text" id="farm-name" class="form-input" required placeholder="e.g. Sunrise Organic Estate">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label">Village / Town</label>
+            <input type="text" id="farm-location" class="form-input" placeholder="e.g. Rampur">
+          </div>
+          <div class="form-group">
+            <label class="form-label">District</label>
+            <input type="text" id="farm-district" class="form-input" placeholder="e.g. Guntur">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label">Total Acreage *</label>
+            <input type="number" id="farm-area" class="form-input" required step="0.1" placeholder="25.0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unit</label>
+            <select id="farm-unit" class="form-select">
+              <option value="acres">Acres</option>
+              <option value="hectares">Hectares</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description & Agronomic Profile</label>
+          <textarea id="farm-desc" class="form-textarea" rows="3" placeholder="Primary crop rotations, canal irrigation rights, soil characteristics..."></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; pt-3; border-top: 1px solid var(--color-border);">
+          <button type="button" onclick="document.getElementById('add-farm-modal').classList.remove('active')" class="btn btn-secondary btn-sm">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Register Holding</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/parcel-map.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      window.FarmPilotApp.init('farms');
+      window.initParcelMap('farms-parcel-map');
+
+      // Load Farms and Fields
+      const farms = await window.FarmPilotDB.getFarms();
+      const fields = await window.FarmPilotDB.getFields();
+
+      // Render Estate Cards
+      const container = document.getElementById('farms-list-container');
+      container.innerHTML = farms.map(f => `
+        <div class="card" style="border-left: 4px solid var(--color-forest);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <div>
+              <span class="badge badge-success" style="margin-bottom: 0.35rem;">Primary Estate</span>
+              <h3 style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary);">${f.name}</h3>
+              <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.2rem;">
+                📍 ${[f.location, f.district, f.state].filter(Boolean).join(', ')}
+              </p>
+            </div>
+            <span class="tabular-nums font-mono" style="font-size: 1rem; font-weight: 800; color: var(--color-forest);">
+              ${f.total_area} ${f.area_unit || 'Acres'}
+            </span>
+          </div>
+          <p style="font-size: 0.8125rem; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 1rem;">
+            ${f.description || 'High-yield commercial production estate.'}
+          </p>
+          <div style="padding-top: 0.75rem; border-top: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem;">
+            <span style="color: var(--color-emerald-dark); font-weight: 700;">✓ 3 Demarcated Parcels</span>
+            <span style="color: var(--color-text-tertiary); font-family: var(--font-mono);">16.1809° N, 81.1378° E</span>
+          </div>
+        </div>
+      `).join('');
+
+      // Render Parcels Table
+      const tbody = document.getElementById('parcels-table-body');
+      tbody.innerHTML = fields.map(p => `
+        <tr>
+          <td>
+            <strong style="color: var(--color-text-primary); display: block;">${p.name}</strong>
+            <span class="font-mono" style="font-size: 0.6875rem; color: var(--color-text-tertiary);">${p.code || 'SEC-01'}</span>
+          </td>
+          <td class="tabular-nums font-mono" style="font-weight: 700;">${p.area} ${p.area_unit || 'acres'}</td>
+          <td>${p.soil_type || 'Clay Loam (pH 6.8)'}</td>
+          <td>${p.irrigation_type || 'Canal Lift + Drip'}</td>
+          <td>
+            <strong style="color: var(--color-forest);">${p.crop_name || 'Paddy (Rice)'}</strong>
+            <span style="font-size: 0.6875rem; color: var(--color-text-secondary); display: block;">${p.variety || 'BPT-5204'}</span>
+          </td>
+          <td>
+            <span class="badge ${p.status === 'OPTIMAL' ? 'badge-success' : p.status === 'ATTENTION' ? 'badge-warning' : 'badge-neutral'}">
+              ${p.status || 'Active'}
+            </span>
+          </td>
+        </tr>
+      `).join('');
+
+      // View Mode Toggle Handlers
+      const btnSchematic = document.getElementById('view-btn-schematic');
+      const btnGrid = document.getElementById('view-btn-grid');
+      const paneSchematic = document.getElementById('schematic-view-pane');
+      const paneGrid = document.getElementById('grid-view-pane');
+
+      btnSchematic.addEventListener('click', () => {
+        btnSchematic.className = 'btn btn-sm btn-primary';
+        btnGrid.className = 'btn btn-sm btn-ghost';
+        paneSchematic.style.display = 'block';
+        paneGrid.style.display = 'none';
+      });
+
+      btnGrid.addEventListener('click', () => {
+        btnGrid.className = 'btn btn-sm btn-primary';
+        btnSchematic.className = 'btn btn-sm btn-ghost';
+        paneGrid.style.display = 'block';
+        paneSchematic.style.display = 'none';
+      });
+
+      // Form Handler
+      document.getElementById('add-farm-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const newFarm = {
+          name: document.getElementById('farm-name').value,
+          location: document.getElementById('farm-location').value,
+          district: document.getElementById('farm-district').value,
+          total_area: parseFloat(document.getElementById('farm-area').value),
+          area_unit: document.getElementById('farm-unit').value,
+          description: document.getElementById('farm-desc').value
+        };
+        await window.FarmPilotDB.createFarm(newFarm);
+        window.FarmPilotApp.showToast('Estate successfully registered!');
+        document.getElementById('add-farm-modal').classList.remove('active');
+        setTimeout(() => window.location.reload(), 500);
+      });
+    });
+  </script>
+</body>
+</html>

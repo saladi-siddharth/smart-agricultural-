@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmPilot — Operations & Activities</title>
+  <meta name="description" content="Manage field operations, chemical applications, and priority-ranked agronomic tasks.">
+  
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <div class="app-layout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="app-content">
+        <div class="app-content-inner animate-fade-in">
+          
+          <!-- Header Bar -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);">
+            <div>
+              <span class="badge badge-warning" style="margin-bottom: 0.35rem;">Field Operations</span>
+              <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--color-text-primary);">
+                Activities & Task Execution
+              </h1>
+              <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                Priority-ranked field operations, nutrient sprays, pest scouting, and completion tracking
+              </p>
+            </div>
+
+            <button onclick="document.getElementById('add-activity-modal').classList.add('active')" class="btn btn-primary btn-sm">
+              <span>+ Schedule Field Task</span>
+            </button>
+          </div>
+
+          <!-- Filter Ribbon -->
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+            <div style="display: flex; gap: 0.5rem;" id="filter-tabs">
+              <button class="btn btn-sm btn-primary" data-filter="ALL">All Operations (4)</button>
+              <button class="btn btn-sm btn-outline" data-filter="OVERDUE">Overdue (1)</button>
+              <button class="btn btn-sm btn-outline" data-filter="PENDING">Pending (2)</button>
+              <button class="btn btn-sm btn-outline" data-filter="COMPLETED">Completed (1)</button>
+            </div>
+
+            <div style="font-size: 0.75rem; color: var(--color-text-secondary);">
+              <span>Click checkmark on any task to execute with confetti</span>
+            </div>
+          </div>
+
+          <!-- Task Cards List -->
+          <div id="activities-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <!-- Injected by JS -->
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add Activity Modal -->
+  <div class="modal-overlay" id="add-activity-modal">
+    <div class="modal-content">
+      <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="font-size: 1.125rem; font-weight: 800;">Schedule Field Operation</h3>
+          <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Assign parcel, operation type, and due date</p>
+        </div>
+        <button onclick="document.getElementById('add-activity-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8;">✕</button>
+      </div>
+
+      <form id="add-activity-form" style="padding: 1.5rem;">
+        <div class="form-group">
+          <label class="form-label">Activity Title *</label>
+          <input type="text" id="act-title" class="form-input" required placeholder="e.g. Potassium Top-Dressing (MOP)">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="act-category" class="form-select">
+              <option value="FERTILIZATION">Fertilization</option>
+              <option value="PEST_MANAGEMENT">Pest Management</option>
+              <option value="IRRIGATION">Irrigation</option>
+              <option value="WEEDING">Weeding</option>
+              <option value="HARVEST">Harvest</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target Parcel</label>
+            <select id="act-field" class="form-select">
+              <option value="North Block (Plot A)">North Block (Plot A)</option>
+              <option value="Central Sector (Plot B)">Central Sector (Plot B)</option>
+              <option value="South Sector (Plot C)">South Sector (Plot C)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label">Due Date *</label>
+            <input type="date" id="act-date" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estimated Cost (₹)</label>
+            <input type="number" id="act-cost" class="form-input" placeholder="1500">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Agronomic Instructions & Dosage</label>
+          <textarea id="act-notes" class="form-textarea" rows="3" placeholder="Application dosage, dilution ratio, safety guidelines..."></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; pt-3; border-top: 1px solid var(--color-border);">
+          <button type="button" onclick="document.getElementById('add-activity-modal').classList.remove('active')" class="btn btn-secondary btn-sm">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Schedule Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      window.FarmPilotApp.init('activities');
+
+      const container = document.getElementById('activities-container');
+      let currentFilter = 'ALL';
+      let activities = await window.FarmPilotDB.getActivities();
+
+      // Set default tomorrow date in form
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      document.getElementById('act-date').value = tomorrow.toISOString().split('T')[0];
+
+      function renderList() {
+        const filtered = activities.filter(a => {
+          if (currentFilter === 'ALL') return true;
+          return a.status === currentFilter;
+        });
+
+        if (filtered.length === 0) {
+          container.innerHTML = `
+            <div class="card" style="text-align: center; padding: 3rem;">
+              <p style="font-weight: 700; color: var(--color-text-secondary);">No activities matching this filter.</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = filtered.map(a => {
+          const isCompleted = a.status === 'COMPLETED';
+          const isOverdue = a.status === 'OVERDUE';
+          const badgeClass = isCompleted ? 'badge-neutral' : isOverdue ? 'badge-danger' : 'badge-warning';
+
+          return `
+            <div class="card" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; ${isCompleted ? 'opacity: 0.65; background: var(--color-surface-secondary);' : ''}">
+              <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                <button class="btn-check" data-id="${a.id}" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid ${isCompleted ? '#059669' : isOverdue ? '#DC2626' : 'var(--color-border-strong)'}; background: ${isCompleted ? '#059669' : 'transparent'}; color: ${isCompleted ? '#FFF' : 'transparent'}; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; flex-shrink: 0; cursor: pointer;">
+                  ✓
+                </button>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <h3 style="font-size: 1rem; font-weight: 800; color: var(--color-text-primary); ${isCompleted ? 'text-decoration: line-through;' : ''}">${a.title}</h3>
+                    <span class="badge ${badgeClass}">${a.status}</span>
+                    <span class="badge badge-neutral" style="font-size: 0.625rem;">${a.category}</span>
+                  </div>
+                  <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                    📍 ${a.field_name || 'North Block (Plot A)'} • Due: <strong class="font-mono">${a.due_date}</strong>
+                  </p>
+                  ${a.notes ? `
+                    <p style="font-size: 0.75rem; color: var(--color-text-tertiary); margin-top: 0.35rem; line-height: 1.5;">
+                      ${a.notes}
+                    </p>
+                  ` : ''}
+                </div>
+              </div>
+
+              <div style="text-align: right; flex-shrink: 0;">
+                <span style="font-size: 0.625rem; font-weight: 700; color: var(--color-text-tertiary); text-transform: uppercase;">Cost</span>
+                <p class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary);">
+                  ₹${a.cost ? a.cost.toLocaleString('en-IN') : '0'}
+                </p>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        // Attach 1-Click Complete Handlers
+        container.querySelectorAll('.btn-check').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+            const rect = btn.getBoundingClientRect();
+            window.triggerConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+
+            await window.FarmPilotDB.completeActivity(id);
+            activities = await window.FarmPilotDB.getActivities();
+            renderList();
+            window.FarmPilotApp.showToast('Activity marked completed! Confetti triggered 🎉');
+          });
+        });
+      }
+
+      renderList();
+
+      // Filter Tabs
+      document.querySelectorAll('#filter-tabs button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#filter-tabs button').forEach(b => b.className = 'btn btn-sm btn-outline');
+          btn.className = 'btn btn-sm btn-primary';
+          currentFilter = btn.getAttribute('data-filter');
+          renderList();
+        });
+      });
+
+      // Form Submit Handler
+      document.getElementById('add-activity-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+          title: document.getElementById('act-title').value,
+          category: document.getElementById('act-category').value,
+          field_name: document.getElementById('act-field').value,
+          due_date: document.getElementById('act-date').value,
+          cost: parseFloat(document.getElementById('act-cost').value) || 0,
+          notes: document.getElementById('act-notes').value,
+          status: 'PENDING'
+        };
+
+        await window.FarmPilotDB.createActivity(payload);
+        activities = await window.FarmPilotDB.getActivities();
+        renderList();
+        document.getElementById('add-activity-modal').classList.remove('active');
+        window.FarmPilotApp.showToast('New activity scheduled successfully!');
+      });
+    });
+  </script>
+</body>
+</html>

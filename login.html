@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmPilot — Sign In</title>
+  <meta name="description" content="Sign in to FarmPilot Precision Agronomic OS or access with instant 1-click demo credentials.">
+  
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <style>
+    .login-container {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      min-height: 100vh;
+    }
+
+    @media (max-width: 840px) {
+      .login-container {
+        grid-template-columns: 1fr;
+      }
+      .login-hero-pane {
+        display: none !important;
+      }
+    }
+
+    .login-hero-pane {
+      background: linear-gradient(135deg, #0D2820 0%, #143D30 100%);
+      color: #FFFFFF;
+      padding: 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-hero-pane::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 70% 30%, rgba(52, 211, 153, 0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .login-form-pane {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem 2rem;
+      background-color: var(--color-surface);
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <!-- Left Hero Pane -->
+    <div class="login-hero-pane">
+      <div>
+        <a href="index.html" style="display: flex; align-items: center; gap: 0.75rem; color: #FFFFFF; text-decoration: none;">
+          <div style="width: 38px; height: 38px; border-radius: 10px; background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+            🌱
+          </div>
+          <div>
+            <span style="font-size: 1.125rem; font-weight: 800; letter-spacing: -0.02em;">FarmPilot</span>
+            <span style="font-size: 0.625rem; font-weight: 700; color: #34D399; text-transform: uppercase; margin-left: 0.25rem;">OS</span>
+          </div>
+        </a>
+      </div>
+
+      <div style="position: relative; z-index: 10;">
+        <span class="badge" style="background-color: rgba(52, 211, 153, 0.2); color: #A7F3D0; border: 1px solid rgba(52, 211, 153, 0.4); margin-bottom: 1rem;">
+          Live Telemetry • Green Valley Farm
+        </span>
+
+        <h2 style="font-size: 2.25rem; font-weight: 800; color: #FFFFFF; line-height: 1.2; margin-bottom: 1rem;">
+          Precision Agriculture at Enterprise Scale
+        </h2>
+
+        <p style="color: #A7F3D0; font-size: 0.9375rem; line-height: 1.6; max-width: 440px; margin-bottom: 2rem;">
+          Log in to inspect live field microclimates, manage demarcated parcels, execute overdue operations, and audit financial outlays.
+        </p>
+
+        <!-- Microclimate Box -->
+        <div style="background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: var(--radius-lg); padding: 1.25rem; max-width: 420px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-size: 0.75rem; font-weight: 700; color: #A7F3D0;">☀️ FIELD SENSORS ONLINE</span>
+            <span class="font-mono" style="font-size: 0.625rem; color: #34D399; font-weight: 800;">16.1809° N, 81.1378° E</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <span class="tabular-nums font-mono" style="font-size: 2rem; font-weight: 800; color: #FFFFFF;">28°C</span>
+            <span style="font-size: 0.8125rem; color: #D1FAE5; font-weight: 600;">Sunny • Optimal Soil Vigor</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #CBD5E1; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+            <span>💧 64% Humidity</span>
+            <span>💨 12 km/h Wind</span>
+            <span>🧪 pH 6.8 Loam</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size: 0.75rem; color: #94A3B8;">
+        <span>Phase 1 Standard Implementation • Connected to Supabase</span>
+      </div>
+    </div>
+
+    <!-- Right Form Pane -->
+    <div class="login-form-pane">
+      <div class="login-card">
+        <div style="margin-bottom: 2rem;">
+          <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--color-text-primary); letter-spacing: -0.03em;">
+            Sign in to FarmPilot
+          </h1>
+          <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin-top: 0.35rem;">
+            Enter your credentials or click demo access below
+          </p>
+        </div>
+
+        <!-- 1-Click Demo Credentials Quick-Fill Button -->
+        <div style="margin-bottom: 1.5rem;">
+          <button type="button" id="btn-demo-fill" class="btn btn-secondary" style="width: 100%; border-color: #34D399; background: #F0FDF4; color: #143D30; padding: 0.75rem;">
+            <span style="font-size: 1rem;">⚡</span>
+            <span>Fill Demo Credentials (1-Click)</span>
+          </button>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+          <span style="flex: 1; height: 1px; background-color: var(--color-border);"></span>
+          <span style="font-size: 0.6875rem; font-weight: 700; color: var(--color-text-tertiary); text-transform: uppercase;">Or with Email</span>
+          <span style="flex: 1; height: 1px; background-color: var(--color-border);"></span>
+        </div>
+
+        <!-- Error Message -->
+        <div id="login-error" style="display: none; padding: 0.75rem; border-radius: var(--radius-md); background-color: var(--color-red-subtle); border: 1px solid var(--color-red-light); color: var(--color-red-dark); font-size: 0.75rem; font-weight: 600; margin-bottom: 1rem;">
+        </div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label class="form-label" for="login-email">Email Address</label>
+            <input type="email" id="login-email" class="form-input" required placeholder="farmer@greenvalley.in" autocomplete="email">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label class="form-label" for="login-password">Password</label>
+            <input type="password" id="login-password" class="form-input" required placeholder="••••••••" autocomplete="current-password">
+          </div>
+
+          <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 0.875rem;">
+            <span>Sign In to Dashboard</span>
+            <span>→</span>
+          </button>
+        </form>
+
+        <div style="margin-top: 2rem; text-align: center;">
+          <a href="index.html" style="font-size: 0.8125rem; font-weight: 600; color: var(--color-text-secondary); text-decoration: none;">
+            ← Return to Landing Page
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check if already authenticated
+      if (window.FarmPilotAuth.isAuthenticated()) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+
+      const emailInput = document.getElementById('login-email');
+      const passwordInput = document.getElementById('login-password');
+      const demoBtn = document.getElementById('btn-demo-fill');
+      const form = document.getElementById('login-form');
+      const errorBox = document.getElementById('login-error');
+      const submitBtn = document.getElementById('btn-submit');
+
+      // 1-Click Demo Auto-Fill
+      demoBtn.addEventListener('click', () => {
+        emailInput.value = 'farmer@greenvalley.in';
+        passwordInput.value = 'Password@123';
+        errorBox.style.display = 'none';
+        // highlight inputs
+        emailInput.style.borderColor = '#059669';
+        passwordInput.style.borderColor = '#059669';
+      });
+
+      // Submit Handler
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>Verifying...</span>';
+        errorBox.style.display = 'none';
+
+        const result = await window.FarmPilotAuth.login(email, password);
+
+        if (result.success) {
+          window.location.href = 'dashboard.html';
+        } else {
+          errorBox.textContent = result.error || 'Failed to authenticate.';
+          errorBox.style.display = 'block';
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span>Sign In to Dashboard</span><span>→</span>';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
