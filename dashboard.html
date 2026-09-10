@@ -10,6 +10,49 @@
   <link rel="stylesheet" href="css/components.css">
 
   <style>
+    .phase2-hero {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+      gap: 1.5rem;
+      padding: 1.75rem;
+      border-radius: var(--radius-xl);
+      color: #FFFFFF;
+      background: linear-gradient(118deg, #0D2820 0%, #143D30 58%, #0E5F4A 100%);
+      box-shadow: 0 18px 36px rgba(13, 40, 32, 0.18);
+    }
+
+    .phase2-hero::after {
+      content: '';
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      right: -110px;
+      top: -155px;
+      border: 1px solid rgba(167, 243, 208, 0.22);
+      border-radius: 50%;
+      box-shadow: 0 0 0 28px rgba(167, 243, 208, 0.05), 0 0 0 58px rgba(167, 243, 208, 0.035);
+      pointer-events: none;
+    }
+
+    .phase2-hero h1 { max-width: 700px; color: #FFFFFF; font-size: clamp(1.55rem, 2.4vw, 2.35rem); letter-spacing: -0.04em; }
+    .phase2-hero p { max-width: 620px; color: #C7E9D9; font-size: 0.875rem; }
+    .phase2-eyebrow { display: inline-flex; align-items: center; gap: 0.45rem; color: #6EE7B7; font-size: 0.6875rem; font-weight: 800; letter-spacing: 0.11em; text-transform: uppercase; }
+    .phase2-live-panel { position: relative; z-index: 1; display: grid; gap: 0.75rem; align-content: center; }
+    .phase2-signal { padding: 0.85rem 1rem; border: 1px solid rgba(167, 243, 208, 0.2); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(8px); }
+    .phase2-signal-label { display: block; color: #A7F3D0; font-size: 0.625rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    .phase2-signal-value { display: block; margin-top: 0.18rem; color: #FFFFFF; font-family: var(--font-mono); font-size: 1.1rem; font-weight: 800; }
+    .phase2-hero-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.1rem; }
+    .phase2-hero .btn-primary { background: #6EE7B7; color: #0D2820; }
+    .phase2-hero .btn-primary:hover { background: #A7F3D0; }
+    .phase2-hero .btn-outline { border-color: rgba(255, 255, 255, 0.28); background: rgba(255, 255, 255, 0.08); color: #FFFFFF; }
+
+    @media (max-width: 760px) {
+      .phase2-hero { grid-template-columns: 1fr; padding: 1.25rem; }
+      .phase2-live-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
     .dashboard-two-col {
       display: grid;
       grid-template-columns: 1.5fr 1fr;
@@ -96,16 +139,33 @@
       <main class="app-content">
         <div class="app-content-inner animate-fade-in">
           
-          <!-- Phase 1 Header Tour Action -->
+          <!-- Phase 2 Header Tour Action -->
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: -1rem;">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span class="badge badge-success" style="font-size: 0.6875rem; font-weight: 700;">Phase 1 Command Center</span>
-              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Green Valley Farm • Machilipatnam, AP</span>
+              <span class="badge badge-success" style="font-size: 0.6875rem; font-weight: 700;">Phase 2 Operations OS</span>
+              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Green Valley Agriculture Ltd • Machilipatnam, AP</span>
             </div>
             <button id="btn-demo-story-modal" class="demo-tour-badge" title="Launch Problem Statement 5-Minute Pitch Walkthrough">
               <span>▶ 5-Min Judge Demo Story</span>
             </button>
           </div>
+
+          <section class="phase2-hero" aria-labelledby="phase2-hero-title">
+            <div style="position: relative; z-index: 1;">
+              <span class="phase2-eyebrow"><span class="animate-pulse-glow">●</span> Live estate command</span>
+              <h1 id="phase2-hero-title" style="margin-top: 0.55rem;">Turn every field decision into a better harvest.</h1>
+              <p style="margin-top: 0.7rem;">One operating system for crop cycles, field teams, inputs, budgets, and explainable agronomic action across your entire farm portfolio.</p>
+              <div class="phase2-hero-actions">
+                <a href="activities.html" class="btn btn-primary btn-sm">Open priority queue</a>
+                <button id="btn-hero-demo" class="btn btn-outline btn-sm" type="button">Run the judge story</button>
+              </div>
+            </div>
+            <div class="phase2-live-panel" aria-label="Live estate signals">
+              <div class="phase2-signal"><span class="phase2-signal-label">Portfolio coverage</span><span id="hero-coverage" class="phase2-signal-value">73.5 ac</span></div>
+              <div class="phase2-signal"><span class="phase2-signal-label">Team execution</span><span id="hero-execution" class="phase2-signal-value">2 active</span></div>
+              <div class="phase2-signal"><span class="phase2-signal-label">Farm health</span><span id="hero-health" class="phase2-signal-value">82 / 100</span></div>
+            </div>
+          </section>
 
           <!-- Hero KPI Ribbon -->
           <section class="kpi-grid">
@@ -158,7 +218,7 @@
             </div>
           </section>
 
-          <!-- Phase 1 Problem Statement: Explainable Farm Alert Banner -->
+          <!-- Phase 2: Explainable Farm Alert Banner -->
           <section id="phase1-farm-alert" class="farmpilot-alert-banner">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
               <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
@@ -168,7 +228,7 @@
                 <div>
                   <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                     <span style="font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #DC2626;">
-                      Phase 1 Operational Alert
+                      Phase 2 Operational Alert
                     </span>
                     <span id="alert-status-badge" class="badge badge-danger" style="font-size: 0.625rem; font-weight: 700;">Overdue by 2 Days</span>
                   </div>
@@ -547,7 +607,7 @@
         </div>
       </div>
       <div style="padding: 1rem 1.5rem; border-top: 1px solid var(--color-border); display: flex; justify-content: flex-end;">
-  <!-- Phase 1 Problem Statement: 5-Minute Judge Demo Story Modal -->
+  <!-- Phase 2: 5-Minute Judge Demo Story Modal -->
   <div class="modal-overlay" id="demo-story-modal">
     <div class="modal-content" style="max-width: 640px;">
       <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%);">
@@ -556,8 +616,8 @@
             ▶
           </div>
           <div>
-            <h3 style="font-size: 1.05rem; font-weight: 800; color: #065F46;">Phase 1 Official Demo Story</h3>
-            <p style="font-size: 0.75rem; color: #047857;">Problem Statement Section 16 • 6-Step Morning Farm Manager Pitch</p>
+            <h3 style="font-size: 1.05rem; font-weight: 800; color: #065F46;">Phase 2 Official Demo Story</h3>
+            <p style="font-size: 0.75rem; color: #047857;">6-step morning workflow across the FarmPilot operating system</p>
           </div>
         </div>
         <button onclick="document.getElementById('demo-story-modal').classList.remove('active')" style="font-size: 1.25rem; color: #64748B; background: none; border: none; cursor: pointer;">✕</button>
@@ -603,7 +663,20 @@
       async function updateDynamicKPIs() {
         if (!window.FarmPilotDB) return;
         const farm = await window.FarmPilotDB.getActiveFarm();
+        const farms = await window.FarmPilotDB.getFarms();
+        const activities = await window.FarmPilotDB.getActivities();
         const fin = await window.FarmPilotDB.getFinancialSummary();
+
+        const coverageEl = document.getElementById('hero-coverage');
+        const executionEl = document.getElementById('hero-execution');
+        if (coverageEl && farms?.length) {
+          const totalArea = farms.reduce((sum, item) => sum + (parseFloat(item.total_area) || 0), 0);
+          coverageEl.textContent = `${totalArea.toFixed(1)} ac`;
+        }
+        if (executionEl && activities) {
+          const activeTasks = activities.filter(item => item.status === 'PENDING' || item.status === 'IN_PROGRESS').length;
+          executionEl.textContent = `${activeTasks} active`;
+        }
 
         if (farm) {
           const areaEl = document.getElementById('kpi-area-val');
@@ -618,6 +691,13 @@
         }
       }
       updateDynamicKPIs();
+
+      const heroHealth = document.getElementById('hero-health');
+      window.addEventListener('farmpilot:health-updated', (event) => {
+        if (heroHealth && event.detail?.score !== undefined) heroHealth.textContent = `${event.detail.score} / 100`;
+      });
+      const heroDemoButton = document.getElementById('btn-hero-demo');
+      if (heroDemoButton) heroDemoButton.addEventListener('click', () => document.getElementById('btn-demo-story-modal')?.click());
 
       // Function to dynamically update Health Gauge & Telemetry on Dashboard
       function applyHealthUpdate(health) {
@@ -672,7 +752,7 @@
           }
         }
 
-        // 5. Update Phase 1 Explainable Farm Alert Banner
+        // 5. Update Phase 2 Explainable Farm Alert Banner
         const alertBanner = document.getElementById('phase1-farm-alert');
         const alertBtn = document.getElementById('btn-resolve-alert');
         if (alertBanner && alertBtn) {

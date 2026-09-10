@@ -177,6 +177,130 @@
       return newFarm;
     },
 
+    async updateFarm(farmId, updates) {
+      const client = this.getClient();
+      if (client) {
+        try {
+          const { data, error } = await client.from('farms').update({
+            name: updates.name,
+            location: updates.location,
+            district: updates.district,
+            state: updates.state || '',
+            total_area: parseFloat(updates.total_area) || 0,
+            area_unit: updates.area_unit || 'acres',
+            description: updates.description,
+            updated_at: new Date().toISOString()
+          }).eq('id', farmId).select().single();
+          if (!error && data) {
+            let list = getLocal('farms', []);
+            list = list.map(f => f.id === farmId ? { ...f, ...data } : f);
+            setLocal('farms', list);
+            return data;
+          }
+        } catch (e) {
+          console.warn('Supabase updateFarm error:', e);
+        }
+      }
+
+      let list = getLocal('farms', window.FARMPILOT_CONFIG.DEFAULT_FARMS);
+      let updated = null;
+      list = list.map(f => {
+        if (f.id === farmId) {
+          updated = {
+            ...f,
+            ...updates,
+            total_area: parseFloat(updates.total_area) || f.total_area,
+            updated_at: new Date().toISOString()
+          };
+          return updated;
+        }
+        return f;
+      });
+      setLocal('farms', list);
+
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        window.dispatchEvent(new CustomEvent('farmpilot:farm-updated', { detail: { farmId, updates } }));
+      }
+      return updated;
+    },
+
+    async deleteFarm(farmId) {
+      const client = this.getClient();
+      if (client) {
+        try {
+          await client.from('farms').delete().eq('id', farmId);
+        } catch (e) {
+          console.warn('Supabase deleteFarm error:', e);
+        }
+      }
+
+      // --- CASCADE DELETION ENGINE (Clean up Farm & entire associated Life Cycle) ---
+      // 1. Remove the farm itself
+      let farms = getLocal('farms', window.FARMPILOT_CONFIG.DEFAULT_FARMS);
+      farms = farms.filter(f => f.id !== farmId);
+      setLocal('farms', farms);
+
+      // 2. Cascade delete parcels / fields belonging to this farm
+      let fields = getLocal('fields', window.FARMPILOT_CONFIG.DEFAULT_FIELDS);
+      const deletedFieldIds = fields.filter(fld => fld.farm_id === farmId).map(fld => fld.id);
+      fields = fields.filter(fld => fld.farm_id !== farmId);
+      setLocal('fields', fields);
+
+      // 3. Cascade delete crop cycles (life cycles) belonging to this farm or its fields
+      let cropCycles = getLocal('crop_cycles', window.FARMPILOT_CONFIG.DEFAULT_CROP_CYCLES || []);
+      const deletedCycleIds = cropCycles.filter(c => c.farm_id === farmId || deletedFieldIds.includes(c.field_id)).map(c => c.id);
+      cropCycles = cropCycles.filter(c => c.farm_id !== farmId && !deletedFieldIds.includes(c.field_id));
+      setLocal('crop_cycles', cropCycles);
+
+      const singleCycle = getLocal('crop_cycle', null);
+      if (singleCycle && (singleCycle.farm_id === farmId || deletedCycleIds.includes(singleCycle.id))) {
+        setLocal('crop_cycle', null);
+      }
+
+      // 4. Cascade delete activities / field operations
+      let activities = getLocal('activities', window.FARMPILOT_CONFIG.DEFAULT_ACTIVITIES);
+      activities = activities.filter(a => a.farm_id !== farmId && !deletedCycleIds.includes(a.crop_cycle_id));
+      setLocal('activities', activities);
+
+      // 5. Cascade delete AWD water / irrigation logs
+      let irrigationLogs = getLocal('irrigation_logs', window.FARMPILOT_CONFIG.DEFAULT_IRRIGATION_LOGS || []);
+      irrigationLogs = irrigationLogs.filter(i => i.farm_id !== farmId && !deletedCycleIds.includes(i.crop_cycle_id));
+      setLocal('irrigation_logs', irrigationLogs);
+
+      // 6. Cascade delete inputs
+      let inputs = getLocal('inputs', window.FARMPILOT_CONFIG.DEFAULT_INPUTS);
+      inputs = inputs.filter(i => i.farm_id !== farmId && !deletedCycleIds.includes(i.crop_cycle_id));
+      setLocal('inputs', inputs);
+
+      // 7. Cascade delete expenses
+      let expenses = getLocal('expenses', window.FARMPILOT_CONFIG.DEFAULT_EXPENSES);
+      expenses = expenses.filter(e => e.farm_id !== farmId && !deletedCycleIds.includes(e.crop_cycle_id));
+      setLocal('expenses', expenses);
+
+      // 8. Cascade delete alerts
+      let alerts = getLocal('alerts', window.FARMPILOT_CONFIG.DEFAULT_ALERTS);
+      alerts = alerts.filter(a => a.farm_id !== farmId);
+      setLocal('alerts', alerts);
+
+      // 9. If active farm was deleted, switch to first remaining farm
+      const activeFarmId = getLocal('active_farm_id', null);
+      if (activeFarmId === farmId) {
+        const nextFarm = farms[0] || null;
+        if (nextFarm) {
+          setLocal('active_farm_id', nextFarm.id);
+        } else {
+          localStorage.removeItem('fp_active_farm_id');
+        }
+      }
+
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        window.dispatchEvent(new CustomEvent('farmpilot:farm-deleted', { detail: { farmId } }));
+        window.dispatchEvent(new CustomEvent('farmpilot:farm-changed', { detail: { farmId: farms[0]?.id } }));
+      }
+
+      return true;
+    },
+
     // --- FIELDS / PARCELS ---
     async getFields(farmId) {
       const client = this.getClient();
@@ -230,6 +354,51 @@
       return newField;
     },
 
+    async updateField(fieldId, updates) {
+      const client = this.getClient();
+      if (client) {
+        try {
+          const { data, error } = await client.from('fields').update(updates).eq('id', fieldId).select().single();
+          if (!error && data) {
+            let list = getLocal('fields', []);
+            list = list.map(f => f.id === fieldId ? { ...f, ...data } : f);
+            setLocal('fields', list);
+            return data;
+          }
+        } catch (e) {
+          console.warn('Supabase updateField error:', e);
+        }
+      }
+
+      let list = getLocal('fields', window.FARMPILOT_CONFIG.DEFAULT_FIELDS);
+      let updated = null;
+      list = list.map(f => {
+        if (f.id === fieldId) {
+          updated = { ...f, ...updates };
+          return updated;
+        }
+        return f;
+      });
+      setLocal('fields', list);
+      return updated;
+    },
+
+    async deleteField(fieldId) {
+      const client = this.getClient();
+      if (client) {
+        try {
+          await client.from('fields').delete().eq('id', fieldId);
+        } catch (e) {
+          console.warn('Supabase deleteField error:', e);
+        }
+      }
+
+      let list = getLocal('fields', window.FARMPILOT_CONFIG.DEFAULT_FIELDS);
+      list = list.filter(f => f.id !== fieldId);
+      setLocal('fields', list);
+      return true;
+    },
+
     // --- CROP CYCLES (Problem Statement Aligned 6 Stages) ---
     async getCropCycle(farmId) {
       const client = this.getClient();
@@ -254,6 +423,87 @@
         }
       }
       return getLocal('crop_cycle', window.FARMPILOT_CONFIG.DEFAULT_CROP_CYCLE);
+    },
+
+    async createCropCycle(cycleData) {
+      const activeFarm = await this.getActiveFarm();
+      const newCycle = {
+        farm_id: cycleData.farm_id || activeFarm.id,
+        crop_name: cycleData.crop_name || 'Paddy (Rice)',
+        variety: cycleData.variety || 'BPT-5204',
+        season: cycleData.season || 'Kharif',
+        start_date: cycleData.start_date || new Date().toISOString().split('T')[0],
+        target_yield: parseFloat(cycleData.target_yield) || 4.2,
+        selling_price_per_unit: parseFloat(cycleData.selling_price_per_unit) || 29000,
+        planned_budget: parseFloat(cycleData.planned_budget) || 50000,
+        status: cycleData.status || 'ACTIVE',
+        current_stage: cycleData.current_stage || 'Fertilization',
+        current_stage_progress: cycleData.current_stage_progress || 58,
+        stages: window.FARMPILOT_CONFIG.DEFAULT_CROP_CYCLE.stages
+      };
+
+      const client = this.getClient();
+      if (client) {
+        try {
+          const { data, error } = await client.from('crop_cycles').insert(newCycle).select().single();
+          if (!error && data) {
+            setLocal('crop_cycle', data);
+            return data;
+          }
+        } catch (e) {
+          console.warn('Supabase createCropCycle error:', e);
+        }
+      }
+
+      newCycle.id = 'cycle-' + Date.now();
+      setLocal('crop_cycle', newCycle);
+      let list = getLocal('crop_cycles', []);
+      list.unshift(newCycle);
+      setLocal('crop_cycles', list);
+      return newCycle;
+    },
+
+    async updateCropCycle(cycleId, updates) {
+      const client = this.getClient();
+      if (client) {
+        try {
+          const { data, error } = await client.from('crop_cycles').update(updates).eq('id', cycleId).select().single();
+          if (!error && data) {
+            setLocal('crop_cycle', { ...data, stages: window.FARMPILOT_CONFIG.DEFAULT_CROP_CYCLE.stages });
+            return data;
+          }
+        } catch (e) {
+          console.warn('Supabase updateCropCycle error:', e);
+        }
+      }
+
+      let current = getLocal('crop_cycle', window.FARMPILOT_CONFIG.DEFAULT_CROP_CYCLE);
+      let updated = { ...current, ...updates };
+      setLocal('crop_cycle', updated);
+      return updated;
+    },
+
+    async deleteCropCycle(cycleId) {
+      const client = this.getClient();
+      if (client) {
+        try {
+          await client.from('crop_cycles').delete().eq('id', cycleId);
+        } catch (e) {
+          console.warn('Supabase deleteCropCycle error:', e);
+        }
+      }
+
+      setLocal('crop_cycle', null);
+      let list = getLocal('crop_cycles', []);
+      list = list.filter(c => c.id !== cycleId);
+      setLocal('crop_cycles', list);
+
+      // Cascade remove activities linked to this cycle
+      let activities = getLocal('activities', window.FARMPILOT_CONFIG.DEFAULT_ACTIVITIES);
+      activities = activities.filter(a => a.crop_cycle_id !== cycleId);
+      setLocal('activities', activities);
+
+      return true;
     },
 
     // --- ACTIVITIES (Task Lifecycle & Assignment) ---

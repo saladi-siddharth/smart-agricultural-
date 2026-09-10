@@ -63,32 +63,43 @@
           </div>
 
           <!-- Active Cycle Hero Dossier -->
-          <div class="card" style="border-top: 4px solid var(--color-forest); margin-bottom: 1.5rem;">
+          <div class="card" id="crop-cycle-hero-card" style="border-top: 4px solid var(--color-forest); margin-bottom: 1.5rem;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
               <div>
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
-                  <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary);">Paddy (Rice)</h2>
-                  <span class="badge badge-success">Active Kharif 2026</span>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+                  <h2 id="hero-crop-name" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary);">Paddy (Rice)</h2>
+                  <span id="hero-crop-season" class="badge badge-success">Active Kharif 2026</span>
                   <span class="badge badge-neutral" style="font-size: 0.6875rem;" id="crop-stage-badge">Stage 4: Fertilization (58%)</span>
                 </div>
                 <p style="font-size: 0.875rem; color: var(--color-text-secondary);">
-                  Variety: <strong style="color: var(--color-text-primary);">BPT-5204 (Samba Mahsuri)</strong> • Assigned to <strong style="color: var(--color-forest);">North Block (Plot A - 10.0 Ac)</strong>
+                  Variety: <strong id="hero-crop-variety" style="color: var(--color-text-primary);">BPT-5204 (Samba Mahsuri)</strong> • Assigned to <strong id="hero-crop-field" style="color: var(--color-forest);">North Block (Plot A - 10.0 Ac)</strong>
                 </p>
               </div>
 
-              <!-- Real-time Financial Outlay Metrics -->
-              <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
-                <div>
-                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Planned Budget</span>
-                  <p class="tabular-nums font-mono" id="crop-budget-val" style="font-size: 1.25rem; font-weight: 800; color: var(--color-text-primary); margin: 0.1rem 0;">₹50,000</p>
+              <!-- Action buttons & Financial Outlay Metrics -->
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem;">
+                <div style="display: flex; gap: 0.5rem;">
+                  <button type="button" onclick="openEditCycleModal()" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem;">
+                    <span>✏️</span> Edit Life Cycle
+                  </button>
+                  <button type="button" onclick="deleteCurrentCycle()" class="btn btn-sm" style="background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;">
+                    <span>🗑️</span> Delete Life Cycle
+                  </button>
                 </div>
-                <div>
-                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Actual Spend</span>
-                  <p class="tabular-nums font-mono" id="crop-spend-val" style="font-size: 1.25rem; font-weight: 800; color: var(--color-forest); margin: 0.1rem 0;">₹18,500</p>
-                </div>
-                <div>
-                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Target Margin</span>
-                  <p class="tabular-nums font-mono" id="crop-margin-val" style="font-size: 1.25rem; font-weight: 800; color: var(--color-emerald-dark); margin: 0.1rem 0;">58.9%</p>
+
+                <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                  <div>
+                    <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Planned Budget</span>
+                    <p class="tabular-nums font-mono" id="crop-budget-val" style="font-size: 1.25rem; font-weight: 800; color: var(--color-text-primary); margin: 0.1rem 0;">₹50,000</p>
+                  </div>
+                  <div>
+                    <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Actual Spend</span>
+                    <p class="tabular-nums font-mono" id="crop-spend-val" style="font-size: 1.25rem; font-weight: 800; color: var(--color-forest); margin: 0.1rem 0;">₹18,500</p>
+                  </div>
+                  <div>
+                    <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Target Margin</span>
+                    <p class="tabular-nums font-mono" id="crop-margin-val" style="font-size: 1.25rem; font-weight: 800; color: var(--color-emerald-dark); margin: 0.1rem 0;">58.9%</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -347,6 +358,60 @@
     </div>
   </div>
 
+  <!-- Modal for Edit Crop -->
+  <div class="modal-overlay" id="edit-crop-modal">
+    <div class="modal-content">
+      <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="font-size: 1.125rem; font-weight: 800;">Edit Seasonal Crop Cycle</h3>
+        <button onclick="document.getElementById('edit-crop-modal').classList.remove('active')" style="background:none; border:none; font-size:1.25rem; cursor:pointer;">✕</button>
+      </div>
+
+      <form id="edit-crop-form" style="padding: 1.5rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label">Crop Name *</label>
+            <input type="text" id="edit-cycle-crop" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Variety</label>
+            <input type="text" id="edit-cycle-variety" class="form-input" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label">Season *</label>
+            <select id="edit-cycle-season" class="form-select">
+              <option value="Kharif">Kharif</option>
+              <option value="Rabi">Rabi</option>
+              <option value="Zaid">Zaid</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target Yield (Tonnes) *</label>
+            <input type="number" step="0.1" id="edit-cycle-yield" class="form-input" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label">Selling Price (₹/Tonne) *</label>
+            <input type="number" id="edit-cycle-price" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Planned Budget (₹) *</label>
+            <input type="number" id="edit-cycle-budget" class="form-input" required>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; pt-3; border-top: 1px solid var(--color-border);">
+          <button type="button" onclick="document.getElementById('edit-crop-modal').classList.remove('active')" class="btn btn-secondary btn-sm">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Save Cycle Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
@@ -358,6 +423,8 @@
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       window.FarmPilotApp.init('crops');
+
+      let currentCycle = await window.FarmPilotDB.getCropCycle();
 
       // 1. Tab Switching
       document.querySelectorAll('#crop-workspace-tabs button').forEach(btn => {
@@ -472,21 +539,86 @@
         recalculateSensitivity();
       }
 
-      // 7. Modal Form Submit
+      // --- EDIT CROP CYCLE CONTROLLER ---
+      window.openEditCycleModal = () => {
+        if (!currentCycle) return;
+        document.getElementById('edit-cycle-crop').value = currentCycle.crop_name || 'Paddy (Rice)';
+        document.getElementById('edit-cycle-variety').value = currentCycle.variety || 'BPT-5204';
+        document.getElementById('edit-cycle-season').value = currentCycle.season || 'Kharif';
+        document.getElementById('edit-cycle-yield').value = currentCycle.target_yield || 4.2;
+        document.getElementById('edit-cycle-price').value = currentCycle.selling_price_per_unit || 29000;
+        document.getElementById('edit-cycle-budget').value = currentCycle.planned_budget || 50000;
+        document.getElementById('edit-crop-modal').classList.add('active');
+      };
+
+      document.getElementById('edit-crop-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const updates = {
+          crop_name: document.getElementById('edit-cycle-crop').value.trim(),
+          variety: document.getElementById('edit-cycle-variety').value.trim(),
+          season: document.getElementById('edit-cycle-season').value,
+          target_yield: parseFloat(document.getElementById('edit-cycle-yield').value) || 4.2,
+          selling_price_per_unit: parseFloat(document.getElementById('edit-cycle-price').value) || 29000,
+          planned_budget: parseFloat(document.getElementById('edit-cycle-budget').value) || 50000
+        };
+
+        if (currentCycle?.id) {
+          await window.FarmPilotDB.updateCropCycle(currentCycle.id, updates);
+        }
+        currentCycle = { ...currentCycle, ...updates };
+
+        const nameEl = document.getElementById('hero-crop-name');
+        if (nameEl) nameEl.textContent = updates.crop_name;
+        const varEl = document.getElementById('hero-crop-variety');
+        if (varEl) varEl.textContent = updates.variety;
+        const seasonEl = document.getElementById('hero-crop-season');
+        if (seasonEl) seasonEl.textContent = `Active ${updates.season} 2026`;
+        const budgetEl = document.getElementById('crop-budget-val');
+        if (budgetEl) budgetEl.textContent = `₹${updates.planned_budget.toLocaleString('en-IN')}`;
+
+        document.getElementById('edit-crop-modal').classList.remove('active');
+        window.FarmPilotApp.showToast(`Life cycle '${updates.crop_name} (${updates.variety})' updated! ✨`);
+      });
+
+      // --- DELETE CROP CYCLE CONTROLLER ---
+      window.deleteCurrentCycle = async () => {
+        if (!confirm('Are you sure you want to delete this biological crop lifecycle? This will remove associated lifecycle stages and field activities.')) return;
+
+        if (currentCycle?.id) {
+          await window.FarmPilotDB.deleteCropCycle(currentCycle.id);
+        } else {
+          localStorage.removeItem('fp_crop_cycle');
+        }
+
+        const heroCard = document.getElementById('crop-cycle-hero-card');
+        if (heroCard) {
+          heroCard.style.transition = 'all 0.4s ease';
+          heroCard.style.transform = 'scale(0.95)';
+          heroCard.style.opacity = '0';
+          setTimeout(() => {
+            heroCard.style.display = 'none';
+            window.FarmPilotApp.showToast('Biological crop life cycle deleted.', 'info');
+          }, 400);
+        }
+      };
+
+      // 7. Modal Form Submit for Launching New Cycle
       document.getElementById('add-crop-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const payload = {
-          crop_name: document.getElementById('cycle-crop').value,
-          variety: document.getElementById('cycle-variety').value,
+          crop_name: document.getElementById('cycle-crop').value.trim(),
+          variety: document.getElementById('cycle-variety').value.trim(),
           season: document.getElementById('cycle-season').value,
           target_yield: parseFloat(document.getElementById('cycle-yield').value) || 4.2,
           selling_price_per_unit: parseFloat(document.getElementById('cycle-price').value) || 29000,
           planned_budget: parseFloat(document.getElementById('cycle-budget').value) || 50000
         };
 
-        await window.FarmPilotDB.createCropCycle(payload);
+        const created = await window.FarmPilotDB.createCropCycle(payload);
+        currentCycle = created;
         document.getElementById('add-crop-modal').classList.remove('active');
-        window.FarmPilotApp.showToast('Crop cycle saved with 6 biological stages! 🎉');
+        window.FarmPilotApp.showToast('Crop life cycle saved with 6 biological stages! 🎉');
+        setTimeout(() => window.location.reload(), 500);
       });
     });
   </script>
