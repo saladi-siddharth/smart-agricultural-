@@ -121,41 +121,99 @@
                   <span class="badge badge-neutral" style="font-size: 0.5625rem; margin-top: 0.25rem;">Projected</span>
                 </div>
               </div>
+                    <!-- Phase 1 Problem Statement: Interactive Harvest Yield & Profitability Sensitivity Simulator -->
+            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="badge badge-success">Phase 1 Economic Engine</span>
+                    <span class="badge badge-neutral">Interactive Sensitivity Analysis</span>
+                  </div>
+                  <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.25rem;">
+                    Harvest Yield & Mandi MSP Profitability Simulator
+                  </h3>
+                  <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.15rem;">
+                    Problem Statement Section 6 • Slide yield and MSP to project Gross Revenue, Net Margin, and Break-Even
+                  </p>
+                </div>
+              </div>
+
+              <!-- Interactive Controls & Sensitivity Matrix Grid -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; background: var(--color-surface-secondary); padding: 1.25rem; border-radius: var(--radius-lg); border: 1px solid var(--color-border-subtle); margin-bottom: 1.25rem;">
+                
+                <!-- Yield Slider -->
+                <div class="simulator-slider-group">
+                  <div class="simulator-slider-header">
+                    <label class="form-label" style="font-weight: 700; color: var(--color-text-primary); margin: 0;">Expected Yield (Plot A)</label>
+                    <span id="display-sim-yield" class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-forest);">4.2 Tonnes</span>
+                  </div>
+                  <input type="range" id="sim-yield-slider" class="slider-range-custom" min="2.5" max="6.0" step="0.1" value="4.2">
+                  <div style="display: flex; justify-content: space-between; font-size: 0.6875rem; color: var(--color-text-tertiary); margin-top: 0.35rem;">
+                    <span>2.5 Tonnes (Drought Risk)</span>
+                    <span style="color: var(--color-forest); font-weight: 700;">4.2 T Benchmark</span>
+                    <span>6.0 Tonnes (Maximum Vigor)</span>
+                  </div>
+                </div>
+
+                <!-- MSP Slider -->
+                <div class="simulator-slider-group">
+                  <div class="simulator-slider-header">
+                    <label class="form-label" style="font-weight: 700; color: var(--color-text-primary); margin: 0;">Selling Price / MSP (₹/Tonne)</label>
+                    <span id="display-sim-price" class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-forest);">₹29,000 / T</span>
+                  </div>
+                  <input type="range" id="sim-price-slider" class="slider-range-custom" min="22000" max="36000" step="500" value="29000">
+                  <div style="display: flex; justify-content: space-between; font-size: 0.6875rem; color: var(--color-text-tertiary); margin-top: 0.35rem;">
+                    <span>₹22,000 (Market Slump)</span>
+                    <span style="color: var(--color-forest); font-weight: 700;">₹29,000 Kharif MSP</span>
+                    <span>₹36,000 (Premium Mandi)</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Output KPI Matrix -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div style="background-color: var(--color-surface-primary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Gross Projected Revenue</span>
+                  <p id="sim-revenue-text" class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-forest); margin-top: 0.25rem;">
+                    ₹1,21,800
+                  </p>
+                  <span id="sim-revenue-sub" style="font-size: 0.75rem; color: var(--color-text-secondary);">4.2 T × ₹29,000/T</span>
+                </div>
+
+                <div style="background-color: var(--color-surface-primary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Total Operational Cost</span>
+                  <p id="sim-cost-text" class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.25rem;">
+                    ₹46,500
+                  </p>
+                  <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Current audited season spend</span>
+                </div>
+
+                <div style="background-color: #ECFDF5; padding: 1rem; border-radius: var(--radius-md); border: 1.5px solid #A7F3D0;">
+                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: #047857;">Estimated Net Profit</span>
+                  <p id="sim-profit-text" class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: #065F46; margin-top: 0.25rem;">
+                    ₹75,300
+                  </p>
+                  <span id="sim-margin-text" style="font-size: 0.75rem; color: #047857; font-weight: 700;">61.8% Net Margin • 162% ROI</span>
+                </div>
+
+                <div style="background-color: var(--color-surface-primary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Break-Even Threshold</span>
+                  <p id="sim-breakeven-text" class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.25rem;">
+                    1.60 <span style="font-size: 0.8125rem;">Tonnes</span>
+                  </p>
+                  <span id="sim-breakeven-sub" style="font-size: 0.75rem; color: var(--color-text-secondary);">Yield required to cover ₹46.5K</span>
+                </div>
+              </div>
+
+              <!-- Live Agronomic & Financial Intelligence Insight -->
+              <div style="background: rgba(240, 253, 244, 0.7); border: 1px dashed #34D399; border-radius: var(--radius-md); padding: 0.75rem 1rem; margin-top: 1rem; display: flex; align-items: flex-start; gap: 0.6rem;">
+                <span style="font-size: 1rem; flex-shrink: 0;">📈</span>
+                <div id="sim-insight-text" style="font-size: 0.75rem; color: #065F46; line-height: 1.5;">
+                  <strong>Economic Decision Support:</strong> At 4.2 Tonnes/plot and ₹29,000 MSP, Green Valley Farm realizes ₹75,300 net operating profit. The enterprise can absorb a 61.9% price/yield decline before reaching break-even (1.60 T).
+                </div>
+              </div>
             </div>
-
-            <!-- Exact Problem Statement Yield & Financial Simulation Grid -->
-            <div style="margin-top: 2rem; pt-4; border-top: 1px solid var(--color-border); display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
-              <div style="background-color: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-subtle);">
-                <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Target Yield</span>
-                <p class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.25rem;">
-                  4.2 <span style="font-size: 0.8125rem;">tonnes</span>
-                </p>
-                <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Benchmark capacity: 4.2 T</span>
-              </div>
-
-              <div style="background-color: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-subtle);">
-                <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">MSP Selling Price</span>
-                <p class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.25rem;">
-                  ₹29,000 <span style="font-size: 0.8125rem;">/tonne</span>
-                </p>
-                <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Grade A Minimum Support Price</span>
-              </div>
-
-              <div style="background-color: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-subtle);">
-                <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Projected Gross Revenue</span>
-                <p class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-forest); margin-top: 0.25rem;">
-                  ₹1,21,800
-                </p>
-                <span style="font-size: 0.75rem; color: var(--color-emerald-dark); font-weight: 600;">Formula: 4.2T × ₹29,000</span>
-              </div>
-
-              <div style="background-color: var(--color-emerald-subtle); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-emerald-light);">
-                <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-forest);">Estimated Net Profit</span>
-                <p class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-forest); margin-top: 0.25rem;">
-                  ₹71,800
-                </p>
-                <span style="font-size: 0.75rem; color: var(--color-emerald-dark); font-weight: 600;">₹50,000 budget deduction</span>
-              </div>
             </div>
           </div>
 
@@ -310,6 +368,58 @@
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       window.FarmPilotApp.init('crops');
+
+      // Phase 1 Problem Statement: Yield & MSP Profitability Sensitivity Engine
+      const yieldSlider = document.getElementById('sim-yield-slider');
+      const priceSlider = document.getElementById('sim-price-slider');
+
+      function recalculateSensitivity() {
+        if (!yieldSlider || !priceSlider) return;
+
+        const yieldVal = parseFloat(yieldSlider.value);
+        const priceVal = parseFloat(priceSlider.value);
+        const cost = 46500; // Audited Kharif season operational spend
+
+        const grossRevenue = yieldVal * priceVal;
+        const netProfit = grossRevenue - cost;
+        const marginPct = (netProfit / grossRevenue) * 100;
+        const roiPct = ((netProfit) / cost) * 100;
+        const breakEvenYield = cost / priceVal;
+
+        // Update Labels
+        document.getElementById('display-sim-yield').textContent = `${yieldVal.toFixed(1)} Tonnes`;
+        document.getElementById('display-sim-price').textContent = `₹${priceVal.toLocaleString('en-IN')} / T`;
+
+        // Update KPI Cards
+        document.getElementById('sim-revenue-text').textContent = `₹${Math.round(grossRevenue).toLocaleString('en-IN')}`;
+        document.getElementById('sim-revenue-sub').textContent = `${yieldVal.toFixed(1)} T × ₹${priceVal.toLocaleString('en-IN')}/T`;
+
+        const profitEl = document.getElementById('sim-profit-text');
+        profitEl.textContent = `${netProfit >= 0 ? '₹' : '-₹'}${Math.abs(Math.round(netProfit)).toLocaleString('en-IN')}`;
+        profitEl.style.color = netProfit >= 0 ? '#065F46' : '#DC2626';
+
+        const marginEl = document.getElementById('sim-margin-text');
+        marginEl.textContent = `${marginPct.toFixed(1)}% Net Margin • ${Math.round(roiPct)}% ROI`;
+        marginEl.style.color = netProfit >= 0 ? '#047857' : '#DC2626';
+
+        document.getElementById('sim-breakeven-text').innerHTML = `${breakEvenYield.toFixed(2)} <span style="font-size: 0.8125rem;">Tonnes</span>`;
+        document.getElementById('sim-breakeven-sub').textContent = `Yield required to cover ₹${(cost / 1000).toFixed(1)}K cost`;
+
+        // Update Insight narrative
+        const insightEl = document.getElementById('sim-insight-text');
+        if (netProfit >= 0) {
+          const bufferPct = (((yieldVal - breakEvenYield) / yieldVal) * 100).toFixed(1);
+          insightEl.innerHTML = `<strong>Economic Decision Support:</strong> At ${yieldVal.toFixed(1)} Tonnes and ₹${priceVal.toLocaleString('en-IN')} MSP, Green Valley Farm realizes ₹${Math.round(netProfit).toLocaleString('en-IN')} net operating profit. The farm can absorb a <strong>${bufferPct}%</strong> yield/price shock before reaching break-even (${breakEvenYield.toFixed(2)} T).`;
+        } else {
+          insightEl.innerHTML = `<strong>⚠️ Economic Deficit Warning:</strong> At current parameters (${yieldVal.toFixed(1)} T @ ₹${priceVal.toLocaleString('en-IN')}), operations run a <strong>₹${Math.abs(Math.round(netProfit)).toLocaleString('en-IN')}</strong> loss. Yield must improve by ${(breakEvenYield - yieldVal).toFixed(2)} T or Mandi price must exceed ₹${Math.round(cost / yieldVal).toLocaleString('en-IN')}/T to break even.`;
+        }
+      }
+
+      if (yieldSlider && priceSlider) {
+        yieldSlider.addEventListener('input', recalculateSensitivity);
+        priceSlider.addEventListener('input', recalculateSensitivity);
+        recalculateSensitivity();
+      }
 
       // Crop Cycle Form submission
       document.getElementById('add-crop-form').addEventListener('submit', async (e) => {

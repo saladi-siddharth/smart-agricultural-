@@ -5,7 +5,6 @@
 
 window.TrashAnimationEngine = {
   initialized: false,
-  disposedCount: 0,
   dustbinDockEl: null,
   dustbinContainerEl: null,
 
@@ -25,10 +24,6 @@ window.TrashAnimationEngine = {
     dock.id = 'farmpilot-dustbin-dock';
     dock.className = 'farmpilot-red-dustbin-dock animate-fade-in';
     dock.innerHTML = `
-      <div style="display: flex; justify-content: center; width: 100%; margin-bottom: 2px;">
-        <span class="dustbin-counter-pill" id="dustbin-count" title="Items Disposed">0</span>
-      </div>
-
       <div class="dustbin-container" id="dustbin-container" title="Disposal Hub">
         <!-- SVG Red Dustbin with Separated Hinged Lid (Compact) -->
         <svg width="32" height="40" viewBox="0 0 54 68" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -299,11 +294,6 @@ window.TrashAnimationEngine = {
               window.TrashAnimationEngine.closeLid();
               window.TrashAnimationEngine.jiggle();
               window.TrashAnimationEngine.emitSparks(targetX, targetY);
-
-              // Increment counter
-              window.TrashAnimationEngine.disposedCount++;
-              const countEl = document.getElementById('dustbin-count');
-              if (countEl) countEl.textContent = window.TrashAnimationEngine.disposedCount;
 
               // Phase 6: Execute Callback to delete from DB
               if (onCompleteCallback) {

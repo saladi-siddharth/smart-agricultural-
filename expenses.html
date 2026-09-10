@@ -37,61 +37,117 @@
             </button>
           </div>
 
-          <!-- Kharif Budget Progress Card -->
+          <!-- Phase 1 Problem Statement: Financial Intelligence & Variance Card -->
           <div class="card" style="border-top: 4px solid var(--color-forest);">
             <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.75rem;">
               <div>
-                <h3 style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary);">Kharif 2026 Season Budget Utilization</h3>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                  <span class="badge badge-success">Phase 1 Financial Intelligence</span>
+                  <span class="badge badge-warning">Cost Efficiency: Good</span>
+                </div>
+                <h3 style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary);">Kharif 2026 Season Financial Projections</h3>
                 <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.2rem;">
-                  Total Outlay Target: ₹50,000.00 • Active Cycle: Paddy BPT-5204 (10.0 Acres)
+                  10.0 Acres Paddy BPT-5204 • Target Yield: 4.2 Tonnes • MSP: ₹29,000 / Tonne
                 </p>
               </div>
 
-              <div style="text-align: right;">
-                <span class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-forest);">
-                  ₹18,500 <span style="font-size: 0.875rem; color: var(--color-text-tertiary);">/ ₹50,000</span>
-                </span>
-                <span class="badge badge-success" style="margin-left: 0.5rem;">37% Utilized</span>
+              <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                <div>
+                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Total Cost</span>
+                  <p class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.1rem;">₹46,500</p>
+                </div>
+                <div>
+                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Expected Revenue</span>
+                  <p class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: var(--color-forest); margin-top: 0.1rem;">₹1,24,000</p>
+                </div>
+                <div>
+                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Expected Profit</span>
+                  <p class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: var(--color-forest); margin-top: 0.1rem;">₹77,500</p>
+                </div>
+                <div>
+                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Profit Margin</span>
+                  <p class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: var(--color-emerald-dark); margin-top: 0.1rem;">62.5%</p>
+                </div>
               </div>
             </div>
 
-            <!-- Progress Bar -->
-            <div style="height: 10px; background-color: var(--color-surface-tertiary); border-radius: var(--radius-full); overflow: hidden; margin: 1rem 0 0.5rem;">
-              <div style="width: 37%; height: 100%; background: linear-gradient(90deg, #059669 0%, #10B981 100%); border-radius: var(--radius-full);"></div>
+            <!-- Problem Statement Overrun Warning Alert -->
+            <div style="background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: var(--radius-md); padding: 0.65rem 0.85rem; margin: 0.75rem 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #991B1B; font-weight: 600;">
+                <span>⚠️</span>
+                <span><strong>Budget Variance Alert:</strong> Spending 14% above planned fertilizer budget due to corrective micronutrient application.</span>
+              </div>
+              <span class="variance-pill warning">+14.3% Over Budget</span>
             </div>
 
-            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-secondary);">
-              <span>₹18,500 Expended (Optimal Pace)</span>
-              <strong style="color: var(--color-emerald-dark);">₹31,500 Buffer Remaining for Grain Filling & Harvest</strong>
+            <!-- Category Planned vs Actual Variance Grid (Problem Statement Standard) -->
+            <div class="variance-grid">
+              <!-- Seeds -->
+              <div class="variance-cell">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">1. Seeds</span>
+                  <span class="variance-pill neutral">On Track</span>
+                </div>
+                <p class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: var(--color-text-primary); margin: 0.35rem 0 0.15rem;">₹8,000</p>
+                <div style="font-size: 0.6875rem; color: var(--color-text-secondary); display: flex; justify-content: space-between;">
+                  <span>Planned: ₹8,000</span>
+                  <strong class="font-mono" style="color: var(--color-forest);">0.0%</strong>
+                </div>
+              </div>
+
+              <!-- Fertilizer -->
+              <div class="variance-cell" style="border-left: 3px solid #EF4444;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: #DC2626;">2. Fertilizer</span>
+                  <span class="variance-pill warning">⚠️ +14.3%</span>
+                </div>
+                <p class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: #DC2626; margin: 0.35rem 0 0.15rem;">₹12,000</p>
+                <div style="font-size: 0.6875rem; color: var(--color-text-secondary); display: flex; justify-content: space-between;">
+                  <span>Planned: ₹10,500</span>
+                  <strong class="font-mono" style="color: #DC2626;">+₹1,500</strong>
+                </div>
+              </div>
+
+              <!-- Labor -->
+              <div class="variance-cell">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">3. Labor</span>
+                  <span class="variance-pill neutral">On Track</span>
+                </div>
+                <p class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: var(--color-text-primary); margin: 0.35rem 0 0.15rem;">₹14,000</p>
+                <div style="font-size: 0.6875rem; color: var(--color-text-secondary); display: flex; justify-content: space-between;">
+                  <span>Planned: ₹14,000</span>
+                  <strong class="font-mono" style="color: var(--color-forest);">0.0%</strong>
+                </div>
+              </div>
+
+              <!-- Irrigation -->
+              <div class="variance-cell">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">4. Irrigation</span>
+                  <span class="variance-pill positive">✓ -8.3%</span>
+                </div>
+                <p class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: var(--color-text-primary); margin: 0.35rem 0 0.15rem;">₹5,500</p>
+                <div style="font-size: 0.6875rem; color: var(--color-text-secondary); display: flex; justify-content: space-between;">
+                  <span>Planned: ₹6,000</span>
+                  <strong class="font-mono" style="color: var(--color-forest);">-₹500</strong>
+                </div>
+              </div>
+
+              <!-- Other -->
+              <div class="variance-cell">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">5. Other / Protect</span>
+                  <span class="variance-pill positive">✓ -6.7%</span>
+                </div>
+                <p class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: var(--color-text-primary); margin: 0.35rem 0 0.15rem;">₹7,000</p>
+                <div style="font-size: 0.6875rem; color: var(--color-text-secondary); display: flex; justify-content: space-between;">
+                  <span>Planned: ₹7,500</span>
+                  <strong class="font-mono" style="color: var(--color-forest);">-₹500</strong>
+                </div>
+              </div>
             </div>
           </div>
-
-          <!-- Expense Category Ribbon -->
-          <section class="kpi-grid">
-            <div class="kpi-card">
-              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Fertilizers</span>
-              <p class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0;">₹8,100</p>
-              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">44% of total spend</span>
-            </div>
-
-            <div class="kpi-card">
-              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Transplanting Labor</span>
-              <p class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0;">₹5,600</p>
-              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">30% of total spend</span>
-            </div>
-
-            <div class="kpi-card">
-              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Certified Seed</span>
-              <p class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0;">₹3,600</p>
-              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">19% of total spend</span>
-            </div>
-
-            <div class="kpi-card">
-              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Crop Protection</span>
-              <p class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0;">₹1,200</p>
-              <span style="font-size: 0.75rem; color: var(--color-text-secondary);">7% of total spend</span>
-            </div>
-          </section>
 
           <!-- Expense Table Card -->
           <div class="card">

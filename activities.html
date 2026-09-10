@@ -152,6 +152,78 @@
             <!-- Injected by JavaScript -->
           </div>
 
+          <!-- Phase 1 Problem Statement: Tier B Irrigation & Water Management Ledger -->
+          <div class="card" style="margin-top: 1.5rem; border-top: 4px solid #0284C7;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                  <span class="badge" style="background: #E0F2FE; color: #0284C7; border: 1px solid #BAE6FD;">Tier B Operation</span>
+                  <span class="badge badge-success">AWD Water Management Protocol</span>
+                </div>
+                <h3 style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary);">
+                  Field Irrigation & Water Balance Ledger
+                </h3>
+                <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.2rem;">
+                  Alternate Wetting & Drying (AWD) protocol for Paddy BPT-5204 • Prevents methane emissions & saves 28% water
+                </p>
+              </div>
+
+              <button onclick="document.getElementById('add-irrigation-modal').classList.add('active')" class="btn btn-sm btn-outline" style="border-color: #0284C7; color: #0284C7;">
+                <span>💧 Log Irrigation Event</span>
+              </button>
+            </div>
+
+            <!-- AWD Meter & Status Matrix -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+              <div class="awd-meter-card">
+                <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: #0369A1;">Current Water Depth</span>
+                <p id="awd-current-depth" class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: #0284C7; margin-top: 0.25rem;">
+                  5.0 <span style="font-size: 0.8125rem;">cm</span>
+                </p>
+                <div class="water-depth-bar">
+                  <div id="awd-depth-fill" class="water-depth-fill" style="width: 65%;"></div>
+                </div>
+                <span style="font-size: 0.6875rem; color: #0369A1; font-weight: 600;">Safe Submersion Range: 3.0 – 7.0 cm</span>
+              </div>
+
+              <div style="background: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-subtle);">
+                <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Next Scheduled Flooding</span>
+                <p class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.25rem;">
+                  June 29, 2026
+                </p>
+                <span style="font-size: 0.75rem; color: var(--color-emerald-dark); font-weight: 600;">Plot B (8.5 Acres) • AWD Cycle #2</span>
+              </div>
+
+              <div style="background: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-subtle);">
+                <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Pump Runtime & Cost</span>
+                <p id="awd-runtime-stat" class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: var(--color-forest); margin-top: 0.25rem;">
+                  32.0 <span style="font-size: 0.8125rem;">Hours (₹3,200)</span>
+                </p>
+                <span style="font-size: 0.75rem; color: var(--color-text-secondary);">5HP Submersible Borewell</span>
+              </div>
+            </div>
+
+            <!-- Itemized Irrigation Events Table -->
+            <div class="data-table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Target Field Parcel</th>
+                    <th>Irrigation Protocol</th>
+                    <th>Water Depth</th>
+                    <th>Pump Duration</th>
+                    <th>Power Cost</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="irrigation-table-body">
+                  <!-- Injected by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       </main>
     </div>
@@ -201,28 +273,83 @@
             <input type="date" id="act-date" class="form-input" required>
           </div>
           <div class="form-group">
-            <label class="form-label">Priority</label>
-            <select id="act-priority" class="form-select">
-              <option value="HIGH">High Priority</option>
-              <option value="MEDIUM" selected>Medium Priority</option>
-              <option value="LOW">Low Priority</option>
-            </select>
+            <label class="form-label">Estimated Cost (₹)</label>
+            <input type="number" id="act-cost" class="form-input" placeholder="1200" value="1200">
           </div>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Estimated Cost (₹)</label>
-          <input type="number" id="act-cost" class="form-input" placeholder="1500">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Agronomic Instructions & Dosage</label>
+          <label class="form-label">Agronomic Notes & Safety</label>
           <textarea id="act-notes" class="form-textarea" rows="3" placeholder="Application dosage, dilution ratio, safety guidelines..."></textarea>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; pt-3; border-top: 1px solid var(--color-border);">
           <button type="button" onclick="document.getElementById('add-activity-modal').classList.remove('active')" class="btn btn-secondary btn-sm">Cancel</button>
           <button type="submit" id="btn-submit-activity" class="btn btn-primary btn-sm btn-submit-animated">Schedule Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Phase 1 Tier B: Log Irrigation Event Modal -->
+  <div class="modal-overlay" id="add-irrigation-modal">
+    <div class="modal-content">
+      <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: #F0F9FF;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.25rem;">💧</span>
+          <div>
+            <h3 style="font-size: 1.125rem; font-weight: 800; color: #0369A1;">Log Field Irrigation Event</h3>
+            <p style="font-size: 0.75rem; color: #0284C7;">Record water depth, duration, and pump outlay</p>
+          </div>
+        </div>
+        <button onclick="document.getElementById('add-irrigation-modal').classList.remove('active')" style="font-size: 1.25rem; color: #64748B; background: none; border: none; cursor: pointer;">✕</button>
+      </div>
+
+      <form id="add-irrigation-form" style="padding: 1.5rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label">Target Parcel *</label>
+            <select id="irrig-field" class="form-select">
+              <option value="North Block (Plot A)">North Block (Plot A — 10.0 Ac)</option>
+              <option value="Central Sector (Plot B)">Central Sector (Plot B — 8.5 Ac)</option>
+              <option value="South Sector (Plot C)">South Sector (Plot C — 6.5 Ac)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Irrigation Technique</label>
+            <select id="irrig-protocol" class="form-select">
+              <option value="AWD Submersion">Alternate Wetting & Drying (AWD)</option>
+              <option value="Continuous Ponding">Continuous Ponding</option>
+              <option value="Furrow Irrigation">Furrow / Channel</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label">Water Depth Post-Flooding (cm) *</label>
+            <input type="number" step="0.5" id="irrig-depth" class="form-input" required value="5.0" placeholder="5.0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Pump Duration (Hours) *</label>
+            <input type="number" step="0.5" id="irrig-hours" class="form-input" required value="3.5" placeholder="3.5">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label">Energy / Fuel Cost (₹)</label>
+            <input type="number" id="irrig-cost" class="form-input" required value="350" placeholder="350">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Irrigation Date *</label>
+            <input type="date" id="irrig-date" class="form-input" required>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; pt-3; border-top: 1px solid var(--color-border);">
+          <button type="button" onclick="document.getElementById('add-irrigation-modal').classList.remove('active')" class="btn btn-secondary btn-sm">Cancel</button>
+          <button type="submit" id="btn-submit-irrigation" class="btn btn-primary btn-sm btn-submit-animated" style="background: #0284C7; border-color: #0369A1;">Log Irrigation Event</button>
         </div>
       </form>
     </div>
@@ -448,7 +575,7 @@
           category: document.getElementById('act-category').value,
           field_name: document.getElementById('act-field').value,
           due_date: document.getElementById('act-date').value,
-          priority: document.getElementById('act-priority').value,
+          priority: document.getElementById('act-priority') ? document.getElementById('act-priority').value : 'MEDIUM',
           cost: parseFloat(document.getElementById('act-cost').value) || 0,
           notes: document.getElementById('act-notes').value,
           status: 'PENDING'
@@ -462,6 +589,93 @@
           window.FarmPilotApp.showToast('⚡ Activity scheduled & materialized into field queue! 🎉');
         });
       });
+
+      // --------------------------------------------------------------------------
+      // Phase 1 Problem Statement Tier B: Irrigation & Water Management Engine
+      // --------------------------------------------------------------------------
+      const defaultIrrigationLogs = [
+        { id: 'irg-1', date: '2026-06-22', field: 'North Block (Plot A)', protocol: 'AWD Submersion', depth: 5.0, hours: 3.5, cost: 350, status: 'Completed' },
+        { id: 'irg-2', date: '2026-06-15', field: 'North Block (Plot A)', protocol: 'Continuous Ponding', depth: 7.5, hours: 5.0, cost: 500, status: 'Completed' },
+        { id: 'irg-3', date: '2026-06-29', field: 'Central Sector (Plot B)', protocol: 'AWD Submersion', depth: 4.5, hours: 3.0, cost: 300, status: 'Scheduled' }
+      ];
+
+      let irrigationLogs = JSON.parse(localStorage.getItem('farmpilot_irrigation_logs')) || defaultIrrigationLogs;
+
+      function renderIrrigation() {
+        const tbody = document.getElementById('irrigation-table-body');
+        if (!tbody) return;
+
+        tbody.innerHTML = irrigationLogs.map(item => `
+          <tr>
+            <td class="font-mono" style="font-size: 0.8125rem; font-weight: 700;">${item.date}</td>
+            <td><strong>${item.field}</strong></td>
+            <td><span class="badge badge-neutral">${item.protocol}</span></td>
+            <td class="tabular-nums font-mono" style="font-weight: 800; color: #0284C7;">${item.depth} cm</td>
+            <td class="tabular-nums font-mono">${item.hours} hrs</td>
+            <td class="tabular-nums font-mono font-bold" style="color: var(--color-forest);">₹${item.cost}</td>
+            <td><span class="badge ${item.status === 'Completed' ? 'badge-success' : 'badge-warning'}">${item.status}</span></td>
+          </tr>
+        `).join('');
+
+        // Update AWD Depth Gauge
+        const latestCompleted = irrigationLogs.find(i => i.status === 'Completed') || irrigationLogs[0];
+        if (latestCompleted) {
+          document.getElementById('awd-current-depth').innerHTML = `${latestCompleted.depth.toFixed(1)} <span style="font-size: 0.8125rem;">cm</span>`;
+          const pct = Math.min((latestCompleted.depth / 8.0) * 100, 100);
+          document.getElementById('awd-depth-fill').style.width = `${pct}%`;
+        }
+
+        // Update Cumulative Runtime
+        const totalHours = irrigationLogs.reduce((acc, cur) => acc + (parseFloat(cur.hours) || 0), 0);
+        const totalCost = irrigationLogs.reduce((acc, cur) => acc + (parseFloat(cur.cost) || 0), 0);
+        const statEl = document.getElementById('awd-runtime-stat');
+        if (statEl) {
+          statEl.innerHTML = `${totalHours.toFixed(1)} <span style="font-size: 0.8125rem;">Hours (₹${totalCost.toLocaleString('en-IN')})</span>`;
+        }
+      }
+
+      // Set today date in irrigation modal
+      document.getElementById('irrig-date').value = new Date().toISOString().split('T')[0];
+      renderIrrigation();
+
+      // Irrigation Submission Handler
+      const irrigForm = document.getElementById('add-irrigation-form');
+      const irrigSubmitBtn = document.getElementById('btn-submit-irrigation');
+      const irrigModal = document.getElementById('add-irrigation-modal');
+
+      if (irrigForm) {
+        irrigForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const payload = {
+            id: 'irg-' + Date.now(),
+            field: document.getElementById('irrig-field').value,
+            protocol: document.getElementById('irrig-protocol').value,
+            depth: parseFloat(document.getElementById('irrig-depth').value) || 5.0,
+            hours: parseFloat(document.getElementById('irrig-hours').value) || 3.5,
+            cost: parseFloat(document.getElementById('irrig-cost').value) || 350,
+            date: document.getElementById('irrig-date').value,
+            status: 'Completed'
+          };
+
+          if (window.SubmitAnimationEngine) {
+            await window.SubmitAnimationEngine.handleFormSubmit(irrigSubmitBtn, irrigModal, async () => {
+              irrigationLogs.unshift(payload);
+              localStorage.setItem('farmpilot_irrigation_logs', JSON.stringify(irrigationLogs));
+              renderIrrigation();
+              irrigForm.reset();
+              document.getElementById('irrig-date').value = new Date().toISOString().split('T')[0];
+              window.FarmPilotApp.showToast('💧 Irrigation event logged & AWD water depth updated! 🎉');
+            });
+          } else {
+            irrigationLogs.unshift(payload);
+            localStorage.setItem('farmpilot_irrigation_logs', JSON.stringify(irrigationLogs));
+            renderIrrigation();
+            irrigModal.classList.remove('active');
+            irrigForm.reset();
+            window.FarmPilotApp.showToast('💧 Irrigation event logged & AWD water depth updated! 🎉');
+          }
+        });
+      }
     });
   </script>
 </body>
