@@ -12,7 +12,7 @@
     "serve": "node server.js",
     "migrate": "node scripts/migrate.js",
     "seed": "node scripts/seed.js",
-    "test": "node -e \"console.log('All static pages and assets ready')\""
+    "test": "node scripts/verify-all.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
