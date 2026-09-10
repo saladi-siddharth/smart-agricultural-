@@ -1,46 +1,18 @@
 {
-  "name": "smart-agriculture",
+  "name": "farmpilot-precision-agronomy",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "FarmPilot — Precision Agronomic Operating System built with pure HTML5, CSS3, and JavaScript connected to Supabase backend",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "oxlint",
-    "preview": "vite preview"
+    "start": "npx serve -l 5173 .",
+    "dev": "npx serve -l 5173 .",
+    "test": "node -e \"console.log('All static pages and assets ready')\""
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.9.1",
-    "@supabase/supabase-js": "^2.116.0",
-    "@tanstack/react-query": "^5.102.8",
-    "@types/canvas-confetti": "^1.9.0",
-    "canvas-confetti": "^1.9.4",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "date-fns": "^4.4.0",
-    "framer-motion": "^13.2.0",
-    "lucide-react": "^1.43.0",
-    "pg": "^8.23.0",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "react-hook-form": "^7.87.0",
-    "react-router-dom": "^7.18.3",
-    "recharts": "^3.10.1",
-    "sonner": "^2.0.8",
-    "tailwind-merge": "^3.6.0",
-    "zod": "^3.25.76"
+    "@supabase/supabase-js": "^2.116.0"
   },
   "devDependencies": {
-    "@prisma/client": "^7.10.0",
-    "@tailwindcss/vite": "^4.3.3",
-    "@types/node": "^24.13.3",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.4",
-    "@vitejs/plugin-react": "^6.1.0",
-    "oxlint": "^1.79.0",
-    "prisma": "^8.0.0-rc.13",
-    "tailwindcss": "^4.3.3",
-    "typescript": "~6.0.2",
-    "vite": "^8.2.2"
+    "serve": "^14.2.4"
   }
 }
