@@ -17,6 +17,48 @@ window.FarmPilotApp = {
     this.renderSidebar();
     this.renderHeader();
     this.setupShortcuts();
+    
+    // Auto-update health across the application whenever changes occur
+    window.addEventListener('farmpilot:health-updated', (e) => {
+      this.updateHealthUI(e.detail);
+    });
+    this.updateHealthUI();
+  },
+
+  updateHealthUI(healthData) {
+    if (!healthData && window.FarmPilotDB) {
+      healthData = window.FarmPilotDB.getFarmHealth();
+    }
+    if (!healthData) return;
+
+    // 1. Sidebar indicator
+    const miniInd = document.querySelector('.mini-health-indicator .tabular-nums');
+    if (miniInd) {
+      miniInd.textContent = `${healthData.score}/100`;
+      miniInd.style.color = healthData.score >= 90 ? '#059669' : healthData.score >= 75 ? '#10B981' : '#D97706';
+    }
+
+    // 2. Intelligence nav badge
+    const healthNavBadge = document.querySelector('a[href="intelligence.html"] .nav-badge');
+    if (healthNavBadge) {
+      healthNavBadge.textContent = `${healthData.score}/100`;
+    }
+
+    // 3. Activities nav badge
+    const actNavBadge = document.querySelector('a[href="activities.html"] .nav-badge');
+    if (actNavBadge) {
+      if (healthData.overdueCount > 0) {
+        actNavBadge.textContent = `${healthData.overdueCount} Overdue`;
+        actNavBadge.className = 'nav-badge danger';
+        actNavBadge.style.display = 'inline-block';
+      } else if (healthData.pendingCount > 0) {
+        actNavBadge.textContent = `${healthData.pendingCount} Pending`;
+        actNavBadge.className = 'nav-badge success';
+        actNavBadge.style.display = 'inline-block';
+      } else {
+        actNavBadge.style.display = 'none';
+      }
+    }
   },
 
   showToast(message, type = 'success') {

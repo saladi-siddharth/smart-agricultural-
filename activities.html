@@ -4,10 +4,74 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FarmPilot — Operations & Activities</title>
-  <meta name="description" content="Manage field operations, chemical applications, and priority-ranked agronomic tasks.">
+  <meta name="description" content="Priority-ranked field operations, chemical applications, and automatic farm health synchronization.">
   
   <link rel="stylesheet" href="css/design-system.css">
   <link rel="stylesheet" href="css/components.css">
+  <style>
+    .task-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1.25rem;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: var(--shadow-sm);
+    }
+    .task-card:hover {
+      border-color: var(--color-border-strong);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+    .task-card.overdue-card {
+      border-left: 4px solid var(--color-danger);
+    }
+    .task-card.pending-card {
+      border-left: 4px solid var(--color-emerald);
+    }
+    .task-check-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 2px solid var(--color-border-strong);
+      background: transparent;
+      color: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 2px;
+    }
+    .task-check-btn:hover {
+      border-color: var(--color-emerald);
+      background-color: var(--color-emerald-subtle);
+      color: var(--color-emerald);
+      transform: scale(1.08);
+    }
+    .task-delete-btn {
+      padding: 0.35rem 0.65rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-text-tertiary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .task-delete-btn:hover {
+      color: var(--color-danger);
+      border-color: var(--color-danger);
+      background: #FEF2F2;
+    }
+  </style>
 </head>
 <body>
 
@@ -23,12 +87,12 @@
           <!-- Header Bar -->
           <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);">
             <div>
-              <span class="badge badge-warning" style="margin-bottom: 0.35rem;">Field Operations</span>
+              <span class="badge badge-warning" style="margin-bottom: 0.35rem;">Field Operations Ledger</span>
               <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--color-text-primary);">
                 Activities & Task Execution
               </h1>
               <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
-                Priority-ranked field operations, nutrient sprays, pest scouting, and completion tracking
+                Priority-ranked field operations • When an activity is marked done, it is automatically executed, cleared, and Farm Health updates in real time
               </p>
             </div>
 
@@ -37,23 +101,55 @@
             </button>
           </div>
 
+          <!-- Dynamic Live Farm Health Synchronization Ribbon -->
+          <div id="health-sync-banner" class="card" style="background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%); border-color: var(--color-emerald-light); padding: 1rem 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="width: 44px; height: 44px; border-radius: 50%; background: #DCFCE7; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800;" id="health-banner-gauge">
+                  82
+                </div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--color-forest);" id="health-banner-title">
+                      Farm Health: 82 / 100 (Action Required)
+                    </span>
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #10B981;" class="animate-pulse-glow"></span>
+                  </div>
+                  <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.15rem;" id="health-banner-sub">
+                    1 overdue intervention (Zinc Spray) is depressing Soil Vitality. Marking it done automatically purges the task and boosts Farm Health to 94/100!
+                  </p>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 1.25rem;">
+                <div style="text-align: right;">
+                  <span style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Active Tasks</span>
+                  <p class="tabular-nums font-mono" id="active-tasks-count" style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary);">3</p>
+                </div>
+                <div style="text-align: right;">
+                  <span style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Overdue</span>
+                  <p class="tabular-nums font-mono" id="overdue-tasks-count" style="font-size: 1.125rem; font-weight: 800; color: var(--color-amber-dark);">1</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Filter Ribbon -->
           <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
             <div style="display: flex; gap: 0.5rem;" id="filter-tabs">
-              <button class="btn btn-sm btn-primary" data-filter="ALL">All Operations (4)</button>
-              <button class="btn btn-sm btn-outline" data-filter="OVERDUE">Overdue (1)</button>
-              <button class="btn btn-sm btn-outline" data-filter="PENDING">Pending (2)</button>
-              <button class="btn btn-sm btn-outline" data-filter="COMPLETED">Completed (1)</button>
+              <button class="btn btn-sm btn-primary" data-filter="ALL">All Active Operations</button>
+              <button class="btn btn-sm btn-outline" data-filter="OVERDUE">Overdue Interventions</button>
+              <button class="btn btn-sm btn-outline" data-filter="PENDING">Upcoming / Scheduled</button>
             </div>
 
-            <div style="font-size: 0.75rem; color: var(--color-text-secondary);">
-              <span>Click checkmark on any task to execute with confetti</span>
+            <div style="font-size: 0.75rem; color: var(--color-text-secondary); display: flex; align-items: center; gap: 0.35rem;">
+              <span>⚡ Completed activities are automatically deleted and removed from the active register</span>
             </div>
           </div>
 
           <!-- Task Cards List -->
-          <div id="activities-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
-            <!-- Injected by JS -->
+          <div id="activities-container" style="display: flex; flex-direction: column; gap: 0.875rem;">
+            <!-- Injected by JavaScript -->
           </div>
 
         </div>
@@ -69,7 +165,7 @@
           <h3 style="font-size: 1.125rem; font-weight: 800;">Schedule Field Operation</h3>
           <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Assign parcel, operation type, and due date</p>
         </div>
-        <button onclick="document.getElementById('add-activity-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8;">✕</button>
+        <button onclick="document.getElementById('add-activity-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8; background: none; border: none; cursor: pointer;">✕</button>
       </div>
 
       <form id="add-activity-form" style="padding: 1.5rem;">
@@ -85,7 +181,7 @@
               <option value="FERTILIZATION">Fertilization</option>
               <option value="PEST_MANAGEMENT">Pest Management</option>
               <option value="IRRIGATION">Irrigation</option>
-              <option value="WEEDING">Weeding</option>
+              <option value="LAND_PREPARATION">Land Preparation</option>
               <option value="HARVEST">Harvest</option>
             </select>
           </div>
@@ -105,9 +201,18 @@
             <input type="date" id="act-date" class="form-input" required>
           </div>
           <div class="form-group">
-            <label class="form-label">Estimated Cost (₹)</label>
-            <input type="number" id="act-cost" class="form-input" placeholder="1500">
+            <label class="form-label">Priority</label>
+            <select id="act-priority" class="form-select">
+              <option value="HIGH">High Priority</option>
+              <option value="MEDIUM" selected>Medium Priority</option>
+              <option value="LOW">Low Priority</option>
+            </select>
           </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Estimated Cost (₹)</label>
+          <input type="number" id="act-cost" class="form-input" placeholder="1500">
         </div>
 
         <div class="form-group">
@@ -141,75 +246,182 @@
       let currentFilter = 'ALL';
       let activities = await window.FarmPilotDB.getActivities();
 
-      // Set default tomorrow date in form
+      // Set default tomorrow date in modal
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       document.getElementById('act-date').value = tomorrow.toISOString().split('T')[0];
 
+      function updateBanner(health) {
+        if (!health) health = window.FarmPilotDB.getFarmHealth();
+        
+        const gaugeEl = document.getElementById('health-banner-gauge');
+        const titleEl = document.getElementById('health-banner-title');
+        const subEl = document.getElementById('health-banner-sub');
+        const activeCountEl = document.getElementById('active-tasks-count');
+        const overdueCountEl = document.getElementById('overdue-tasks-count');
+
+        if (gaugeEl) {
+          gaugeEl.textContent = health.score;
+          gaugeEl.style.backgroundColor = health.score >= 90 ? '#DCFCE7' : '#FEF3C7';
+          gaugeEl.style.color = health.score >= 90 ? '#059669' : '#D97706';
+        }
+
+        if (titleEl) {
+          titleEl.textContent = `Farm Health: ${health.score} / 100 (${health.statusLabel})`;
+          titleEl.style.color = health.score >= 90 ? '#059669' : '#D97706';
+        }
+
+        if (subEl) {
+          if (health.overdueCount > 0) {
+            subEl.textContent = `${health.overdueCount} overdue intervention required. Marking it done automatically purges the task and boosts Farm Health to 94/100!`;
+          } else {
+            subEl.textContent = `✓ All critical operations are up to date! Farm health is optimal at ${health.score}/100. Soil vitality and crop vigor tracking at peak capacity.`;
+          }
+        }
+
+        if (activeCountEl) activeCountEl.textContent = activities.length;
+        if (overdueCountEl) overdueCountEl.textContent = health.overdueCount;
+      }
+
       function renderList() {
         const filtered = activities.filter(a => {
+          if (a.status === 'COMPLETED') return false; // Never show completed activities!
           if (currentFilter === 'ALL') return true;
           return a.status === currentFilter;
         });
 
+        updateBanner();
+
         if (filtered.length === 0) {
           container.innerHTML = `
-            <div class="card" style="text-align: center; padding: 3rem;">
-              <p style="font-weight: 700; color: var(--color-text-secondary);">No activities matching this filter.</p>
+            <div class="card" style="text-align: center; padding: 3.5rem 2rem; background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%); border: 1.5px dashed var(--color-emerald-light);">
+              <span style="font-size: 2.5rem;">🎉</span>
+              <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--color-forest); margin-top: 0.75rem;">
+                All Field Operations Completed & Cleared!
+              </h3>
+              <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.35rem; max-width: 480px; margin-left: auto; margin-right: auto;">
+                Every scheduled task in this category has been executed and automatically cleared. Farm Health is tracking at optimal capacity.
+              </p>
+              <button onclick="document.getElementById('add-activity-modal').classList.add('active')" class="btn btn-primary btn-sm" style="margin-top: 1.25rem;">
+                + Schedule New Field Task
+              </button>
             </div>
           `;
           return;
         }
 
         container.innerHTML = filtered.map(a => {
-          const isCompleted = a.status === 'COMPLETED';
           const isOverdue = a.status === 'OVERDUE';
-          const badgeClass = isCompleted ? 'badge-neutral' : isOverdue ? 'badge-danger' : 'badge-warning';
+          const priorityBadge = a.priority === 'HIGH' ? 'badge-danger' : a.priority === 'LOW' ? 'badge-neutral' : 'badge-warning';
 
           return `
-            <div class="card" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; ${isCompleted ? 'opacity: 0.65; background: var(--color-surface-secondary);' : ''}">
-              <div style="display: flex; align-items: flex-start; gap: 1rem;">
-                <button class="btn-check" data-id="${a.id}" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid ${isCompleted ? '#059669' : isOverdue ? '#DC2626' : 'var(--color-border-strong)'}; background: ${isCompleted ? '#059669' : 'transparent'}; color: ${isCompleted ? '#FFF' : 'transparent'}; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; flex-shrink: 0; cursor: pointer;">
+            <div class="task-card ${isOverdue ? 'overdue-card' : 'pending-card'}" id="card-${a.id}">
+              <div style="display: flex; align-items: flex-start; gap: 1rem; flex: 1;">
+                <!-- 1-Click Complete Button -->
+                <button class="task-check-btn" data-id="${a.id}" title="Mark Done & Delete Task">
                   ✓
                 </button>
-                <div>
+
+                <div style="flex: 1;">
                   <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                    <h3 style="font-size: 1rem; font-weight: 800; color: var(--color-text-primary); ${isCompleted ? 'text-decoration: line-through;' : ''}">${a.title}</h3>
-                    <span class="badge ${badgeClass}">${a.status}</span>
+                    <h3 style="font-size: 1rem; font-weight: 800; color: var(--color-text-primary);">${a.title}</h3>
+                    <span class="badge ${isOverdue ? 'badge-danger' : 'badge-success'}">${a.status}</span>
+                    <span class="badge ${priorityBadge}">${a.priority || 'MEDIUM'}</span>
                     <span class="badge badge-neutral" style="font-size: 0.625rem;">${a.category}</span>
                   </div>
-                  <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
-                    📍 ${a.field_name || 'North Block (Plot A)'} • Due: <strong class="font-mono">${a.due_date}</strong>
+
+                  <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.35rem;">
+                    📍 <strong>${a.field_name || 'North Block (Plot A)'}</strong> • Due: <strong class="font-mono" style="color: ${isOverdue ? 'var(--color-danger)' : 'var(--color-text-primary)'};">${a.due_date}</strong>
                   </p>
+
                   ${a.notes ? `
-                    <p style="font-size: 0.75rem; color: var(--color-text-tertiary); margin-top: 0.35rem; line-height: 1.5;">
-                      ${a.notes}
-                    </p>
+                    <div style="margin-top: 0.5rem; padding: 0.5rem 0.75rem; background: var(--color-surface-secondary); border-radius: var(--radius-sm); border-left: 2px solid var(--color-border-strong);">
+                      <p style="font-size: 0.75rem; color: var(--color-text-secondary); line-height: 1.5;">
+                        📋 ${a.notes}
+                      </p>
+                    </div>
                   ` : ''}
                 </div>
               </div>
 
-              <div style="text-align: right; flex-shrink: 0;">
-                <span style="font-size: 0.625rem; font-weight: 700; color: var(--color-text-tertiary); text-transform: uppercase;">Cost</span>
-                <p class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary);">
-                  ₹${a.cost ? a.cost.toLocaleString('en-IN') : '0'}
-                </p>
+              <!-- Right Column: Cost and Actions -->
+              <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: 0.75rem; flex-shrink: 0;">
+                <div>
+                  <span style="font-size: 0.625rem; font-weight: 700; color: var(--color-text-tertiary); text-transform: uppercase;">Cost</span>
+                  <p class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); text-align: right;">
+                    ₹${a.cost ? a.cost.toLocaleString('en-IN') : '0'}
+                  </p>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                  <button class="btn btn-primary btn-sm btn-mark-done" data-id="${a.id}">
+                    <span>✓ Done</span>
+                  </button>
+                  <button class="task-delete-btn" data-id="${a.id}" title="Permanently Delete">
+                    🗑
+                  </button>
+                </div>
               </div>
             </div>
           `;
         }).join('');
 
-        // Attach 1-Click Complete Handlers
-        container.querySelectorAll('.btn-check').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            const id = btn.getAttribute('data-id');
-            const rect = btn.getBoundingClientRect();
-            window.triggerConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        // Attach 1-Click Done (Auto-Delete & Recalculate Health)
+        const handleComplete = async (id, originEl) => {
+          const cardEl = document.getElementById(`card-${id}`);
+          if (!cardEl) return;
 
-            await window.FarmPilotDB.completeActivity(id);
+          // Confetti burst
+          const rect = originEl.getBoundingClientRect();
+          window.triggerConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+
+          // Animate card slide out & fade
+          cardEl.style.transition = 'all 0.35s ease-out';
+          cardEl.style.transform = 'translateX(80px)';
+          cardEl.style.opacity = '0';
+          cardEl.style.borderColor = '#10B981';
+
+          setTimeout(async () => {
+            // Delete from DB / LocalStorage
+            const res = await window.FarmPilotDB.completeActivity(id);
             activities = await window.FarmPilotDB.getActivities();
             renderList();
-            window.FarmPilotApp.showToast('Activity marked completed! Confetti triggered 🎉');
+
+            const score = res && res.health ? res.health.score : 94;
+            window.FarmPilotApp.showToast(`Activity done & automatically cleared! Farm Health recalculated to ${score}/100 🎉`);
+          }, 320);
+        };
+
+        container.querySelectorAll('.task-check-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const id = btn.getAttribute('data-id');
+            handleComplete(id, btn);
+          });
+        });
+
+        container.querySelectorAll('.btn-mark-done').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const id = btn.getAttribute('data-id');
+            handleComplete(id, btn);
+          });
+        });
+
+        // Attach Permanent Delete Handler
+        container.querySelectorAll('.task-delete-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const id = btn.getAttribute('data-id');
+            const cardEl = document.getElementById(`card-${id}`);
+            if (cardEl) {
+              cardEl.style.transition = 'all 0.3s ease-out';
+              cardEl.style.opacity = '0';
+              cardEl.style.transform = 'scale(0.95)';
+              setTimeout(async () => {
+                await window.FarmPilotDB.deleteActivity(id);
+                activities = await window.FarmPilotDB.getActivities();
+                renderList();
+                window.FarmPilotApp.showToast('Activity removed from registry. Farm Health updated.');
+              }, 300);
+            }
           });
         });
       }
@@ -226,6 +438,11 @@
         });
       });
 
+      // Listen to real-time health updates from anywhere in app
+      window.addEventListener('farmpilot:health-updated', (e) => {
+        updateBanner(e.detail);
+      });
+
       // Form Submit Handler
       document.getElementById('add-activity-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -234,6 +451,7 @@
           category: document.getElementById('act-category').value,
           field_name: document.getElementById('act-field').value,
           due_date: document.getElementById('act-date').value,
+          priority: document.getElementById('act-priority').value,
           cost: parseFloat(document.getElementById('act-cost').value) || 0,
           notes: document.getElementById('act-notes').value,
           status: 'PENDING'
@@ -243,7 +461,8 @@
         activities = await window.FarmPilotDB.getActivities();
         renderList();
         document.getElementById('add-activity-modal').classList.remove('active');
-        window.FarmPilotApp.showToast('New activity scheduled successfully!');
+        document.getElementById('add-activity-form').reset();
+        window.FarmPilotApp.showToast('New activity scheduled successfully! Health updated.');
       });
     });
   </script>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FarmPilot — Seasonal Crop Cycles</title>
-  <meta name="description" content="Biological crop cycle progression from sowing to harvest with yield simulation and input budgets.">
+  <meta name="description" content="Biological crop cycle progression aligned with Phase 1 problem statement: Land preparation, Sowing, Irrigation, Fertilization, Pest management, Harvest.">
   
   <link rel="stylesheet" href="css/design-system.css">
   <link rel="stylesheet" href="css/components.css">
@@ -23,12 +23,12 @@
           <!-- Page Header -->
           <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);">
             <div>
-              <span class="badge badge-success" style="margin-bottom: 0.35rem;">Biological Progression</span>
+              <span class="badge badge-success" style="margin-bottom: 0.35rem;">Problem Statement Standard • Phase 1</span>
               <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--color-text-primary);">
                 Seasonal Crop Cycles
               </h1>
               <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
-                Track granular biological growth stages from sowing to maturity, yield targets, and revenue projections
+                Biological 6-stage lifecycle tracking from Land Preparation to Harvest, yield simulation, and Kharif budget execution
               </p>
             </div>
 
@@ -44,6 +44,7 @@
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
                   <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary);">Paddy (Rice)</h2>
                   <span class="badge badge-success">Active Kharif 2026</span>
+                  <span class="badge badge-neutral" style="font-size: 0.6875rem;">Stage 4: Fertilization (58%)</span>
                 </div>
                 <p style="font-size: 0.875rem; color: var(--color-text-secondary);">
                   Variety: <strong style="color: var(--color-text-primary);">BPT-5204 (Samba Mahsuri)</strong> • Assigned to <strong style="color: var(--color-forest);">North Block (Plot A - 10.0 Ac)</strong>
@@ -58,98 +59,113 @@
               </div>
             </div>
 
-            <!-- Biological Growth Stage Track -->
+            <!-- Problem Statement 6-Stage Biological Growth Progression Track -->
             <div style="margin: 2.5rem 0 1.5rem;">
-              <h3 style="font-size: 0.875rem; font-weight: 800; text-transform: uppercase; color: var(--color-text-secondary); margin-bottom: 1.5rem;">
-                Biological Growth Progression Track (150-Day Cycle)
-              </h3>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <h3 style="font-size: 0.875rem; font-weight: 800; text-transform: uppercase; color: var(--color-text-secondary); letter-spacing: 0.05em;">
+                  Problem Statement Biological Lifecycle Progression Track
+                </h3>
+                <span class="badge badge-success">Current Stage: Fertilization (58% Complete)</span>
+              </div>
 
               <div class="crop-stage-track">
                 <div class="crop-stage-line">
                   <div class="crop-stage-line-progress" style="width: 58%;"></div>
                 </div>
 
+                <!-- 1. Land Preparation -->
                 <div class="crop-stage-step completed">
                   <div class="crop-stage-node">✓</div>
-                  <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-primary);">Land Prep</strong>
+                  <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-primary);">1. Land prep</strong>
                   <span style="font-size: 0.625rem; color: var(--color-text-tertiary);">Day 1-15</span>
+                  <span class="badge badge-success" style="font-size: 0.5625rem; margin-top: 0.25rem;">Completed</span>
                 </div>
 
+                <!-- 2. Sowing -->
                 <div class="crop-stage-step completed">
                   <div class="crop-stage-node">✓</div>
-                  <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-primary);">Nursery</strong>
-                  <span style="font-size: 0.625rem; color: var(--color-text-tertiary);">Day 16-40</span>
+                  <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-primary);">2. Sowing</strong>
+                  <span style="font-size: 0.625rem; color: var(--color-text-tertiary);">Day 16-35</span>
+                  <span class="badge badge-success" style="font-size: 0.5625rem; margin-top: 0.25rem;">Completed</span>
                 </div>
 
+                <!-- 3. Irrigation -->
                 <div class="crop-stage-step completed">
                   <div class="crop-stage-node">✓</div>
-                  <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-primary);">Transplanting</strong>
-                  <span style="font-size: 0.625rem; color: var(--color-text-tertiary);">Day 41-55</span>
+                  <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-primary);">3. Irrigation</strong>
+                  <span style="font-size: 0.625rem; color: var(--color-text-tertiary);">Day 36-55</span>
+                  <span class="badge badge-success" style="font-size: 0.5625rem; margin-top: 0.25rem;">Completed</span>
                 </div>
 
+                <!-- 4. Fertilization (Current Stage - 58%) -->
                 <div class="crop-stage-step active">
                   <div class="crop-stage-node animate-pulse-glow">4</div>
-                  <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-forest);">Tillering Peak</strong>
+                  <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-forest);">4. Fertilization</strong>
                   <span style="font-size: 0.625rem; color: var(--color-emerald); font-weight: 700;">Day 56-85 (Current)</span>
+                  <span class="badge badge-warning" style="font-size: 0.5625rem; margin-top: 0.25rem;">58% Complete</span>
                 </div>
 
+                <!-- 5. Pest Management -->
                 <div class="crop-stage-step">
                   <div class="crop-stage-node">5</div>
-                  <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-tertiary);">Panicle</strong>
+                  <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-tertiary);">5. Pest mgmt</strong>
                   <span style="font-size: 0.625rem; color: var(--color-text-tertiary);">Day 86-115</span>
+                  <span class="badge badge-neutral" style="font-size: 0.5625rem; margin-top: 0.25rem;">Scheduled</span>
                 </div>
 
+                <!-- 6. Harvest -->
                 <div class="crop-stage-step">
                   <div class="crop-stage-node">6</div>
-                  <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-tertiary);">Maturity/Harvest</strong>
+                  <strong style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--color-text-tertiary);">6. Harvest</strong>
                   <span style="font-size: 0.625rem; color: var(--color-text-tertiary);">Day 116-150</span>
+                  <span class="badge badge-neutral" style="font-size: 0.5625rem; margin-top: 0.25rem;">Projected</span>
                 </div>
               </div>
             </div>
 
-            <!-- Financial Yield & Profitability Simulation -->
-            <div style="margin-top: 2rem; pt-4; border-top: 1px solid var(--color-border); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-              <div style="background-color: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md);">
+            <!-- Exact Problem Statement Yield & Financial Simulation Grid -->
+            <div style="margin-top: 2rem; pt-4; border-top: 1px solid var(--color-border); display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+              <div style="background-color: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-subtle);">
                 <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Target Yield</span>
                 <p class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.25rem;">
-                  4.5 <span style="font-size: 0.8125rem;">tonnes/ha</span>
+                  4.2 <span style="font-size: 0.8125rem;">tonnes</span>
                 </p>
-                <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Benchmark variety capacity</span>
+                <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Benchmark capacity: 4.2 T</span>
               </div>
 
-              <div style="background-color: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md);">
+              <div style="background-color: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-subtle);">
                 <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">MSP Selling Price</span>
                 <p class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.25rem;">
                   ₹29,000 <span style="font-size: 0.8125rem;">/tonne</span>
                 </p>
-                <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Grade A Paddy Minimum Price</span>
+                <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Grade A Minimum Support Price</span>
               </div>
 
-              <div style="background-color: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md);">
+              <div style="background-color: var(--color-surface-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-subtle);">
                 <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Projected Gross Revenue</span>
                 <p class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-forest); margin-top: 0.25rem;">
-                  ₹1,30,500
+                  ₹1,21,800
                 </p>
-                <span style="font-size: 0.75rem; color: var(--color-emerald-dark); font-weight: 600;">Based on 4.5T Yield</span>
+                <span style="font-size: 0.75rem; color: var(--color-emerald-dark); font-weight: 600;">Formula: 4.2T × ₹29,000</span>
               </div>
 
               <div style="background-color: var(--color-emerald-subtle); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-emerald-light);">
                 <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--color-forest);">Estimated Net Profit</span>
                 <p class="tabular-nums font-mono" style="font-size: 1.5rem; font-weight: 800; color: var(--color-forest); margin-top: 0.25rem;">
-                  ₹80,500
+                  ₹71,800
                 </p>
                 <span style="font-size: 0.75rem; color: var(--color-emerald-dark); font-weight: 600;">₹50,000 budget deduction</span>
               </div>
             </div>
           </div>
 
-          <!-- Crop Stages Protocols Table -->
+          <!-- Crop Stages Protocol & Milestone Table -->
           <div class="card">
             <div class="card-header">
               <div>
-                <h3 style="font-size: 1rem; font-weight: 800;">Biological Milestones & Critical Field Interventions</h3>
+                <h3 style="font-size: 1rem; font-weight: 800;">Problem Statement Stage Protocols & Interventions</h3>
                 <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.2rem;">
-                  Agronomic directives for the active BPT-5204 cycle
+                  The 6 core biological stages defined in the FarmPilot specifications
                 </p>
               </div>
             </div>
@@ -158,55 +174,55 @@
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Growth Stage</th>
+                    <th>Biological Stage</th>
                     <th>Timeline</th>
-                    <th>Water & Irrigation Requirement</th>
-                    <th>Nutrient / Spray Directive</th>
+                    <th>Field & Irrigation Protocol</th>
+                    <th>Nutrient & Remediation Directive</th>
                     <th>Current Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td><strong>Stage 1: Land Preparation</strong></td>
+                    <td><strong>1. Land preparation</strong></td>
                     <td class="font-mono">Days 1 - 15</td>
-                    <td>2-3 cm shallow standing water for puddling</td>
-                    <td>FYM 10 t/ha + Basal DAP application</td>
+                    <td>2-3 cm shallow standing water for tractor puddling</td>
+                    <td>Basal application of Farmyard Manure (FYM 10 t/ha) + DAP</td>
                     <td><span class="badge badge-success">Completed</span></td>
                   </tr>
                   <tr>
-                    <td><strong>Stage 2: Wet Nursery Bed</strong></td>
-                    <td class="font-mono">Days 16 - 40</td>
-                    <td>Saturated soil, periodic drainage</td>
-                    <td>Seed treatment with carbendazim + Biofertilizer</td>
+                    <td><strong>2. Sowing</strong></td>
+                    <td class="font-mono">Days 16 - 35</td>
+                    <td>Nursery wet bed, saturated soil, subsequent transplanting</td>
+                    <td>Certified BPT-5204 seeds treated with biofertilizer & carbendazim</td>
                     <td><span class="badge badge-success">Completed</span></td>
                   </tr>
                   <tr>
-                    <td><strong>Stage 3: Transplanting</strong></td>
-                    <td class="font-mono">Days 41 - 55</td>
-                    <td>2-5 cm standing water layer</td>
-                    <td>2-3 seedlings per hill at 20x15 cm spacing</td>
+                    <td><strong>3. Irrigation</strong></td>
+                    <td class="font-mono">Days 36 - 55</td>
+                    <td>Alternate Wetting and Drying (AWD) with 5 cm water head</td>
+                    <td>Check canal inflow line and solar borewell head pressure</td>
                     <td><span class="badge badge-success">Completed</span></td>
                   </tr>
-                  <tr style="background-color: var(--color-emerald-subtle);">
-                    <td><strong style="color: var(--color-forest);">Stage 4: Active Tillering (Current)</strong></td>
-                    <td class="font-mono" style="font-weight: 700;">Days 56 - 85</td>
-                    <td>Continuous shallow water (3-5 cm)</td>
-                    <td>Top dress Urea (45kg/ha) + Zinc Sulfate spray</td>
-                    <td><span class="badge badge-success animate-pulse-glow">Active Stage</span></td>
+                  <tr style="background: #F0FDF4; font-weight: 600;">
+                    <td><strong style="color: var(--color-forest);">4. Fertilization (Active)</strong></td>
+                    <td class="font-mono">Days 56 - 85</td>
+                    <td>Maintain 2 cm standing water during broadcast</td>
+                    <td>Split Urea top-dressing (45 kg/ha) + Zinc Sulfate spray (0.5%)</td>
+                    <td><span class="badge badge-warning">58% In Progress</span></td>
                   </tr>
                   <tr>
-                    <td><strong>Stage 5: Panicle Initiation</strong></td>
+                    <td><strong>5. Pest management</strong></td>
                     <td class="font-mono">Days 86 - 115</td>
-                    <td>Critical moisture period (5 cm water)</td>
-                    <td>MOP (Potash) application for grain filling</td>
-                    <td><span class="badge badge-neutral">Upcoming</span></td>
+                    <td>Intermittent drainage to prevent sheath blight fungal spores</td>
+                    <td>Pheromone traps for stem borer + prophylactic organic neem spray</td>
+                    <td><span class="badge badge-neutral">Scheduled</span></td>
                   </tr>
                   <tr>
-                    <td><strong>Stage 6: Grain Ripening & Harvest</strong></td>
+                    <td><strong>6. Harvest</strong></td>
                     <td class="font-mono">Days 116 - 150</td>
-                    <td>Drain field 10 days prior to harvest</td>
-                    <td>Harvest when 80-85% of grains turn golden yellow</td>
-                    <td><span class="badge badge-neutral">Scheduled</span></td>
+                    <td>Drain field 10 days prior to physiological maturity</td>
+                    <td>Combine harvester operation at 20-22% grain moisture; threshing</td>
+                    <td><span class="badge badge-neutral">Projected</span></td>
                   </tr>
                 </tbody>
               </table>
@@ -224,56 +240,61 @@
       <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
         <div>
           <h3 style="font-size: 1.125rem; font-weight: 800;">Launch New Crop Cycle</h3>
-          <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Assign parcel, season, and yield targets</p>
+          <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Initialize biological growth stages, yield, and budget parameters</p>
         </div>
-        <button onclick="document.getElementById('add-crop-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8;">✕</button>
+        <button onclick="document.getElementById('add-crop-modal').classList.remove('active')" style="font-size: 1.25rem; color: #94A3B8; background: none; border: none; cursor: pointer;">✕</button>
       </div>
 
       <form id="add-crop-form" style="padding: 1.5rem;">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
           <div class="form-group">
             <label class="form-label">Crop Name *</label>
-            <input type="text" id="crop-name" class="form-input" required placeholder="e.g. Maize / Corn">
+            <input type="text" id="cycle-crop" class="form-input" required value="Paddy (Rice)">
           </div>
           <div class="form-group">
             <label class="form-label">Variety</label>
-            <input type="text" id="crop-variety" class="form-input" placeholder="e.g. Pioneer 3396">
+            <input type="text" id="cycle-variety" class="form-input" placeholder="e.g. MTU-1010" value="BPT-5204">
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-          <div class="form-group">
-            <label class="form-label">Assigned Parcel</label>
-            <select id="crop-parcel" class="form-select">
-              <option value="North Block (Plot A)">North Block (Plot A)</option>
-              <option value="Central Sector (Plot B)">Central Sector (Plot B)</option>
-              <option value="South Sector (Plot C)">South Sector (Plot C)</option>
-            </select>
-          </div>
           <div class="form-group">
             <label class="form-label">Season</label>
-            <select id="crop-season" class="form-select">
-              <option value="Kharif">Kharif (Monsoon)</option>
-              <option value="Rabi">Rabi (Winter)</option>
-              <option value="Zaid">Zaid (Summer)</option>
+            <select id="cycle-season" class="form-select">
+              <option value="Kharif" selected>Kharif 2026</option>
+              <option value="Rabi">Rabi 2026-27</option>
+              <option value="Zaid">Zaid 2027</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target Parcel</label>
+            <select id="cycle-field" class="form-select">
+              <option value="North Block (Plot A)">North Block (Plot A - 10.0 Ac)</option>
+              <option value="Central Sector (Plot B)">Central Sector (Plot B - 8.5 Ac)</option>
+              <option value="South Sector (Plot C)">South Sector (Plot C - 6.5 Ac)</option>
             </select>
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
           <div class="form-group">
-            <label class="form-label">Target Yield (Tonnes)</label>
-            <input type="number" id="crop-yield" class="form-input" step="0.1" value="4.5">
+            <label class="form-label">Target Yield (Tonnes) *</label>
+            <input type="number" step="0.1" id="cycle-yield" class="form-input" required value="4.2">
           </div>
           <div class="form-group">
-            <label class="form-label">Planned Budget (₹)</label>
-            <input type="number" id="crop-budget" class="form-input" value="50000">
+            <label class="form-label">MSP Selling Price (₹/Tonne) *</label>
+            <input type="number" id="cycle-price" class="form-input" required value="29000">
           </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Planned Budget (₹) *</label>
+          <input type="number" id="cycle-budget" class="form-input" required value="50000">
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; pt-3; border-top: 1px solid var(--color-border);">
           <button type="button" onclick="document.getElementById('add-crop-modal').classList.remove('active')" class="btn btn-secondary btn-sm">Cancel</button>
-          <button type="submit" class="btn btn-primary btn-sm">Launch Cycle</button>
+          <button type="submit" class="btn btn-primary btn-sm">Initialize Cycle</button>
         </div>
       </form>
     </div>
@@ -287,13 +308,24 @@
   <script src="js/app.js"></script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       window.FarmPilotApp.init('crops');
 
-      document.getElementById('add-crop-form').addEventListener('submit', (e) => {
+      // Crop Cycle Form submission
+      document.getElementById('add-crop-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        window.FarmPilotApp.showToast('New crop cycle registered successfully!');
+        const payload = {
+          crop_name: document.getElementById('cycle-crop').value,
+          variety: document.getElementById('cycle-variety').value,
+          season: document.getElementById('cycle-season').value,
+          target_yield: parseFloat(document.getElementById('cycle-yield').value) || 4.2,
+          selling_price_per_unit: parseFloat(document.getElementById('cycle-price').value) || 29000,
+          planned_budget: parseFloat(document.getElementById('cycle-budget').value) || 50000
+        };
+
+        await window.FarmPilotDB.createCropCycle(payload);
         document.getElementById('add-crop-modal').classList.remove('active');
+        window.FarmPilotApp.showToast('Crop cycle saved with 6 Problem Statement biological stages! 🎉');
       });
     });
   </script>

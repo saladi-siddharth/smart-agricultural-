@@ -247,37 +247,38 @@
                   <div>
                     <h3 style="font-size: 1rem; font-weight: 800;">Biological Crop Lifecycle: Paddy (Rice)</h3>
                     <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.2rem;">
-                      Variety: BPT-5204 (Samba Mahsuri) • Sown: June 15, 2026
+                      Variety: BPT-5204 (Samba Mahsuri) • Sown: June 15, 2026 • Target: 4.2 Tonnes
                     </p>
                   </div>
-                  <span class="badge badge-success">Tillering Stage</span>
+                  <span class="badge badge-success">Fertilization Stage (58%)</span>
                 </div>
 
-                <!-- 6-Stage Biological Progress Track -->
+                <!-- 6-Stage Biological Progress Track (Problem Statement Standard) -->
                 <div class="crop-stage-track">
                   <div class="crop-stage-line">
-                    <div class="crop-stage-line-progress" style="width: 60%;"></div>
+                    <div class="crop-stage-line-progress" style="width: 58%;"></div>
                   </div>
 
                   <div class="crop-stage-step completed">
                     <div class="crop-stage-node">✓</div>
-                    <span style="font-size: 0.6875rem; font-weight: 700; margin-top: 0.5rem; color: var(--color-text-primary);">Land Prep</span>
+                    <span style="font-size: 0.6875rem; font-weight: 700; margin-top: 0.5rem; color: var(--color-text-primary);">Land prep</span>
                   </div>
                   <div class="crop-stage-step completed">
                     <div class="crop-stage-node">✓</div>
-                    <span style="font-size: 0.6875rem; font-weight: 700; margin-top: 0.5rem; color: var(--color-text-primary);">Nursery</span>
+                    <span style="font-size: 0.6875rem; font-weight: 700; margin-top: 0.5rem; color: var(--color-text-primary);">Sowing</span>
                   </div>
                   <div class="crop-stage-step completed">
                     <div class="crop-stage-node">✓</div>
-                    <span style="font-size: 0.6875rem; font-weight: 700; margin-top: 0.5rem; color: var(--color-text-primary);">Transplant</span>
+                    <span style="font-size: 0.6875rem; font-weight: 700; margin-top: 0.5rem; color: var(--color-text-primary);">Irrigation</span>
                   </div>
                   <div class="crop-stage-step active">
                     <div class="crop-stage-node animate-pulse-glow">4</div>
-                    <span style="font-size: 0.6875rem; font-weight: 800; margin-top: 0.5rem; color: var(--color-forest);">Tillering</span>
+                    <span style="font-size: 0.6875rem; font-weight: 800; margin-top: 0.5rem; color: var(--color-forest);">Fertilization</span>
+                    <span style="font-size: 0.625rem; font-weight: 700; color: var(--color-emerald);">58% Complete</span>
                   </div>
                   <div class="crop-stage-step">
                     <div class="crop-stage-node">5</div>
-                    <span style="font-size: 0.6875rem; font-weight: 600; margin-top: 0.5rem; color: var(--color-text-tertiary);">Panicle</span>
+                    <span style="font-size: 0.6875rem; font-weight: 600; margin-top: 0.5rem; color: var(--color-text-tertiary);">Pest mgmt</span>
                   </div>
                   <div class="crop-stage-step">
                     <div class="crop-stage-node">6</div>
@@ -285,12 +286,12 @@
                   </div>
                 </div>
 
-                <!-- Yield & Revenue Simulation Strip -->
+                <!-- Yield & Revenue Simulation Strip (Problem Statement Standard) -->
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.5rem; pt-4; border-top: 1px solid var(--color-border-subtle);">
                   <div style="background-color: var(--color-surface-secondary); padding: 0.75rem; border-radius: var(--radius-md);">
                     <span style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Target Yield</span>
                     <p class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); margin-top: 0.2rem;">
-                      4.5 <span style="font-size: 0.75rem; font-weight: 600;">tonnes/ha</span>
+                      4.2 <span style="font-size: 0.75rem; font-weight: 600;">tonnes</span>
                     </p>
                   </div>
                   <div style="background-color: var(--color-surface-secondary); padding: 0.75rem; border-radius: var(--radius-md);">
@@ -302,7 +303,7 @@
                   <div style="background-color: var(--color-surface-secondary); padding: 0.75rem; border-radius: var(--radius-md);">
                     <span style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary);">Target Gross Revenue</span>
                     <p class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-forest); margin-top: 0.2rem;">
-                      ₹1,30,500
+                      ₹1,21,800
                     </p>
                   </div>
                 </div>
@@ -497,28 +498,169 @@
       // Initialize Aerial Parcel Map
       window.initParcelMap('dashboard-parcel-map');
 
-      // 1-Click Complete Task Handlers with Confetti!
-      document.querySelectorAll('.btn-complete-task').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const taskId = btn.getAttribute('data-task-id');
-          const taskRow = btn.closest('.task-item');
+      // Function to dynamically update Health Gauge & Telemetry on Dashboard
+      function applyHealthUpdate(health) {
+        if (!health) health = window.FarmPilotDB.getFarmHealth();
 
-          // Trigger celebratory confetti burst at button position!
-          const rect = btn.getBoundingClientRect();
-          window.triggerConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        // 1. Update Gauge Circle and Score
+        const circle = document.querySelector('.gauge-svg-container circle:nth-child(2)');
+        const scoreText = document.querySelector('.gauge-svg-container text:nth-child(3)');
+        const labelText = document.querySelector('.gauge-svg-container text:nth-child(4)');
 
-          // Update UI
-          btn.style.backgroundColor = '#059669';
-          btn.style.borderColor = '#059669';
-          btn.style.color = '#FFFFFF';
-          btn.innerHTML = '✓';
-          taskRow.classList.add('completed');
+        if (circle) {
+          const dashoffset = 440 - (440 * (health.score / 100));
+          circle.style.strokeDashoffset = dashoffset;
+          circle.style.stroke = health.score >= 90 ? '#059669' : '#D97706';
+        }
+        if (scoreText) scoreText.textContent = health.score;
+        if (labelText) {
+          labelText.textContent = `/ 100 ${health.status}`;
+          labelText.style.fill = health.score >= 90 ? '#059669' : '#D97706';
+        }
 
-          // Sync with DB
-          await window.FarmPilotDB.completeActivity(taskId);
-          window.FarmPilotApp.showToast('Operation marked as completed! Confetti triggered 🎉');
+        // 2. Update 4 Pillar Bars
+        const fills = document.querySelectorAll('.pillar-fill');
+        const numLabels = document.querySelectorAll('.pillar-label .font-mono');
+        if (fills.length >= 4) {
+          fills[0].style.width = health.pillars.soilVitality + '%';
+          fills[1].style.width = health.pillars.irrigation + '%';
+          fills[2].style.width = health.pillars.pestResistance + '%';
+          fills[3].style.width = health.pillars.cropVigor + '%';
+        }
+        if (numLabels.length >= 4) {
+          numLabels[0].textContent = health.pillars.soilVitality + '%';
+          numLabels[1].textContent = health.pillars.irrigation + '%';
+          numLabels[2].textContent = health.pillars.pestResistance + '%';
+          numLabels[3].textContent = health.pillars.cropVigor + '%';
+        }
+
+        // 3. Update KPI Card for Operations
+        const kpiOpValue = document.querySelector('.kpi-grid .kpi-card:nth-child(3) p');
+        const kpiOpSub = document.querySelector('.kpi-grid .kpi-card:nth-child(3) span:last-child');
+        if (kpiOpValue && kpiOpSub) {
+          if (health.overdueCount > 0) {
+            kpiOpValue.textContent = `${health.overdueCount} Overdue`;
+            kpiOpValue.style.color = 'var(--color-amber-dark)';
+            kpiOpSub.textContent = '⚠️ Zinc Sulfate Spray';
+            kpiOpSub.style.color = 'var(--color-amber-dark)';
+          } else {
+            kpiOpValue.textContent = '0 Overdue';
+            kpiOpValue.style.color = 'var(--color-forest)';
+            kpiOpSub.textContent = '✓ All Tasks on Schedule';
+            kpiOpSub.style.color = 'var(--color-emerald-dark)';
+          }
+        }
+
+        // 4. Update Explainable AI Advisory Card
+        const advisoryCard = document.querySelector('.card[style*="border-left"]');
+        if (advisoryCard) {
+          if (health.overdueCount === 0) {
+            advisoryCard.style.borderLeftColor = 'var(--color-emerald)';
+            advisoryCard.querySelector('.badge').className = 'badge badge-success';
+            advisoryCard.querySelector('.badge').textContent = 'All Optimal';
+            advisoryCard.querySelector('h4').textContent = 'All Interventions Resolved';
+            advisoryCard.querySelector('p').textContent = 'All field tasks and nutrient foliar applications are up to date. Tillering vegetative vigor and SPAD chlorophyll saturation tracking at peak capacity.';
+          } else {
+            advisoryCard.style.borderLeftColor = 'var(--color-amber)';
+            advisoryCard.querySelector('.badge').className = 'badge badge-warning';
+            advisoryCard.querySelector('.badge').textContent = 'High Priority Advisory';
+            advisoryCard.querySelector('h4').textContent = 'Zinc Deficiency Remediation';
+            advisoryCard.querySelector('p').textContent = 'North Block (Plot A) soil test shows 0.4 ppm Zn (critical threshold < 0.6 ppm). Foliar spray of 0.5% Zinc Sulfate + 0.25% lime recommended within 48 hours to avert interveinal chlorosis.';
+          }
+        }
+      }
+
+      // Dynamic Operations List Rendering from Database
+      async function renderDashboardOperations() {
+        const listContainer = document.getElementById('operations-list');
+        if (!listContainer) return;
+
+        const activities = await window.FarmPilotDB.getActivities();
+        const activeTasks = activities.filter(a => a.status !== 'COMPLETED');
+
+        if (activeTasks.length === 0) {
+          listContainer.innerHTML = `
+            <div style="text-align: center; padding: 2rem; background: var(--color-surface-secondary); border-radius: var(--radius-md);">
+              <span style="font-size: 1.75rem;">🎉</span>
+              <p style="font-weight: 800; color: var(--color-forest); margin-top: 0.5rem;">All Field Operations Completed!</p>
+              <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.2rem;">All scheduled activities have been executed and cleared. Farm health is optimal at 94/100.</p>
+            </div>
+          `;
+          return;
+        }
+
+        listContainer.innerHTML = activeTasks.map(a => {
+          const isOverdue = a.status === 'OVERDUE';
+          const badgeClass = isOverdue ? 'badge-danger' : 'badge-warning';
+          const badgeText = isOverdue ? 'Overdue' : 'Scheduled';
+
+          return `
+            <div class="task-item" id="task-row-${a.id}">
+              <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                <button class="btn-complete-task" data-task-id="${a.id}" style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid ${isOverdue ? 'var(--color-amber)' : 'var(--color-border-strong)'}; background: transparent; color: transparent; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; flex-shrink: 0; margin-top: 2px; cursor: pointer;" title="Mark Done & Delete Task">
+                  ✓
+                </button>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <h4 style="font-size: 0.875rem; font-weight: 800; color: var(--color-text-primary);">
+                      ${a.title}
+                    </h4>
+                    <span class="badge ${badgeClass}">${badgeText}</span>
+                  </div>
+                  <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                    ${a.field_name || 'North Block (Plot A)'} • Due: <strong class="font-mono">${a.due_date}</strong>
+                  </p>
+                  <span class="tabular-nums font-mono" style="font-size: 0.6875rem; font-weight: 700; color: var(--color-text-tertiary);">
+                    Estimated Cost: ₹${a.cost ? a.cost.toLocaleString('en-IN') : '0'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        // Attach 1-Click Complete Task Handlers with Confetti & AUTOMATIC DELETION
+        listContainer.querySelectorAll('.btn-complete-task').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const taskId = btn.getAttribute('data-task-id');
+            const taskRow = btn.closest('.task-item');
+
+            // Trigger celebratory confetti burst at button position!
+            const rect = btn.getBoundingClientRect();
+            window.triggerConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+
+            // Visual feedback
+            btn.style.backgroundColor = '#059669';
+            btn.style.borderColor = '#059669';
+            btn.style.color = '#FFFFFF';
+            btn.innerHTML = '✓';
+
+            // Animate slide-out and AUTOMATICALLY DELETE from website view!
+            taskRow.style.transition = 'all 0.35s ease-out';
+            taskRow.style.transform = 'translateX(80px)';
+            taskRow.style.opacity = '0';
+
+            setTimeout(async () => {
+              // Sync deletion with Supabase & LocalStorage & recalculate health
+              const res = await window.FarmPilotDB.completeActivity(taskId);
+              await renderDashboardOperations();
+              if (res && res.health) {
+                applyHealthUpdate(res.health);
+              }
+              window.FarmPilotApp.showToast('Activity done & automatically removed! Farm health updated to ' + (res.health ? res.health.score : 94) + '/100 🎉');
+            }, 350);
+          });
         });
+      }
+
+      // Listen for dynamic health event
+      window.addEventListener('farmpilot:health-updated', (e) => {
+        applyHealthUpdate(e.detail);
       });
+
+      // Initial check & render
+      applyHealthUpdate();
+      renderDashboardOperations();
     });
   </script>
 </body>

@@ -4,10 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FarmPilot — Farm Health & Agronomic Intelligence</title>
-  <meta name="description" content="AI agronomic intelligence, composite farm health score (82/100), and automated diagnostic protocols.">
+  <meta name="description" content="AI agronomic intelligence, dynamic composite farm health score, and automated diagnostic protocols.">
   
   <link rel="stylesheet" href="css/design-system.css">
   <link rel="stylesheet" href="css/components.css">
+  <style>
+    .health-gauge-circle {
+      transition: stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.4s ease;
+    }
+    .pillar-card {
+      transition: all 0.3s ease;
+    }
+    .pillar-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .remediation-card {
+      padding: 1.25rem 1.5rem;
+      border-radius: var(--radius-lg);
+      background-color: var(--color-surface-secondary);
+      transition: all 0.35s ease;
+    }
+  </style>
 </head>
 <body>
 
@@ -28,97 +46,108 @@
                 Farm Health & Agronomic Intelligence
               </h1>
               <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
-                Automated multi-vector health diagnostic index, soil chemistry analysis, and actionable remediation protocols
+                Automated multi-vector health diagnostic index • Automatically recalculates when operations are executed or deleted
               </p>
             </div>
 
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #10B981;" class="animate-pulse-glow"></span>
-              <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-emerald-dark);">Diagnostics Synchronized</span>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <button id="btn-refresh-health" class="btn btn-secondary btn-sm" title="Re-evaluate live soil & field sensors">
+                <span>🔄 Recalculate Diagnostics</span>
+              </button>
+              <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.75rem; background: #DCFCE7; border-radius: var(--radius-sm);">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #10B981;" class="animate-pulse-glow"></span>
+                <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-emerald-dark);">Live Sync Active</span>
+              </div>
             </div>
           </div>
 
-          <!-- Master Health Index Banner -->
-          <div class="card" style="background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%); border-color: var(--color-emerald-light);">
+          <!-- Master Health Index Banner (Dynamic) -->
+          <div class="card" id="health-hero-card" style="background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%); border-color: var(--color-emerald-light);">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
-              <div style="max-width: 600px;">
-                <span class="badge badge-success" style="margin-bottom: 0.5rem;">Composite Score</span>
-                <h2 style="font-size: 2.25rem; font-weight: 800; color: var(--color-forest); line-height: 1.1;">
-                  82 / 100 — Optimal Agronomic Condition
+              <div style="max-width: 620px;">
+                <span class="badge badge-success" id="health-badge-status" style="margin-bottom: 0.5rem;">Composite Score</span>
+                <h2 id="health-headline" style="font-size: 2.25rem; font-weight: 800; color: var(--color-forest); line-height: 1.15;">
+                  82 / 100 — Action Required
                 </h2>
-                <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin-top: 0.5rem; line-height: 1.6;">
+                <p id="health-summary" style="font-size: 0.875rem; color: var(--color-text-secondary); margin-top: 0.6rem; line-height: 1.6;">
                   Estate Green Valley Farm is tracking within top agronomic health deciles across Andhra Pradesh delta soils. One targeted micronutrient intervention (Zinc spray in North Block) is required to avert vegetative tillering delay.
                 </p>
+                <div style="margin-top: 1rem; display: flex; align-items: center; gap: 1.5rem; font-size: 0.75rem; color: var(--color-text-tertiary);">
+                  <span>📍 Estate: <strong>Green Valley Farm (25 Ac)</strong></span>
+                  <span>🌱 Crop: <strong>Paddy BPT-5204 (Fertilization 58%)</strong></span>
+                </div>
               </div>
 
-              <!-- Big SVG Gauge -->
-              <div style="text-align: center;">
+              <!-- Animated SVG Radial Gauge -->
+              <div style="text-align: center; position: relative; width: 150px; height: 150px; display: flex; align-items: center; justify-content: center;">
                 <svg width="150" height="150" viewBox="0 0 150 150">
                   <circle cx="75" cy="75" r="58" stroke="#E2E8F0" stroke-width="12" fill="none"/>
-                  <circle cx="75" cy="75" r="58" stroke="#059669" stroke-width="12" stroke-dasharray="365" stroke-dashoffset="65" stroke-linecap="round" fill="none"/>
-                  <text x="75" y="70" text-anchor="middle" font-size="28" font-weight="800" font-family="'JetBrains Mono', monospace" fill="#0F172A">82%</text>
-                  <text x="75" y="90" text-anchor="middle" font-size="10" font-weight="700" fill="#059669">HEALTH</text>
+                  <circle id="gauge-circle" class="health-gauge-circle" cx="75" cy="75" r="58" stroke="#059669" stroke-width="12" stroke-dasharray="365" stroke-dashoffset="65" stroke-linecap="round" fill="none" transform="rotate(-90 75 75)"/>
                 </svg>
+                <div style="position: absolute; text-align: center;">
+                  <span id="gauge-value" class="tabular-nums font-mono" style="font-size: 1.75rem; font-weight: 800; color: #0F172A; display: block; line-height: 1;">82%</span>
+                  <span id="gauge-label" style="font-size: 0.625rem; font-weight: 800; color: #059669; letter-spacing: 0.05em; text-transform: uppercase;">HEALTH</span>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- 4 Agronomic Pillars Breakdown -->
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-            <!-- Pillar 1 -->
-            <div class="card">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3 style="font-size: 1rem; font-weight: 800; color: var(--color-text-primary);">🧪 Soil Chemistry</h3>
-                <span class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: #059669;">88%</span>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem;">
+            <!-- Pillar 1: Soil Chemistry -->
+            <div class="card pillar-card" id="pillar-soil-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h3 style="font-size: 0.9375rem; font-weight: 800; color: var(--color-text-primary);">🧪 Soil Chemistry & Vitality</h3>
+                <span id="pillar-soil-val" class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: #059669;">82%</span>
               </div>
-              <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 1rem;">
-                pH 6.8 (Neutral) • Organic Carbon: 0.62% (Good) • Available Nitrogen: 280 kg/ha.
+              <p id="pillar-soil-sub" style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.75rem; line-height: 1.4;">
+                pH 6.8 (Neutral) • Organic Carbon: 0.62% • Zinc level 0.4 ppm (Deficient).
               </p>
-              <div class="pillar-track"><div class="pillar-fill" style="width: 88%;"></div></div>
-              <span class="badge badge-warning" style="margin-top: 0.75rem;">Zinc 0.42 ppm (Deficient)</span>
+              <div class="pillar-track"><div id="pillar-soil-bar" class="pillar-fill" style="width: 82%;"></div></div>
+              <span id="pillar-soil-badge" class="badge badge-warning" style="margin-top: 0.75rem;">Zinc Remediation Overdue</span>
             </div>
 
-            <!-- Pillar 2 -->
-            <div class="card">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3 style="font-size: 1rem; font-weight: 800; color: var(--color-text-primary);">💧 Water & Hydration</h3>
-                <span class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: #059669;">84%</span>
+            <!-- Pillar 2: Water & Hydration -->
+            <div class="card pillar-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h3 style="font-size: 0.9375rem; font-weight: 800; color: var(--color-text-primary);">💧 Water & Hydration</h3>
+                <span class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: #059669;">88%</span>
               </div>
-              <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 1rem;">
-                Canal line pressure optimal. Soil field capacity at 78%. Shallow standing water (3 cm) maintained in Plot A.
+              <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.75rem; line-height: 1.4;">
+                Canal line pressure optimal. AWD cycle: 3 cm shallow standing water in Plot A.
               </p>
-              <div class="pillar-track"><div class="pillar-fill" style="width: 84%;"></div></div>
+              <div class="pillar-track"><div class="pillar-fill" style="width: 88%;"></div></div>
               <span class="badge badge-success" style="margin-top: 0.75rem;">Canal Inflow Active</span>
             </div>
 
-            <!-- Pillar 3 -->
-            <div class="card">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3 style="font-size: 1rem; font-weight: 800; color: var(--color-text-primary);">🐛 Pest & Pathogen Index</h3>
-                <span class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: #D97706;">74%</span>
+            <!-- Pillar 3: Pest & Pathogen Index -->
+            <div class="card pillar-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h3 style="font-size: 0.9375rem; font-weight: 800; color: var(--color-text-primary);">🐛 Pest & Pathogen Index</h3>
+                <span class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: #059669;">78%</span>
               </div>
-              <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 1rem;">
-                Stem borer trap catch: 2 moths/trap/night (Below threshold of 6). Zero leaf blast or bacterial blight spots detected.
+              <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.75rem; line-height: 1.4;">
+                Stem borer trap catch: 2 moths/night (Below threshold of 6). Zero blast spots.
               </p>
-              <div class="pillar-track"><div class="pillar-fill" style="width: 74%; background: #D97706;"></div></div>
+              <div class="pillar-track"><div class="pillar-fill" style="width: 78%; background: #059669;"></div></div>
               <span class="badge badge-neutral" style="margin-top: 0.75rem;">Below Economic Injury Level</span>
             </div>
 
-            <!-- Pillar 4 -->
-            <div class="card">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3 style="font-size: 1rem; font-weight: 800; color: var(--color-text-primary);">🌾 Vegetative Vigor</h3>
-                <span class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: #059669;">86%</span>
+            <!-- Pillar 4: Vegetative Vigor -->
+            <div class="card pillar-card" id="pillar-crop-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h3 style="font-size: 0.9375rem; font-weight: 800; color: var(--color-text-primary);">🌾 Vegetative Vigor & Vigor</h3>
+                <span id="pillar-crop-val" class="tabular-nums font-mono" style="font-size: 1.25rem; font-weight: 800; color: #059669;">86%</span>
               </div>
-              <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 1rem;">
-                Tillering stem count: 18-22 productive tillers per hill. Chlorophyll SPAD reading: 38.5 (Healthy vegetative green).
+              <p id="pillar-crop-sub" style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.75rem; line-height: 1.4;">
+                Tillering stem count: 18 productive tillers per hill. Chlorophyll SPAD: 38.5.
               </p>
-              <div class="pillar-track"><div class="pillar-fill" style="width: 86%;"></div></div>
-              <span class="badge badge-success" style="margin-top: 0.75rem;">Expected 4.5 T/ha Capacity</span>
+              <div class="pillar-track"><div id="pillar-crop-bar" class="pillar-fill" style="width: 86%;"></div></div>
+              <span id="pillar-crop-badge" class="badge badge-success" style="margin-top: 0.75rem;">4.2 Tonnes Target Trajectory</span>
             </div>
           </div>
 
-          <!-- Automated Diagnostic Remediation Directives -->
+          <!-- Automated Diagnostic Remediation Directives (Dynamic) -->
           <div class="card">
             <div class="card-header">
               <div>
@@ -129,30 +158,8 @@
               </div>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-              <div style="padding: 1.25rem; border-radius: var(--radius-lg); background-color: var(--color-surface-secondary); border-left: 4px solid var(--color-amber);">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem;">
-                  <strong style="color: var(--color-text-primary); font-size: 0.9375rem;">1. Zinc Deficiency Remediation (North Block - Plot A)</strong>
-                  <span class="badge badge-warning">High Priority</span>
-                </div>
-                <p style="font-size: 0.8125rem; color: var(--color-text-secondary); line-height: 1.5;">
-                  Mix 5 kg Zinc Sulfate (21% Zn) + 2.5 kg slaked lime in 500 liters of water per hectare. Spray during early morning hours to avert tillering stunted growth.
-                </p>
-                <div style="margin-top: 0.75rem; display: flex; align-items: center; gap: 0.75rem;">
-                  <a href="activities.html" class="btn btn-primary btn-sm">Execute in Operations Queue →</a>
-                  <span style="font-size: 0.75rem; color: var(--color-text-tertiary);">Estimated Cost: ₹1,400</span>
-                </div>
-              </div>
-
-              <div style="padding: 1.25rem; border-radius: var(--radius-lg); background-color: var(--color-surface-secondary); border-left: 4px solid var(--color-forest);">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem;">
-                  <strong style="color: var(--color-text-primary); font-size: 0.9375rem;">2. Second Split Nitrogen Top-Dressing Preparation</strong>
-                  <span class="badge badge-success">Scheduled for Day 65</span>
-                </div>
-                <p style="font-size: 0.8125rem; color: var(--color-text-secondary); line-height: 1.5;">
-                  Broadcast 45 kg/ha Urea prior to panicle initiation. Ensure field has shallow 2 cm water layer for maximum nitrogen absorption by root zone.
-                </p>
-              </div>
+            <div id="directives-container" style="display: flex; flex-direction: column; gap: 1rem;">
+              <!-- Dynamically populated -->
             </div>
           </div>
 
@@ -161,16 +168,191 @@
     </div>
   </div>
 
+  <canvas id="confetti-canvas"></canvas>
+
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/supabase.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/confetti.js"></script>
   <script src="js/app.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       window.FarmPilotApp.init('intelligence');
+
+      const gaugeCircle = document.getElementById('gauge-circle');
+      const gaugeVal = document.getElementById('gauge-value');
+      const gaugeLabel = document.getElementById('gauge-label');
+      const headlineEl = document.getElementById('health-headline');
+      const summaryEl = document.getElementById('health-summary');
+      const badgeStatus = document.getElementById('health-badge-status');
+      const directivesContainer = document.getElementById('directives-container');
+
+      const pillarSoilVal = document.getElementById('pillar-soil-val');
+      const pillarSoilSub = document.getElementById('pillar-soil-sub');
+      const pillarSoilBar = document.getElementById('pillar-soil-bar');
+      const pillarSoilBadge = document.getElementById('pillar-soil-badge');
+
+      const pillarCropVal = document.getElementById('pillar-crop-val');
+      const pillarCropSub = document.getElementById('pillar-crop-sub');
+      const pillarCropBar = document.getElementById('pillar-crop-bar');
+      const pillarCropBadge = document.getElementById('pillar-crop-badge');
+
+      function renderHealth(health) {
+        if (!health) {
+          health = window.FarmPilotDB.getFarmHealth();
+        }
+
+        const score = health.score;
+        const isOptimal = score >= 90;
+        const color = isOptimal ? '#059669' : '#D97706';
+
+        // 1. Gauge Animation
+        // Total circumference of r=58 circle is ~364.4
+        const circumference = 364.4;
+        const offset = circumference - (circumference * score / 100);
+        gaugeCircle.style.strokeDashoffset = offset;
+        gaugeCircle.style.stroke = color;
+        gaugeVal.textContent = `${score}%`;
+        gaugeVal.style.color = color;
+        gaugeLabel.textContent = isOptimal ? 'OPTIMAL' : 'ATTENTION';
+        gaugeLabel.style.color = color;
+
+        // 2. Headline & Summary
+        headlineEl.textContent = `${score} / 100 — ${health.statusLabel}`;
+        headlineEl.style.color = isOptimal ? 'var(--color-forest)' : '#B45309';
+
+        badgeStatus.className = isOptimal ? 'badge badge-success' : 'badge badge-warning';
+        badgeStatus.textContent = isOptimal ? 'Optimal Health Decile' : 'Remediation Required';
+
+        if (isOptimal) {
+          summaryEl.textContent = 'Estate Green Valley Farm is operating at peak agronomic efficiency! All scheduled field interventions and micronutrient foliar sprays have been completed. Soil vitality, tillering density, and SPAD chlorophyll readings are tracking at optimal benchmarks.';
+        } else {
+          summaryEl.textContent = 'Estate Green Valley Farm has 1 overdue micronutrient intervention (Zinc spray in North Block - Plot A). Correcting this foliar deficiency will immediately resolve tillering chlorosis and boost Farm Health to 94/100.';
+        }
+
+        // 3. Pillars
+        pillarSoilVal.textContent = `${health.pillars.soilVitality}%`;
+        pillarSoilBar.style.width = `${health.pillars.soilVitality}%`;
+        pillarSoilBar.style.backgroundColor = isOptimal ? '#059669' : '#D97706';
+        if (isOptimal) {
+          pillarSoilSub.textContent = 'pH 6.8 (Neutral) • Organic Carbon: 0.62% • Zinc: 0.85 ppm (Adequate). Micronutrient saturation optimal.';
+          pillarSoilBadge.className = 'badge badge-success';
+          pillarSoilBadge.textContent = '✓ Zinc Deficiency Corrected';
+        } else {
+          pillarSoilSub.textContent = 'pH 6.8 (Neutral) • Organic Carbon: 0.62% • Zinc: 0.42 ppm (Deficient threshold <0.6 ppm).';
+          pillarSoilBadge.className = 'badge badge-warning';
+          pillarSoilBadge.textContent = '⚠️ Zinc Remediation Overdue';
+        }
+
+        pillarCropVal.textContent = `${health.pillars.cropVigor}%`;
+        pillarCropBar.style.width = `${health.pillars.cropVigor}%`;
+        if (isOptimal) {
+          pillarCropSub.textContent = 'Tillering stem count: 22 productive tillers/hill. Chlorophyll SPAD: 42.0 (Deep green vegetative vigor).';
+          pillarCropBadge.className = 'badge badge-success';
+          pillarCropBadge.textContent = '✓ Peak Yield Capacity Tracked';
+        } else {
+          pillarCropSub.textContent = 'Tillering stem count: 18 productive tillers per hill. Chlorophyll SPAD: 38.5 (Healthy vegetative green).';
+          pillarCropBadge.className = 'badge badge-neutral';
+          pillarCropBadge.textContent = '4.2 Tonnes Target Trajectory';
+        }
+
+        // 4. Directives Card
+        if (!isOptimal) {
+          directivesContainer.innerHTML = `
+            <div class="remediation-card" style="border-left: 4px solid var(--color-amber); background: #FFFBEB;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.75rem;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                    <strong style="color: #92400E; font-size: 1rem;">1. Zinc Deficiency Remediation (North Block - Plot A)</strong>
+                    <span class="badge badge-danger">High Priority Overdue</span>
+                  </div>
+                  <p style="font-size: 0.8125rem; color: #78350F; line-height: 1.5; max-width: 720px;">
+                    Soil test shows 0.4 ppm Zn (critical threshold <0.6 ppm). Apply foliar spray of <strong>5 kg Zinc Sulfate (21% Zn) + 2.5 kg slaked lime</strong> in 500 liters of water per hectare.
+                  </p>
+                  <p style="font-size: 0.75rem; color: #92400E; margin-top: 0.35rem;">
+                    📍 North Block (Plot A) • Estimated Cost: ₹1,400 • Averts interveinal chlorosis
+                  </p>
+                </div>
+
+                <button id="btn-quick-execute-zinc" class="btn btn-primary btn-sm" style="background: #059669; border-color: #059669; align-self: center;">
+                  <span>✓ Mark Done & Clear Remediation</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="remediation-card" style="border-left: 4px solid var(--color-forest);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem;">
+                <strong style="color: var(--color-text-primary); font-size: 0.9375rem;">2. Second Split Nitrogen Top-Dressing Preparation</strong>
+                <span class="badge badge-success">Scheduled for Day 65</span>
+              </div>
+              <p style="font-size: 0.8125rem; color: var(--color-text-secondary); line-height: 1.5;">
+                Broadcast 45 kg/ha Urea prior to panicle initiation. Ensure field has shallow 2 cm water layer for maximum nitrogen absorption by root zone.
+              </p>
+            </div>
+          `;
+
+          // Attach 1-Click Complete button handler on the directive card
+          const quickBtn = document.getElementById('btn-quick-execute-zinc');
+          if (quickBtn) {
+            quickBtn.addEventListener('click', async (e) => {
+              const rect = quickBtn.getBoundingClientRect();
+              window.triggerConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+
+              // Find and complete the overdue Zinc activity ('act-1')
+              const res = await window.FarmPilotDB.completeActivity('act-1');
+              window.FarmPilotApp.showToast('Zinc Remediation executed! Farm Health index updated to ' + (res.health ? res.health.score : 94) + '/100 🎉');
+              renderHealth(res.health);
+            });
+          }
+        } else {
+          directivesContainer.innerHTML = `
+            <div class="remediation-card" style="border-left: 4px solid var(--color-emerald); background: #F0FDF4;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span style="font-size: 1.5rem;">🎉</span>
+                <div>
+                  <strong style="color: var(--color-forest); font-size: 1rem;">All Critical Interventions Resolved — Farm Health Optimal</strong>
+                  <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.2rem; line-height: 1.5;">
+                    All scheduled operations and foliar sprays have been executed and cleared. Tillering vegetative vigor and SPAD chlorophyll saturation tracking at peak capacity across all demarcated sectors.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="remediation-card" style="border-left: 4px solid var(--color-forest);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem;">
+                <strong style="color: var(--color-text-primary); font-size: 0.9375rem;">Next Milestone: Second Split Nitrogen Top-Dressing</strong>
+                <span class="badge badge-success">Scheduled for Day 65</span>
+              </div>
+              <p style="font-size: 0.8125rem; color: var(--color-text-secondary); line-height: 1.5;">
+                Broadcast 45 kg/ha Urea prior to panicle initiation. Ensure field has shallow 2 cm water layer for maximum nitrogen absorption.
+              </p>
+            </div>
+          `;
+        }
+      }
+
+      // Initial Render
+      renderHealth();
+
+      // Listen for dynamic updates across the application
+      window.addEventListener('farmpilot:health-updated', (e) => {
+        renderHealth(e.detail);
+      });
+
+      // Recalculate diagnostics button
+      document.getElementById('btn-refresh-health').addEventListener('click', () => {
+        const btn = document.getElementById('btn-refresh-health');
+        btn.classList.add('animate-pulse-glow');
+        const health = window.FarmPilotDB.calculateHealth();
+        renderHealth(health);
+        setTimeout(() => {
+          btn.classList.remove('animate-pulse-glow');
+          window.FarmPilotApp.showToast(`Diagnostics synchronized. Farm Health: ${health.score}/100`);
+        }, 300);
+      });
     });
   </script>
 </body>

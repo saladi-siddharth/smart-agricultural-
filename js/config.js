@@ -68,18 +68,26 @@ window.FARMPILOT_CONFIG = {
     id: 'crop-1',
     farm_id: '43666b6c-8208-4148-be22-df38d21b1836',
     field_id: 'field-1',
-    crop_name: 'Paddy (Rice)',
+    crop_name: 'Paddy',
     variety: 'BPT-5204 (Samba Mahsuri)',
     season: 'Kharif',
     start_date: '2026-06-15',
     expected_harvest_date: '2026-11-20',
     status: 'ACTIVE',
-    target_yield: 4.5,
+    target_yield: 4.2,
     yield_unit: 'tonnes',
     selling_price_per_unit: 29000,
     planned_budget: 50000,
-    current_stage: 'Tillering',
-    stages: ['Land Prep', 'Nursery', 'Transplanting', 'Tillering', 'Panicle', 'Harvest']
+    current_stage: 'Fertilization',
+    current_stage_progress: 58,
+    stages: [
+      'Land preparation',
+      'Sowing',
+      'Irrigation',
+      'Fertilization',
+      'Pest management',
+      'Harvest'
+    ]
   },
 
   DEFAULT_ACTIVITIES: [
@@ -115,17 +123,6 @@ window.FARMPILOT_CONFIG = {
       priority: 'LOW',
       cost: 450,
       notes: 'Check 4 lure traps across central perimeter.'
-    },
-    {
-      id: 'act-4',
-      title: 'Deep Summer Ploughing & Soil Solarization',
-      category: 'LAND_PREPARATION',
-      field_name: 'North Block (Plot A)',
-      due_date: '2026-06-02',
-      status: 'COMPLETED',
-      priority: 'MEDIUM',
-      cost: 4200,
-      notes: 'Executed with tractor rotavator to eradicate weed seeds and fungal spores.'
     }
   ],
 
