@@ -31,8 +31,8 @@ window.TrashAnimationEngine = {
       </div>
 
       <div class="dustbin-container" id="dustbin-container" title="Operations Disposal Hub — Items folded and recycled here">
-        <!-- SVG Red Dustbin with Separated Hinged Lid -->
-        <svg width="54" height="68" viewBox="0 0 54 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- SVG Red Dustbin with Separated Hinged Lid (Compact) -->
+        <svg width="32" height="40" viewBox="0 0 54 68" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <!-- Body Gloss Gradient -->
             <linearGradient id="redCanGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -249,13 +249,13 @@ window.TrashAnimationEngine = {
       const startX = currentProxyRect.left + currentProxyRect.width / 2;
       const startY = currentProxyRect.top + currentProxyRect.height / 2;
 
-      // Target: mouth aperture of the red dustbin
+      // Target: mouth aperture of the compact red dustbin
       const targetX = binRect.left + binRect.width / 2;
-      const targetY = binRect.top + 20;
+      const targetY = binRect.top + 12;
 
       // Parabolic Arc Control Point (arches above both start and target)
       const controlX = (startX + targetX) / 2;
-      const controlY = Math.min(startY, targetY) - 140;
+      const controlY = Math.min(startY, targetY) - 130;
 
       // Phase 2: Parabolic Flight Animation (Duration: 550ms)
       const flightDuration = 550;
@@ -274,13 +274,13 @@ window.TrashAnimationEngine = {
 
         // Rotation & Scale progression
         const rot = progress * 720;
-        const scale = 1.1 - (progress * 0.35); // slightly grows then fits inside
+        const scale = 1.05 - (progress * 0.35);
 
-        proxy.style.left = `${curX - 16}px`;
-        proxy.style.top = `${curY - 16}px`;
+        proxy.style.left = `${curX - 10}px`;
+        proxy.style.top = `${curY - 10}px`;
         proxy.style.transform = `rotate(${rot}deg) scale(${scale})`;
 
-        // Step 3: Open the dustbin lid when paper gets near (progress >= 0.70)
+        // Step 3: Open the dustbin lid when paper gets near (progress >= 0.68)
         if (progress >= 0.68 && !lidOpened) {
           lidOpened = true;
           window.TrashAnimationEngine.openLid();
@@ -291,8 +291,8 @@ window.TrashAnimationEngine = {
         } else {
           // Phase 4: Paper Drops Straight Inside Bin
           proxy.animate([
-            { transform: `rotate(${rot}deg) scale(0.75)`, opacity: 0.95, top: `${targetY - 16}px` },
-            { transform: `rotate(${rot + 90}deg) scale(0.25)`, opacity: 0, top: `${targetY + 28}px` }
+            { transform: `rotate(${rot}deg) scale(0.65)`, opacity: 0.95, top: `${targetY - 10}px` },
+            { transform: `rotate(${rot + 90}deg) scale(0.2)`, opacity: 0, top: `${targetY + 20}px` }
           ], {
             duration: 140,
             easing: 'ease-in'
