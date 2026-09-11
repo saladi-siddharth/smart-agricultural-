@@ -186,7 +186,8 @@ window.FarmPilotApp = {
           group: 'Field Worker Shift',
           items: [
             { id: 'worker', label: "Today's Shift", icon: '🚜', href: 'worker.html', badge: 'Active Shift', badgeType: 'success' },
-            { id: 'activities', label: 'Field Tasks & AWD', icon: '📋', href: 'activities.html', badge: '1 Overdue', badgeType: 'danger' }
+            { id: 'activities', label: 'Field Tasks & AWD', icon: '📋', href: 'activities.html', badge: '1 Overdue', badgeType: 'danger' },
+            { id: 'irrigation', label: 'Drip & Irrigation Sluice', icon: '💧', href: 'irrigation.html', badge: 'Live AWD', badgeType: 'success' }
           ]
         },
         {
@@ -206,6 +207,7 @@ window.FarmPilotApp = {
             { id: 'dashboard', label: 'Dashboard', icon: '📊', href: 'dashboard.html' },
             { id: 'crops', label: 'Crop Cycles & Phenology', icon: '🌱', href: 'crops.html', badge: 'Active' },
             { id: 'soil', label: 'Soil & Land Health', icon: '🧪', href: 'soil.html', badge: 'SHC Lab', badgeType: 'success' },
+            { id: 'irrigation', label: 'Irrigation & Drip Center', icon: '💧', href: 'irrigation.html', badge: 'Telemetry', badgeType: 'primary' },
             { id: 'community', label: 'Community Ag Exchange', icon: '🌐', href: 'community.html', badge: 'Live', badgeType: 'primary' }
           ]
         },
@@ -236,6 +238,7 @@ window.FarmPilotApp = {
             { id: 'farms', label: 'Farms Portfolio', icon: '🚜', href: 'farms.html' },
             { id: 'crops', label: 'Crop Cycles', icon: '🌱', href: 'crops.html', badge: 'Active' },
             { id: 'soil', label: 'Soil & Land Health', icon: '🧪', href: 'soil.html', badge: 'SHC Lab', badgeType: 'success' },
+            { id: 'irrigation', label: 'Irrigation & Drip Center', icon: '💧', href: 'irrigation.html', badge: 'Live AWD', badgeType: 'success' },
             { id: 'community', label: 'Community Ag Exchange', icon: '🌐', href: 'community.html', badge: 'Live', badgeType: 'primary' }
           ]
         },
@@ -279,6 +282,7 @@ window.FarmPilotApp = {
           group: 'Operations & Resources',
           items: [
             { id: 'activities', label: 'Field Operations & AWD', icon: '📋', href: 'activities.html', badge: '1 Overdue', badgeType: 'danger' },
+            { id: 'irrigation', label: 'Irrigation & Drip Center', icon: '💧', href: 'irrigation.html', badge: 'Live AWD', badgeType: 'success' },
             { id: 'soil', label: 'Soil & Land Health', icon: '🧪', href: 'soil.html', badge: 'SHC Lab', badgeType: 'success' },
             { id: 'labour', label: 'Labour & Shifts', icon: '👷', href: 'labour.html', badge: '24 Today', badgeType: 'primary' },
             { id: 'inputs', label: 'Inputs & Stock', icon: '📦', href: 'inputs.html' },
@@ -533,12 +537,71 @@ window.FarmPilotApp = {
           </div>
         </div>
 
-        <!-- Locked Authentic Role Badge (Non-switchable from menu per RBAC security policy) -->
-        <div style="display: flex; align-items: center; gap: 0.4rem; background: ${role === 'OWNER' ? '#ECFDF5' : role === 'WORKER' ? '#FEF3C7' : role === 'MANAGER' ? '#EFF6FF' : '#FAF5FF'}; border: 1.5px solid ${role === 'OWNER' ? '#86EFAC' : role === 'WORKER' ? '#FCD34D' : role === 'MANAGER' ? '#93C5FD' : '#D8B4FE'}; padding: 0.22rem 0.65rem; border-radius: var(--radius-full);" title="Active Role: ${user.roleLabel || role}">
-          <span style="font-size: 0.8125rem;">${role === 'OWNER' ? '👑' : role === 'WORKER' ? '🚜' : role === 'MANAGER' ? '👔' : '🔬'}</span>
-          <span style="font-size: 0.6875rem; font-weight: 800; color: ${role === 'OWNER' ? '#047857' : role === 'WORKER' ? '#92400E' : role === 'MANAGER' ? '#1E40AF' : '#6B21A8'}; letter-spacing: 0.02em;">
-            ${role} ${user.username ? `(@${user.username})` : ''}
-          </span>
+        <!-- Interactive Upper Right Role Switcher Dropdown (Click to Change Roles) -->
+        <div style="position: relative;" id="header-role-switcher-wrapper">
+          <button id="header-role-switcher-btn" onclick="FarmPilotApp.toggleRoleMenu(event)" style="display: flex; align-items: center; gap: 0.45rem; background: ${role === 'OWNER' ? '#ECFDF5' : role === 'WORKER' ? '#FEF3C7' : role === 'MANAGER' ? '#EFF6FF' : '#FAF5FF'}; border: 1.5px solid ${role === 'OWNER' ? '#86EFAC' : role === 'WORKER' ? '#FCD34D' : role === 'MANAGER' ? '#93C5FD' : '#D8B4FE'}; padding: 0.26rem 0.75rem; border-radius: var(--radius-full); cursor: pointer; transition: all 0.2s; box-shadow: var(--shadow-sm);" title="Click to Change Role (Owner, Manager, Worker, Consultant)">
+            <span style="font-size: 0.875rem;">${role === 'OWNER' ? '👑' : role === 'WORKER' ? '🚜' : role === 'MANAGER' ? '👔' : '🔬'}</span>
+            <span style="font-size: 0.75rem; font-weight: 800; color: ${role === 'OWNER' ? '#047857' : role === 'WORKER' ? '#92400E' : role === 'MANAGER' ? '#1E40AF' : '#6B21A8'}; letter-spacing: 0.02em;">
+              ${role}
+            </span>
+            <span style="font-size: 0.65rem; color: ${role === 'OWNER' ? '#059669' : role === 'WORKER' ? '#B45309' : role === 'MANAGER' ? '#2563EB' : '#7C3AED'};">▾</span>
+          </button>
+
+          <!-- Floating Role Picker Dropdown -->
+          <div id="header-role-dropdown" style="display: none; position: absolute; right: 0; top: calc(100% + 8px); width: 275px; background: #FFFFFF; border: 1.5px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: 0 14px 30px -5px rgba(0,0,0,0.2); z-index: 99999; padding: 0.65rem;">
+            <div style="padding: 0.25rem 0.5rem 0.5rem; border-bottom: 1px solid #E2E8F0; margin-bottom: 0.4rem; display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-size: 0.6875rem; font-weight: 800; color: var(--color-forest); text-transform: uppercase;">
+                🎭 SWITCH ACTIVE ROLE
+              </span>
+              <a href="roles.html" style="font-size: 0.6875rem; color: #059669; text-decoration: none; font-weight: 700;">Matrix 👥</a>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+              <button type="button" onclick="FarmPilotApp.switchRoleAndRoute('OWNER')" style="display: flex; align-items: center; justify-content: space-between; width: 100%; text-align: left; padding: 0.5rem 0.65rem; border-radius: 8px; border: 1px solid ${role === 'OWNER' ? '#86EFAC' : 'transparent'}; background: ${role === 'OWNER' ? '#ECFDF5' : '#F8FAFC'}; cursor: pointer; transition: all 0.15s;" onmouseover="this.style.background='#DCFCE7'" onmouseout="this.style.background='${role === 'OWNER' ? '#ECFDF5' : '#F8FAFC'}'">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="font-size: 1.1rem;">👑</span>
+                  <div>
+                    <div style="font-size: 0.8125rem; font-weight: 800; color: #047857;">👑 OWNER</div>
+                    <div style="font-size: 0.6875rem; color: #64748B;">Siddharth (All Farms & Finances)</div>
+                  </div>
+                </div>
+                ${role === 'OWNER' ? '<span style="color: #059669; font-weight: 800; font-size: 0.85rem;">✓</span>' : ''}
+              </button>
+
+              <button type="button" onclick="FarmPilotApp.switchRoleAndRoute('MANAGER')" style="display: flex; align-items: center; justify-content: space-between; width: 100%; text-align: left; padding: 0.5rem 0.65rem; border-radius: 8px; border: 1px solid ${role === 'MANAGER' ? '#93C5FD' : 'transparent'}; background: ${role === 'MANAGER' ? '#EFF6FF' : '#F8FAFC'}; cursor: pointer; transition: all 0.15s;" onmouseover="this.style.background='#DBEAFE'" onmouseout="this.style.background='${role === 'MANAGER' ? '#EFF6FF' : '#F8FAFC'}'">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="font-size: 1.1rem;">👔</span>
+                  <div>
+                    <div style="font-size: 0.8125rem; font-weight: 800; color: #1E40AF;">👔 MANAGER</div>
+                    <div style="font-size: 0.6875rem; color: #64748B;">Rajesh (Operations & Schedules)</div>
+                  </div>
+                </div>
+                ${role === 'MANAGER' ? '<span style="color: #2563EB; font-weight: 800; font-size: 0.85rem;">✓</span>' : ''}
+              </button>
+
+              <button type="button" onclick="FarmPilotApp.switchRoleAndRoute('WORKER')" style="display: flex; align-items: center; justify-content: space-between; width: 100%; text-align: left; padding: 0.5rem 0.65rem; border-radius: 8px; border: 1px solid ${role === 'WORKER' ? '#FCD34D' : 'transparent'}; background: ${role === 'WORKER' ? '#FEF3C7' : '#F8FAFC'}; cursor: pointer; transition: all 0.15s;" onmouseover="this.style.background='#FDE68A'" onmouseout="this.style.background='${role === 'WORKER' ? '#FEF3C7' : '#F8FAFC'}'">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="font-size: 1.1rem;">🚜</span>
+                  <div>
+                    <div style="font-size: 0.8125rem; font-weight: 800; color: #92400E;">🚜 WORKER</div>
+                    <div style="font-size: 0.6875rem; color: #64748B;">Ravi (Assigned Shifts & AWD Tasks)</div>
+                  </div>
+                </div>
+                ${role === 'WORKER' ? '<span style="color: #D97706; font-weight: 800; font-size: 0.85rem;">✓</span>' : ''}
+              </button>
+
+              <button type="button" onclick="FarmPilotApp.switchRoleAndRoute('CONSULTANT')" style="display: flex; align-items: center; justify-content: space-between; width: 100%; text-align: left; padding: 0.5rem 0.65rem; border-radius: 8px; border: 1px solid ${role === 'CONSULTANT' ? '#D8B4FE' : 'transparent'}; background: ${role === 'CONSULTANT' ? '#FAF5FF' : '#F8FAFC'}; cursor: pointer; transition: all 0.15s;" onmouseover="this.style.background='#F3E8FF'" onmouseout="this.style.background='${role === 'CONSULTANT' ? '#FAF5FF' : '#F8FAFC'}'">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="font-size: 1.1rem;">🔬</span>
+                  <div>
+                    <div style="font-size: 0.8125rem; font-weight: 800; color: #6B21A8;">🔬 CONSULTANT</div>
+                    <div style="font-size: 0.6875rem; color: #64748B;">Dr. Anita (Advisory & Soil Health)</div>
+                  </div>
+                </div>
+                ${role === 'CONSULTANT' ? '<span style="color: #7C3AED; font-weight: 800; font-size: 0.85rem;">✓</span>' : ''}
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- PROFILE BUTTON & COMPREHENSIVE USER MENU -->
@@ -592,6 +655,28 @@ window.FarmPilotApp = {
               </label>
             </div>
 
+            <!-- Quick Switch Role Selector inside Profile Menu -->
+            <div style="padding: 0.65rem 0; border-bottom: 1px solid var(--color-border);">
+              <div style="font-size: 0.6875rem; font-weight: 800; color: var(--color-text-secondary); margin-bottom: 0.35rem; display: flex; justify-content: space-between; align-items: center;">
+                <span>SWITCH ROLE</span>
+                <span style="color: #059669; font-weight: 700;">1-Click ▾</span>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem;">
+                <button type="button" onclick="FarmPilotApp.switchRoleAndRoute('OWNER')" class="btn btn-sm" style="font-size: 0.6875rem; padding: 0.35rem 0.4rem; background: ${role === 'OWNER' ? '#ECFDF5' : '#F8FAFC'}; color: ${role === 'OWNER' ? '#047857' : '#334155'}; border: 1px solid ${role === 'OWNER' ? '#86EFAC' : '#E2E8F0'}; font-weight: 800; border-radius: 6px; cursor: pointer;">
+                  👑 OWNER
+                </button>
+                <button type="button" onclick="FarmPilotApp.switchRoleAndRoute('MANAGER')" class="btn btn-sm" style="font-size: 0.6875rem; padding: 0.35rem 0.4rem; background: ${role === 'MANAGER' ? '#EFF6FF' : '#F8FAFC'}; color: ${role === 'MANAGER' ? '#1E40AF' : '#334155'}; border: 1px solid ${role === 'MANAGER' ? '#93C5FD' : '#E2E8F0'}; font-weight: 800; border-radius: 6px; cursor: pointer;">
+                  👔 MANAGER
+                </button>
+                <button type="button" onclick="FarmPilotApp.switchRoleAndRoute('WORKER')" class="btn btn-sm" style="font-size: 0.6875rem; padding: 0.35rem 0.4rem; background: ${role === 'WORKER' ? '#FEF3C7' : '#F8FAFC'}; color: ${role === 'WORKER' ? '#92400E' : '#334155'}; border: 1px solid ${role === 'WORKER' ? '#FCD34D' : '#E2E8F0'}; font-weight: 800; border-radius: 6px; cursor: pointer;">
+                  🚜 WORKER
+                </button>
+                <button type="button" onclick="FarmPilotApp.switchRoleAndRoute('CONSULTANT')" class="btn btn-sm" style="font-size: 0.6875rem; padding: 0.35rem 0.4rem; background: ${role === 'CONSULTANT' ? '#FAF5FF' : '#F8FAFC'}; color: ${role === 'CONSULTANT' ? '#6B21A8' : '#334155'}; border: 1px solid ${role === 'CONSULTANT' ? '#D8B4FE' : '#E2E8F0'}; font-weight: 800; border-radius: 6px; cursor: pointer;">
+                  🔬 CONSULTANT
+                </button>
+              </div>
+            </div>
+
             <!-- Features & Profile Capabilities List -->
             <div style="padding: 0.75rem 0; border-bottom: 1px solid var(--color-border); font-size: 0.8125rem;">
               <a href="dashboard.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; border-radius: 4px; color: var(--color-text-primary); text-decoration: none; font-weight: 600; font-size: 0.75rem;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='transparent'">
@@ -601,6 +686,10 @@ window.FarmPilotApp = {
               <a href="roles.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; border-radius: 4px; color: var(--color-text-primary); text-decoration: none; font-weight: 600; font-size: 0.75rem;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='transparent'">
                 <span>👥</span>
                 <span>Roles & Permissions Matrix</span>
+              </a>
+              <a href="irrigation.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; border-radius: 4px; color: var(--color-text-primary); text-decoration: none; font-weight: 600; font-size: 0.75rem;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='transparent'">
+                <span>💧</span>
+                <span>Irrigation & Drip Network</span>
               </a>
               <a href="audit.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; border-radius: 4px; color: var(--color-text-primary); text-decoration: none; font-weight: 600; font-size: 0.75rem;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='transparent'">
                 <span>📜</span>
@@ -649,12 +738,18 @@ window.FarmPilotApp = {
       });
     }
 
-    // Close profile & language dropdown on outside click
+    // Close profile, role, & language dropdown on outside click
     document.addEventListener('click', (e) => {
       const wrapper = document.getElementById('header-profile-wrapper');
       const dropdown = document.getElementById('header-profile-dropdown');
       if (dropdown && wrapper && !wrapper.contains(e.target)) {
         dropdown.style.display = 'none';
+      }
+
+      const roleWrapper = document.getElementById('header-role-switcher-wrapper');
+      const roleDropdown = document.getElementById('header-role-dropdown');
+      if (roleDropdown && roleWrapper && !roleWrapper.contains(e.target)) {
+        roleDropdown.style.display = 'none';
       }
 
       const langWrapper = document.getElementById('header-lang-wrapper');
@@ -663,6 +758,29 @@ window.FarmPilotApp = {
         langDropdown.style.display = 'none';
       }
     });
+  },
+
+  toggleRoleMenu(e) {
+    if (e) e.stopPropagation();
+    const dropdown = document.getElementById('header-role-dropdown');
+    if (dropdown) {
+      const isVisible = dropdown.style.display === 'block';
+      dropdown.style.display = isVisible ? 'none' : 'block';
+    }
+  },
+
+  switchRoleAndRoute(roleName) {
+    const dropdown = document.getElementById('header-role-dropdown');
+    if (dropdown) dropdown.style.display = 'none';
+    const profileDropdown = document.getElementById('header-profile-dropdown');
+    if (profileDropdown) profileDropdown.style.display = 'none';
+
+    if (window.FarmPilotAuth) {
+      window.FarmPilotAuth.switchPersona(roleName);
+      if (this.showToast) {
+        this.showToast(`🎭 Switched active role to ${roleName}`, 'success');
+      }
+    }
   },
 
   toggleLangMenu(e) {

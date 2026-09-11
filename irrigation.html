@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmPilot — Smart Irrigation & Drip Network Alert Center</title>
+  <meta name="description" content="Precision agricultural drip irrigation network management, AWD sluice telemetry, soil moisture probe monitoring, and agronomic irrigation recommendations.">
+  
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    .irrigation-zone-card {
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.35rem;
+      transition: all 0.25s ease;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+    .irrigation-zone-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .irrigation-zone-card.active-zone {
+      border-color: #059669;
+      box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15), var(--shadow-md);
+    }
+    .irrigation-zone-card.active-zone::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #10B981, #059669);
+    }
+
+    .alert-dossier-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.35rem;
+      margin-bottom: 1rem;
+      transition: all 0.25s ease;
+      box-shadow: var(--shadow-sm);
+    }
+    .alert-dossier-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+    .alert-dossier-card.critical {
+      border-left: 5px solid #DC2626;
+      background: #FFFBFB;
+    }
+    .alert-dossier-card.warning {
+      border-left: 5px solid #D97706;
+      background: #FFFEFB;
+    }
+    .alert-dossier-card.success {
+      border-left: 5px solid #059669;
+      background: #F8FDFB;
+    }
+    .alert-dossier-card.info {
+      border-left: 5px solid #2563EB;
+      background: #F8FAFF;
+    }
+
+    .valve-toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 52px;
+      height: 28px;
+    }
+    .valve-toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .valve-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #CBD5E1;
+      transition: .3s;
+      border-radius: 34px;
+    }
+    .valve-slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    input:checked + .valve-slider {
+      background-color: #059669;
+    }
+    input:checked + .valve-slider:before {
+      transform: translateX(24px);
+    }
+
+    .pulse-water {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #059669;
+      box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.7);
+      animation: water-pulse 1.8s infinite;
+    }
+    @keyframes water-pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(5, 150, 105, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-layout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="app-content">
+        <div class="app-content-inner animate-fade-in">
+          
+          <!-- Top Breadcrumb & Alerts Header -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--color-border);">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                <span class="badge badge-success" style="display: flex; align-items: center; gap: 0.35rem;">
+                  <span class="pulse-water"></span>
+                  <span>Live AWD & Drip Telemetry</span>
+                </span>
+                <span class="badge badge-primary">ICAR AWD Water Protocol</span>
+              </div>
+              <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--color-text-primary); margin: 0;">
+                💧 Irrigation & Drip Alert Center
+              </h1>
+              <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
+                Full-field precision drip network control, AWD piezometer depth tracking, pressure anomaly alerts, and smart irrigation suggestions.
+              </p>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
+              <button onclick="openLogIrrigationModal()" class="btn btn-primary" style="background: #059669; font-weight: 800; font-size: 0.8125rem; padding: 0.45rem 0.95rem; border-radius: var(--radius-md); display: flex; align-items: center; gap: 0.45rem;">
+                <span>➕</span>
+                <span>Log Irrigation Run</span>
+              </button>
+              <button onclick="emergencyAllShutoff()" class="btn btn-outline" style="color: #DC2626; border-color: #FECACA; background: #FEF2F2; font-weight: 800; font-size: 0.8125rem; padding: 0.45rem 0.95rem; border-radius: var(--radius-md); display: flex; align-items: center; gap: 0.45rem;" title="Immediately shut off all solenoid valves and pumps">
+                <span>🛑</span>
+                <span>Emergency Master Shutoff</span>
+              </button>
+              <a href="alerts.html" class="btn btn-outline" style="font-size: 0.8125rem; padding: 0.45rem 0.85rem; border-radius: var(--radius-md); color: var(--color-text-primary); text-decoration: none; font-weight: 700;">
+                <span>🔔 General Alerts →</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- KPI Summary Cards -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin: 1.25rem 0;">
+            <div class="card" style="padding: 1.15rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+              <div style="font-size: 0.72rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Active Drip Lines</div>
+              <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.35rem;">
+                <span id="kpi-active-zones" style="font-size: 1.65rem; font-weight: 800; color: #059669; font-family: monospace;">2 / 4 Zones</span>
+              </div>
+              <div style="font-size: 0.72rem; color: #047857; margin-top: 0.25rem;">⚡ Operating Flow: 245 L/min</div>
+            </div>
+
+            <div class="card" style="padding: 1.15rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+              <div style="font-size: 0.72rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Water Delivered Today</div>
+              <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.35rem;">
+                <span id="kpi-water-today" style="font-size: 1.65rem; font-weight: 800; color: #0284C7; font-family: monospace;">18,500 L</span>
+              </div>
+              <div style="font-size: 0.72rem; color: #0369A1; margin-top: 0.25rem;">🎯 Planned Budget: 22,000 L (84%)</div>
+            </div>
+
+            <div class="card" style="padding: 1.15rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+              <div style="font-size: 0.72rem; font-weight: 700; color: #64748B; text-transform: uppercase;">AWD Water Conserved</div>
+              <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.35rem;">
+                <span style="font-size: 1.65rem; font-weight: 800; color: #16A34A; font-family: monospace;">14,200 L</span>
+              </div>
+              <div style="font-size: 0.72rem; color: #15803D; margin-top: 0.25rem;">🌱 38% Water Savings vs Continuous Flood</div>
+            </div>
+
+            <div class="card" style="padding: 1.15rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+              <div style="font-size: 0.72rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Soil Moisture Status</div>
+              <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.35rem;">
+                <span style="font-size: 1.65rem; font-weight: 800; color: #7C3AED; font-family: monospace;">31% Avg</span>
+              </div>
+              <div style="font-size: 0.72rem; color: #6D28D9; margin-top: 0.25rem;">⚖️ Root Zone Threshold: 28% – 42%</div>
+            </div>
+          </div>
+
+          <!-- Section 1: Irrigation Alert Dossiers (The Alert Center Component) -->
+          <div style="margin: 1.75rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--color-text-primary); margin: 0; display: flex; align-items: center; gap: 0.45rem;">
+                  <span>🚨</span>
+                  <span>Irrigation Risk & Anomaly Alert Center</span>
+                </h2>
+                <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0.15rem 0 0;">
+                  Active telemetry alerts requiring operational valve actions, backflush cycles, or AWD adjustments.
+                </p>
+              </div>
+
+              <!-- Severity Filter Buttons -->
+              <div style="display: flex; gap: 0.35rem;">
+                <button onclick="filterIrrigationAlerts('ALL')" id="filter-btn-all" class="btn btn-sm btn-primary" style="font-size: 0.7rem; padding: 0.25rem 0.65rem; font-weight: 800;">All (4)</button>
+                <button onclick="filterIrrigationAlerts('CRITICAL')" id="filter-btn-crit" class="btn btn-sm btn-outline" style="font-size: 0.7rem; padding: 0.25rem 0.65rem; color: #DC2626; border-color: #FECACA;">Critical (1)</button>
+                <button onclick="filterIrrigationAlerts('WARNING')" id="filter-btn-warn" class="btn btn-sm btn-outline" style="font-size: 0.7rem; padding: 0.25rem 0.65rem; color: #D97706; border-color: #FDE68A;">Warnings (1)</button>
+                <button onclick="filterIrrigationAlerts('SMART')" id="filter-btn-smart" class="btn btn-sm btn-outline" style="font-size: 0.7rem; padding: 0.25rem 0.65rem; color: #059669; border-color: #A7F3D0;">Savings (2)</button>
+              </div>
+            </div>
+
+            <!-- Dossier 1: CRITICAL Panicle Deficit -->
+            <div class="alert-dossier-card critical" data-severity="CRITICAL">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.35rem;">
+                    <span class="badge badge-danger" style="font-size: 0.6875rem; font-weight: 800;">🚨 CRITICAL MOISTURE DEFICIT</span>
+                    <span class="badge badge-neutral" style="font-size: 0.6875rem;">Zone 1: North Block (Plot A)</span>
+                    <span class="badge" style="background: #EFF6FF; color: #1E40AF; font-size: 0.6875rem;">Paddy BPT-5204 (Day 38)</span>
+                  </div>
+                  <h3 style="font-size: 0.9375rem; font-weight: 800; color: #991B1B; margin: 0;">
+                    Panicle Primordia Stress Alert — Root-Zone Moisture Approaching Critical Threshold
+                  </h3>
+                </div>
+                <span style="font-size: 0.72rem; color: #64748B; font-weight: 600;">Triggered 14 mins ago</span>
+              </div>
+
+              <div style="margin: 0.75rem 0; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 6px; padding: 0.75rem; font-size: 0.8125rem; color: #7F1D1D; line-height: 1.5;">
+                <strong>Agronomic Telemetry Diagnosis:</strong> Soil moisture sensor at 15cm depth reads <strong>28%</strong> (Critical threshold: 30%). Perforated AWD field tube depth has fallen to <strong>-4.8 cm</strong> (Refill threshold: -5.0 cm). High solar irradiance (31.5°C) will cause spikelet sterility if water is withheld beyond 12 hours.
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #64748B;">
+                  <span>Recommended Action: <strong>Open AWD Sluice Gate to achieve 5.0 cm ponding depth</strong></span>
+                </div>
+                <div style="display: flex; gap: 0.4rem;">
+                  <button onclick="triggerZoneQuickIrrigate('zone-1', 45)" class="btn btn-sm" style="background: #DC2626; color: #FFFFFF; font-size: 0.75rem; font-weight: 800; padding: 0.35rem 0.85rem; border-radius: 6px; border: none; cursor: pointer;">
+                    ▶ Immediate 45-Min Irrigation
+                  </button>
+                  <button onclick="acknowledgeAlert(this)" class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.35rem 0.65rem; border-radius: 6px;">
+                    ✓ Acknowledge
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dossier 2: WARNING Drip Line Pressure Drop -->
+            <div class="alert-dossier-card warning" data-severity="WARNING">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.35rem;">
+                    <span class="badge badge-warning" style="font-size: 0.6875rem; font-weight: 800;">⚠️ DRIP PRESSURE VARIANCE</span>
+                    <span class="badge badge-neutral" style="font-size: 0.6875rem;">Zone 2: Central Sector (Plot B)</span>
+                    <span class="badge" style="background: #FEF3C7; color: #92400E; font-size: 0.6875rem;">Tomato NS-501 (Fruit Setting)</span>
+                  </div>
+                  <h3 style="font-size: 0.9375rem; font-weight: 800; color: #92400E; margin: 0;">
+                    Lateral Manifold Pressure Drop — Suspected Disc Filter Silt Clogging
+                  </h3>
+                </div>
+                <span style="font-size: 0.72rem; color: #64748B; font-weight: 600;">Triggered 38 mins ago</span>
+              </div>
+
+              <div style="margin: 0.75rem 0; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 6px; padding: 0.75rem; font-size: 0.8125rem; color: #78350F; line-height: 1.5;">
+                <strong>Hardware Sensor Telemetry:</strong> Manifold pressure transducer dropped to <strong>1.2 bar</strong> (Target baseline: 1.8 – 2.2 bar). Lateral 3 flow meter registered 35 L/min (Expected: 75 L/min). Emitting uniformity coefficient dropped below 72%.
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #64748B;">
+                  <span>Remediation: <strong>Perform 3-minute automated backflush on primary sand & disc filters</strong></span>
+                </div>
+                <div style="display: flex; gap: 0.4rem;">
+                  <button onclick="triggerFilterBackflush()" class="btn btn-sm" style="background: #D97706; color: #FFFFFF; font-size: 0.75rem; font-weight: 800; padding: 0.35rem 0.85rem; border-radius: 6px; border: none; cursor: pointer;">
+                    🔄 Trigger Filter Backflush
+                  </button>
+                  <button onclick="acknowledgeAlert(this)" class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.35rem 0.65rem; border-radius: 6px;">
+                    ✓ Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dossier 3: SMART SAVINGS AWD Window -->
+            <div class="alert-dossier-card success" data-severity="SMART">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.35rem;">
+                    <span class="badge badge-success" style="font-size: 0.6875rem; font-weight: 800;">💡 SMART WATER SAVINGS</span>
+                    <span class="badge badge-neutral" style="font-size: 0.6875rem;">Zone 3: South Canal (Plot C)</span>
+                    <span class="badge" style="background: #ECFDF5; color: #047857; font-size: 0.6875rem;">Chilli Teja</span>
+                  </div>
+                  <h3 style="font-size: 0.9375rem; font-weight: 800; color: #065F46; margin: 0;">
+                    AWD Aeration Window Optimal — Safely Postpone Watering by 36 Hours
+                  </h3>
+                </div>
+                <span style="font-size: 0.72rem; color: #64748B; font-weight: 600;">Smart Recommendation</span>
+              </div>
+
+              <div style="margin: 0.75rem 0; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 6px; padding: 0.75rem; font-size: 0.8125rem; color: #064E3B; line-height: 1.5;">
+                <strong>AWD Agronomic Opportunity:</strong> Observation tube indicates perched water table at <strong>-3.2 cm</strong>. Soil aeration is stimulating deeper root elongation and root respiration. Deferring irrigation cycle will conserve <strong>14,000 Litres</strong> without yield penalty.
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #047857; font-weight: 700;">
+                  <span>💧 Cumulative AWD Savings: ₹1,240 pumping power conserved</span>
+                </div>
+                <div style="display: flex; gap: 0.4rem;">
+                  <button onclick="lockAWDDelay('zone-3', 36)" class="btn btn-sm" style="background: #059669; color: #FFFFFF; font-size: 0.75rem; font-weight: 800; padding: 0.35rem 0.85rem; border-radius: 6px; border: none; cursor: pointer;">
+                    🔒 Postpone Schedule (36h)
+                  </button>
+                  <button onclick="acknowledgeAlert(this)" class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.35rem 0.65rem; border-radius: 6px;">
+                    ✓ Accept
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dossier 4: RAIN FORECAST SYNERGY -->
+            <div class="alert-dossier-card info" data-severity="SMART">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.35rem;">
+                    <span class="badge" style="background: #DBEAFE; color: #1E40AF; font-size: 0.6875rem; font-weight: 800;">🌧️ WEATHERAPI PRECIPITATION ADVISORY</span>
+                    <span class="badge badge-neutral" style="font-size: 0.6875rem;">All Farm Parcels (25.0 Acres)</span>
+                  </div>
+                  <h3 style="font-size: 0.9375rem; font-weight: 800; color: #1E3A8A; margin: 0;">
+                    Convective Rain Expected in 18 Hours (82% Probability, 18–24 mm)
+                  </h3>
+                </div>
+                <span style="font-size: 0.72rem; color: #64748B; font-weight: 600;">WeatherAPI Telemetry</span>
+              </div>
+
+              <div style="margin: 0.75rem 0; background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 6px; padding: 0.75rem; font-size: 0.8125rem; color: #1E3A8A; line-height: 1.5;">
+                <strong>Meteorological Advisory:</strong> Forecast indicates substantial tropical rain tomorrow afternoon. Suspending today's afternoon scheduled drip fertigation will prevent fertilizer runoff, nitrogen leaching, and soil waterlogging.
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #1D4ED8; font-weight: 700;">
+                  <span>Forecast Depth: 20 mm natural precipitation (Eqv: 200,000 L / acre)</span>
+                </div>
+                <div style="display: flex; gap: 0.4rem;">
+                  <button onclick="pauseAutomatedCycles()" class="btn btn-sm" style="background: #2563EB; color: #FFFFFF; font-size: 0.75rem; font-weight: 800; padding: 0.35rem 0.85rem; border-radius: 6px; border: none; cursor: pointer;">
+                    ⏸ Suspend Cycles (24h)
+                  </button>
+                  <button onclick="acknowledgeAlert(this)" class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.35rem 0.65rem; border-radius: 6px;">
+                    Keep Manual Mode
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Full-Field Drip & Sluice Management Matrix -->
+          <div style="margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--color-text-primary); margin: 0; display: flex; align-items: center; gap: 0.45rem;">
+                  <span>🎛️</span>
+                  <span>Full-Field Drip Zone & Sluice Gate Controllers</span>
+                </h2>
+                <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0.15rem 0 0;">
+                  Direct solenoid valve actuation, real-time pressure transducers, and water delivery meters across all 4 farm sectors.
+                </p>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <button onclick="startAllPermittedZones()" class="btn btn-sm btn-outline" style="color: #059669; border-color: #A7F3D0; font-weight: 800; font-size: 0.75rem;">
+                  ▶ Activate All Zones
+                </button>
+              </div>
+            </div>
+
+            <!-- Zone Cards Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 1.25rem;">
+              
+              <!-- Zone 1: North Block -->
+              <div class="irrigation-zone-card active-zone" id="card-zone-1">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div>
+                    <span class="badge badge-primary" style="font-size: 0.6875rem;">ZONE 1 • 8.5 ACRES</span>
+                    <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0 0;">
+                      North Block (Plot A)
+                    </h3>
+                    <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0.1rem 0;">
+                      🌾 Paddy (BPT-5204) • Clay Loam
+                    </p>
+                  </div>
+
+                  <!-- Valve Switch -->
+                  <div style="text-align: right;">
+                    <label class="valve-toggle-switch">
+                      <input type="checkbox" id="valve-switch-zone-1" checked onchange="toggleZoneValve('zone-1', this.checked)">
+                      <span class="valve-slider"></span>
+                    </label>
+                    <div id="valve-label-zone-1" style="font-size: 0.6875rem; font-weight: 800; color: #059669; margin-top: 0.2rem;">
+                      VALVE: OPEN 💧
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin: 0.85rem 0; padding: 0.65rem 0.75rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0; font-size: 0.75rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                  <div>
+                    <span style="color: #64748B;">Soil Moisture:</span>
+                    <strong style="color: #DC2626;" id="moisture-val-zone-1">28% (Deficit)</strong>
+                  </div>
+                  <div>
+                    <span style="color: #64748B;">AWD Piezometer:</span>
+                    <strong style="color: #0284C7;" id="awd-val-zone-1">-4.8 cm</strong>
+                  </div>
+                  <div>
+                    <span style="color: #64748B;">Operating Flow:</span>
+                    <strong style="color: #059669;" id="flow-val-zone-1">150 L/min</strong>
+                  </div>
+                  <div>
+                    <span style="color: #64748B;">Method:</span>
+                    <strong>AWD Sluice + Drip</strong>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; padding-top: 0.5rem; border-top: 1px solid #E2E8F0;">
+                  <span style="color: #64748B;">Session Delivered:</span>
+                  <strong style="font-size: 0.875rem; color: #059669; font-family: monospace;" id="meter-zone-1">6,750 Liters</strong>
+                </div>
+
+                <div style="display: flex; gap: 0.35rem; margin-top: 0.75rem;">
+                  <button onclick="setZoneTimer('zone-1', 30)" class="btn btn-sm btn-outline" style="font-size: 0.6875rem; flex: 1; padding: 0.25rem;">30m</button>
+                  <button onclick="setZoneTimer('zone-1', 45)" class="btn btn-sm btn-outline" style="font-size: 0.6875rem; flex: 1; padding: 0.25rem; font-weight: 800; color: #059669;">45m</button>
+                  <button onclick="setZoneTimer('zone-1', 60)" class="btn btn-sm btn-outline" style="font-size: 0.6875rem; flex: 1; padding: 0.25rem;">60m</button>
+                  <button onclick="setZoneTimer('zone-1', 90)" class="btn btn-sm btn-outline" style="font-size: 0.6875rem; flex: 1; padding: 0.25rem;">90m</button>
+                </div>
+              </div>
+
+              <!-- Zone 2: Central Sector -->
+              <div class="irrigation-zone-card active-zone" id="card-zone-2">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div>
+                    <span class="badge badge-warning" style="font-size: 0.6875rem;">ZONE 2 • 6.0 ACRES</span>
+                    <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0 0;">
+                      Central Sector (Plot B)
+                    </h3>
+                    <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0.1rem 0;">
+                      🍅 Tomato (NS-501) • Silt Loam
+                    </p>
+                  </div>
+
+                  <!-- Valve Switch -->
+                  <div style="text-align: right;">
+                    <label class="valve-toggle-switch">
+                      <input type="checkbox" id="valve-switch-zone-2" checked onchange="toggleZoneValve('zone-2', this.checked)">
+                      <span class="valve-slider"></span>
+                    </label>
+                    <div id="valve-label-zone-2" style="font-size: 0.6875rem; font-weight: 800; color: #059669; margin-top: 0.2rem;">
+                      VALVE: OPEN 💧
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin: 0.85rem 0; padding: 0.65rem 0.75rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0; font-size: 0.75rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                  <div>
+                    <span style="color: #64748B;">Soil Moisture:</span>
+                    <strong style="color: #059669;" id="moisture-val-zone-2">42% (Optimal)</strong>
+                  </div>
+                  <div>
+                    <span style="color: #64748B;">Manifold Pressure:</span>
+                    <strong style="color: #D97706;" id="pressure-val-zone-2">1.2 bar ⚠️</strong>
+                  </div>
+                  <div>
+                    <span style="color: #64748B;">Operating Flow:</span>
+                    <strong style="color: #059669;" id="flow-val-zone-2">95 L/min</strong>
+                  </div>
+                  <div>
+                    <span style="color: #64748B;">Method:</span>
+                    <strong>Solar Micro-Drip</strong>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; padding-top: 0.5rem; border-top: 1px solid #E2E8F0;">
+                  <span style="color: #64748B;">Session Delivered:</span>
+                  <strong style="font-size: 0.875rem; color: #059669; font-family: monospace;" id="meter-zone-2">4,275 Liters</strong>
+                </div>
+
+                <div style="display: flex; gap: 0.35rem; margin-top: 0.75rem;">
+                  <button onclick="setZoneTimer('zone-2', 30)" class="btn btn-sm btn-outline" style="font-size: 0.6875rem; flex: 1; padding: 0.25rem;">30m</button>
+                  <button onclick="setZoneTimer('zone-2', 45)" class="btn btn-sm btn-outline" style="font-size: 0.6875rem; flex: 1; padding: 0.25rem;">45m</button>
+                  <button onclick="setZoneTimer('zone-2', 60)" class="btn btn-sm btn-outline" style="font-size: 0.6875rem; flex: 1; padding: 0.25rem; font-weight: 800; color: #059669;">60m</button>
+                  <button onclick="setZoneTimer('zone-2', 90)" class="btn btn-sm btn-outline" style="font-size: 0.6875rem; flex: 1; padding: 0.25rem;">90m</button>
+                </div>
+              </div>
+
+              <!-- Zone 3: South Canal -->
+              <div class="irrigation-zone-card" id="card-zone-3">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div>
+                    <span class="badge badge-neutral" style="font-size: 0.6875rem;">ZONE 3 • 5.5 ACRES</span>
+                    <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0 0;">
+                      South Canal (Plot C)
+                    </h3>
+                    <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0.1rem 0;">
+                      🌶️ Chilli (Teja) • Sandy Loam
+                    </p>
+                  </div>
+
+                  <!-- Valve Switch -->
+                  <div style="text-align: right;">
+                    <label class="valve-toggle-switch">
+                      <input type="checkbox" id="valve-switch-zone-3" onchange="toggleZoneValve('zone-3', this.checked)">
+                      <span class="valve-slider"></span>
+                    </label>
+                    <div id="valve-label-zone-3" style="font-size: 0.6875rem; font-weight: 800; color: #64748B; margin-top: 0.2rem;">
+                      VALVE: CLOSED
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin: 0.85rem 0; padding: 0.65rem 0.75rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0; font-size: 0.75rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                  <div>
+                    <span style="color: #64748B;">Soil Moisture:</span>
+                    <strong style="color: #059669;" id="moisture-val-zone-3">36% (Adequate)</strong>
+                  </div>
+                  <div>
+                    <span style="color: #64748B;">Operating Pressure:</span>
+                    <strong style="color: #059669;" id="pressure-val-zone-3">2.0 bar (Ready)</strong>
+                  </div>
+                  <div>
+                    <span style="color: #64748B;">Operating Flow:</span>
+                    <strong style="color: #64748B;" id="flow-val-zone-3">0 L/min</strong>
+                  </div>
+                  <div>
+                    <span style="color: #64748B;">Method:</span>
+                    <strong>Sub-Surface Drip (SDI)</strong>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; padding-top: 0.5rem; border-top: 1px solid #E2E8F0;">
+                  <span style="color: #64748B;">Next Scheduled:</span>
+                  <strong style="font-size: 0.8125rem; color: #0284C7;">Tomorrow • 06:00 AM</strong>
+                </div>
+
+                <div style="display: flex; gap: 0.35rem; margin-top: 0.75rem;">
+                  <button onclick="setZoneTimer('zone-3', 30)" class="btn btn-sm btn-outline" style="font-size: 0.6875rem; flex: 1; padding: 0.25rem;">30m</button>
+                  <button onclick="setZoneTimer('zone-3', 45)" class="btn btn-sm btn-outline" style="font-size: 0.6875rem; flex: 1; padding: 0.25rem;">45m</button>
+                  <button onclick="setZoneTimer('zone-3', 60)" class="btn btn-sm btn-outline" style="font-size: 0.6875rem; flex: 1; padding: 0.25rem;">60m</button>
+                  <button onclick="setZoneTimer('zone-3', 90)" class="btn btn-sm btn-outline" style="font-size: 0.6875rem; flex: 1; padding: 0.25rem;">90m</button>
+                </div>
+              </div>
+
+              <!-- Zone 4: East River Terrace -->
+              <div class="irrigation-zone-card" id="card-zone-4">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div>
+                    <span class="badge badge-neutral" style="font-size: 0.6875rem;">ZONE 4 • 5.0 ACRES</span>
+                    <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--color-text-primary); margin: 0.25rem 0 0;">
+                      East River Terrace (Plot D)
+                    </h3>
+                    <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0.1rem 0;">
+                      🌱 Black Gram & Pulses • Alluvial Clay
+                    </p>
+                  </div>
+
+                  <!-- Valve Switch -->
+                  <div style="text-align: right;">
+                    <label class="valve-toggle-switch">
+                      <input type="checkbox" id="valve-switch-zone-4" onchange="toggleZoneValve('zone-4', this.checked)">
+                      <span class="valve-slider"></span>
+                    </label>
+                    <div id="valve-label-zone-4" style="font-size: 0.6875rem; font-weight: 800; color: #64748B; margin-top: 0.2rem;">
+                      VALVE: CLOSED
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin: 0.85rem 0; padding: 0.65rem 0.75rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0; font-size: 0.75rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                  <div>
+                    <span style="color: #64748B;">Soil Moisture:</span>
+                    <strong style="color: #059669;" id="moisture-val-zone-4">34% (Normal)</strong>
+                  </div>
+                  <div>
+                    <span style="color: #64748B;">Nozzle Pressure:</span>
+                    <strong style="color: #059669;" id="pressure-val-zone-4">2.2 bar</strong>
+                  </div>
+                  <div>
+                    <span style="color: #64748B;">Operating Flow:</span>
+                    <strong style="color: #64748B;" id="flow-val-zone-4">0 L/min</strong>
+                  </div>
+                  <div>
+                    <span style="color: #64748B;">Method:</span>
+                    <strong>Micro-Sprinkler Overhead</strong>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; padding-top: 0.5rem; border-top: 1px solid #E2E8F0;">
+                  <span style="color: #64748B;">Next Scheduled:</span>
+                  <strong style="font-size: 0.8125rem; color: #0284C7;">13 Sep • 05:30 AM</strong>
+                </div>
+
+                <div style="display: flex; gap: 0.35rem; margin-top: 0.75rem;">
+                  <button onclick="setZoneTimer('zone-4', 30)" class="btn btn-sm btn-outline" style="font-size: 0.6875rem; flex: 1; padding: 0.25rem;">30m</button>
+                  <button onclick="setZoneTimer('zone-4', 45)" class="btn btn-sm btn-outline" style="font-size: 0.6875rem; flex: 1; padding: 0.25rem;">45m</button>
+                  <button onclick="setZoneTimer('zone-4', 60)" class="btn btn-sm btn-outline" style="font-size: 0.6875rem; flex: 1; padding: 0.25rem;">60m</button>
+                  <button onclick="setZoneTimer('zone-4', 90)" class="btn btn-sm btn-outline" style="font-size: 0.6875rem; flex: 1; padding: 0.25rem;">90m</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Section 3: Smart Irrigation Agronomic Suggestions Engine -->
+          <div style="margin: 2rem 0; background: linear-gradient(135deg, #064E3B 0%, #047857 100%); border-radius: var(--radius-lg); padding: 1.5rem; color: #FFFFFF; box-shadow: var(--shadow-md);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <span class="badge" style="background: rgba(255,255,255,0.2); color: #FFFFFF; font-size: 0.6875rem; font-weight: 800; margin-bottom: 0.4rem;">
+                  🧠 AI & WeatherAPI Agronomic Prescription
+                </span>
+                <h2 style="font-size: 1.35rem; font-weight: 800; margin: 0; color: #FFFFFF;">
+                  Smart Evapotranspiration (ET) Water Advisory
+                </h2>
+                <p style="font-size: 0.8125rem; color: #D1FAE5; margin-top: 0.3rem; max-width: 650px; line-height: 1.5;">
+                  Calculated using Penman-Monteith equation correlated with live WeatherAPI temperature (31.5°C), relative humidity (63%), solar radiation, and phenological stage coefficients ($K_c = 1.15$).
+                </p>
+              </div>
+
+              <div style="text-align: right; background: rgba(0,0,0,0.2); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15);">
+                <div style="font-size: 0.6875rem; text-transform: uppercase; color: #A7F3D0; font-weight: 700;">Optimal Window</div>
+                <div style="font-size: 1.15rem; font-weight: 800; color: #FFFFFF;">05:30 AM – 07:30 AM</div>
+                <div style="font-size: 0.7rem; color: #D1FAE5;">32% Less Evaporative Loss</div>
+              </div>
+            </div>
+
+            <!-- Suggestions Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-top: 1.25rem;">
+              <div style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem;">
+                <h4 style="margin: 0; font-size: 0.875rem; font-weight: 800; color: #A7F3D0; display: flex; align-items: center; gap: 0.35rem;">
+                  <span>🌾</span>
+                  <span>Zone 1: Paddy Tillering Recommendation</span>
+                </h4>
+                <p style="font-size: 0.78rem; color: #F0FDF4; margin: 0.5rem 0; line-height: 1.45;">
+                  Maintain intermittent AWD ponding at <strong>4.5 – 5.0 cm</strong> depth. Re-submerge today for 48 hours to activate crown roots, then allow water level to drop naturally.
+                </p>
+                <div style="font-size: 0.72rem; color: #D1FAE5; font-weight: 700;">Prescribed Volume: 4,500 L / Acre</div>
+              </div>
+
+              <div style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem;">
+                <h4 style="margin: 0; font-size: 0.875rem; font-weight: 800; color: #A7F3D0; display: flex; align-items: center; gap: 0.35rem;">
+                  <span>🍅</span>
+                  <span>Zone 2: Drip Fertigation Protocol</span>
+                </h4>
+                <p style="font-size: 0.78rem; color: #F0FDF4; margin: 0.5rem 0; line-height: 1.45;">
+                  Inject water-soluble Calcium Nitrate ($1.5\text{ kg/acre}$) through Venturi injector during the middle 50% of the drip cycle to prevent blossom end rot in tomatoes.
+                </p>
+                <div style="font-size: 0.72rem; color: #D1FAE5; font-weight: 700;">Run Time: 45 Mins at 2.0 bar</div>
+              </div>
+
+              <div style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem;">
+                <h4 style="margin: 0; font-size: 0.875rem; font-weight: 800; color: #A7F3D0; display: flex; align-items: center; gap: 0.35rem;">
+                  <span>⚡</span>
+                  <span>Pumping Energy Efficiency</span>
+                </h4>
+                <p style="font-size: 0.78rem; color: #F0FDF4; margin: 0.5rem 0; line-height: 1.45;">
+                  Operating pumps during off-peak agricultural tariff hours (05:00 AM – 08:00 AM) reduces power costs by <strong>₹42 per irrigation hectare</strong> while water table pressure is at peak.
+                </p>
+                <div style="font-size: 0.72rem; color: #D1FAE5; font-weight: 700;">Tariff Savings: ₹1,050 / month</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4: Irrigation Historical Log & Audit Table -->
+          <div style="margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--color-text-primary); margin: 0;">
+                  📜 Irrigation Telemetry & Water Logs
+                </h2>
+                <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin: 0.15rem 0 0;">
+                  Tamper-evident logs of executed watering cycles, operator signatures, and water volumes.
+                </p>
+              </div>
+
+              <input type="text" id="log-search-input" onkeyup="filterLogTable()" placeholder="Search logs by field, method, or operator..." style="padding: 0.35rem 0.65rem; font-size: 0.75rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); width: 260px;">
+            </div>
+
+            <div class="table-container" style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.8125rem;" id="irrigation-logs-table">
+                <thead>
+                  <tr style="background: #F8FAFC; border-bottom: 1.5px solid var(--color-border); color: #475569; font-weight: 800; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em;">
+                    <th style="padding: 0.75rem 1rem;">Date & Time</th>
+                    <th style="padding: 0.75rem 1rem;">Field & Crop</th>
+                    <th style="padding: 0.75rem 1rem;">Method</th>
+                    <th style="padding: 0.75rem 1rem;">Volume (L)</th>
+                    <th style="padding: 0.75rem 1rem;">Water Depth</th>
+                    <th style="padding: 0.75rem 1rem;">Operator</th>
+                    <th style="padding: 0.75rem 1rem;">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="irrigation-logs-body">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal: Log Irrigation Run -->
+  <div id="log-irrigation-modal" class="modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99999; align-items: center; justify-content: center;">
+    <div style="background: #FFFFFF; border-radius: var(--radius-lg); width: 92%; max-width: 500px; padding: 1.5rem; box-shadow: var(--shadow-lg); animation: fadeIn 0.2s ease;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-border);">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--color-text-primary); margin: 0; display: flex; align-items: center; gap: 0.4rem;">
+          <span>💧</span>
+          <span>Log Irrigation Execution</span>
+        </h3>
+        <button onclick="closeLogIrrigationModal()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: #64748B;">✕</button>
+      </div>
+
+      <form id="irrigation-log-form" onsubmit="handleLogIrrigationSubmit(event)">
+        <div style="margin-bottom: 0.85rem;">
+          <label style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">Target Field Sector *</label>
+          <select id="modal-field" required style="width: 100%; padding: 0.45rem 0.65rem; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.8125rem;">
+            <option value="North Block (Plot A)">North Block (Plot A) — Paddy BPT-5204</option>
+            <option value="Central Sector (Plot B)">Central Sector (Plot B) — Tomato NS-501</option>
+            <option value="South Canal (Plot C)">South Canal (Plot C) — Chilli Teja</option>
+            <option value="East River Terrace (Plot D)">East River Terrace (Plot D) — Pulses</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
+          <div>
+            <label style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">Irrigation Method *</label>
+            <select id="modal-method" required style="width: 100%; padding: 0.45rem 0.65rem; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.8125rem;">
+              <option value="AWD Submersion Sluice">AWD Submersion Sluice</option>
+              <option value="Precision Solar Drip">Precision Solar Drip</option>
+              <option value="Sub-Surface Drip (SDI)">Sub-Surface Drip (SDI)</option>
+              <option value="Micro-Sprinkler Overhead">Micro-Sprinkler Overhead</option>
+              <option value="Micro-Furrow Inflow">Micro-Furrow Inflow</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">Water Volume (Litres) *</label>
+            <input type="number" id="modal-volume" required min="100" max="100000" placeholder="e.g. 4500" style="width: 100%; padding: 0.45rem 0.65rem; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.8125rem;">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
+          <div>
+            <label style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">Duration (Minutes) *</label>
+            <input type="number" id="modal-duration" required min="5" max="360" placeholder="e.g. 45" style="width: 100%; padding: 0.45rem 0.65rem; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.8125rem;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">AWD Water Depth (cm)</label>
+            <input type="text" id="modal-depth" placeholder="e.g. 5.0 cm (or N/A)" style="width: 100%; padding: 0.45rem 0.65rem; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.8125rem;">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">Operational Notes / Soil Observation</label>
+          <textarea id="modal-notes" rows="2" placeholder="e.g. Applied scheduled AWD replenishment. Filter flushed prior to run." style="width: 100%; padding: 0.45rem 0.65rem; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.8125rem;"></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+          <button type="button" onclick="closeLogIrrigationModal()" class="btn btn-outline" style="font-size: 0.8125rem; padding: 0.45rem 0.95rem;">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="background: #059669; font-size: 0.8125rem; font-weight: 800; padding: 0.45rem 1.15rem;">✓ Commit to Database</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/weather.js"></script>
+  <script src="js/irrigation.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Verify Authentication & Enforce Route Guard
+      const isAuthed = await window.FarmPilotAuth.checkAuth(true);
+      if (!isAuthed) return;
+
+      // 2. Initialize App Header and Sidebar
+      FarmPilotApp.activePage = 'irrigation';
+      await FarmPilotApp.init();
+
+      // 3. Render Initial Irrigation State
+      renderIrrigationLogs();
+    });
+
+    // Valve Management Handlers
+    window.toggleZoneValve = function(zoneId, isOpen) {
+      const label = document.getElementById(`valve-label-${zoneId}`);
+      const card = document.getElementById(`card-${zoneId}`);
+      const flowEl = document.getElementById(`flow-val-${zoneId}`);
+
+      if (isOpen) {
+        if (label) { label.textContent = 'VALVE: OPEN 💧'; label.style.color = '#059669'; }
+        if (card) card.classList.add('active-zone');
+        if (flowEl && flowEl.textContent === '0 L/min') {
+          flowEl.textContent = '120 L/min';
+          flowEl.style.color = '#059669';
+        }
+        if (window.FarmPilotApp && window.FarmPilotApp.showToast) {
+          window.FarmPilotApp.showToast(`💧 Solenoid Valve opened for ${zoneId.toUpperCase()} • Flow active`, 'success');
+        }
+      } else {
+        if (label) { label.textContent = 'VALVE: CLOSED'; label.style.color = '#64748B'; }
+        if (card) card.classList.remove('active-zone');
+        if (flowEl) {
+          flowEl.textContent = '0 L/min';
+          flowEl.style.color = '#64748B';
+        }
+        if (window.FarmPilotApp && window.FarmPilotApp.showToast) {
+          window.FarmPilotApp.showToast(`⏹ Valve shut off for ${zoneId.toUpperCase()}`, 'info');
+        }
+      }
+
+      updateActiveZonesCounter();
+    };
+
+    window.setZoneTimer = function(zoneId, minutes) {
+      const checkbox = document.getElementById(`valve-switch-${zoneId}`);
+      if (checkbox && !checkbox.checked) {
+        checkbox.checked = true;
+        toggleZoneValve(zoneId, true);
+      }
+      if (window.FarmPilotApp && window.FarmPilotApp.showToast) {
+        window.FarmPilotApp.showToast(`⏱ Timer set: ${minutes} minutes for ${zoneId.toUpperCase()}`, 'info');
+      }
+    };
+
+    window.triggerZoneQuickIrrigate = function(zoneId, mins) {
+      setZoneTimer(zoneId, mins);
+      const critDossier = document.querySelector('.alert-dossier-card.critical');
+      if (critDossier) {
+        critDossier.style.opacity = '0.65';
+        critDossier.style.borderColor = '#10B981';
+      }
+    };
+
+    window.triggerFilterBackflush = function() {
+      if (window.FarmPilotApp && window.FarmPilotApp.showToast) {
+        window.FarmPilotApp.showToast('🔄 Automated 3-minute backflush cycle initiated on Central Sector disc filters', 'info');
+      }
+      setTimeout(() => {
+        const pressureEl = document.getElementById('pressure-val-zone-2');
+        if (pressureEl) {
+          pressureEl.textContent = '2.1 bar (Normalized)';
+          pressureEl.style.color = '#059669';
+        }
+        if (window.FarmPilotApp && window.FarmPilotApp.showToast) {
+          window.FarmPilotApp.showToast('✓ Filter backflush complete. Pressure restored to 2.1 bar!', 'success');
+        }
+      }, 2500);
+    };
+
+    window.lockAWDDelay = function(zoneId, hours) {
+      if (window.FarmPilotApp && window.FarmPilotApp.showToast) {
+        window.FarmPilotApp.showToast(`🔒 AWD Sluice lock engaged for ${hours}h • Conserving 14,000 Litres`, 'success');
+      }
+    };
+
+    window.pauseAutomatedCycles = function() {
+      if (window.FarmPilotApp && window.FarmPilotApp.showToast) {
+        window.FarmPilotApp.showToast('⏸ All automated drip schedules paused for 24h due to rain forecast', 'info');
+      }
+    };
+
+    window.emergencyAllShutoff = function() {
+      ['zone-1', 'zone-2', 'zone-3', 'zone-4'].forEach(z => {
+        const cb = document.getElementById(`valve-switch-${z}`);
+        if (cb && cb.checked) {
+          cb.checked = false;
+          toggleZoneValve(z, false);
+        }
+      });
+      if (window.FarmPilotApp && window.FarmPilotApp.showToast) {
+        window.FarmPilotApp.showToast('🛑 EMERGENCY MASTER SHUTOFF APPLIED: All valves closed', 'danger');
+      }
+    };
+
+    window.startAllPermittedZones = function() {
+      ['zone-1', 'zone-2'].forEach(z => {
+        const cb = document.getElementById(`valve-switch-${z}`);
+        if (cb && !cb.checked) {
+          cb.checked = true;
+          toggleZoneValve(z, true);
+        }
+      });
+    };
+
+    function updateActiveZonesCounter() {
+      let activeCount = 0;
+      ['zone-1', 'zone-2', 'zone-3', 'zone-4'].forEach(z => {
+        const cb = document.getElementById(`valve-switch-${z}`);
+        if (cb && cb.checked) activeCount++;
+      });
+      const el = document.getElementById('kpi-active-zones');
+      if (el) el.textContent = `${activeCount} / 4 Zones`;
+    }
+
+    window.acknowledgeAlert = function(btn) {
+      const card = btn.closest('.alert-dossier-card');
+      if (card) {
+        card.style.opacity = '0.5';
+        card.style.background = '#F8FAFC';
+        btn.textContent = '✓ Acknowledged';
+        btn.disabled = true;
+      }
+    };
+
+    window.filterIrrigationAlerts = function(type) {
+      const cards = document.querySelectorAll('.alert-dossier-card');
+      cards.forEach(c => {
+        if (type === 'ALL') c.style.display = 'block';
+        else if (type === 'CRITICAL' && c.getAttribute('data-severity') === 'CRITICAL') c.style.display = 'block';
+        else if (type === 'WARNING' && c.getAttribute('data-severity') === 'WARNING') c.style.display = 'block';
+        else if (type === 'SMART' && c.getAttribute('data-severity') === 'SMART') c.style.display = 'block';
+        else c.style.display = 'none';
+      });
+
+      document.querySelectorAll('#filter-btn-all, #filter-btn-crit, #filter-btn-warn, #filter-btn-smart').forEach(b => {
+        b.className = 'btn btn-sm btn-outline';
+      });
+      if (type === 'ALL') document.getElementById('filter-btn-all').className = 'btn btn-sm btn-primary';
+      if (type === 'CRITICAL') document.getElementById('filter-btn-crit').className = 'btn btn-sm btn-primary';
+      if (type === 'WARNING') document.getElementById('filter-btn-warn').className = 'btn btn-sm btn-primary';
+      if (type === 'SMART') document.getElementById('filter-btn-smart').className = 'btn btn-sm btn-primary';
+    };
+
+    // Irrigation Log Table Renderer
+    function renderIrrigationLogs() {
+      const tbody = document.getElementById('irrigation-logs-body');
+      if (!tbody) return;
+
+      const data = window.FarmPilotIrrigation ? window.FarmPilotIrrigation.getData() : null;
+      const records = data?.records || [
+        {
+          id: 'irr-01',
+          date: '2026-09-10 • 06:30 AM',
+          field: 'North Block (Plot A)',
+          crop: 'Paddy BPT-5204',
+          method: 'AWD Submersion Sluice',
+          water_quantity: '4,500 L',
+          water_depth: '5.0 cm',
+          person: 'Ravi Kumar (Operator)',
+          status: 'Completed'
+        },
+        {
+          id: 'irr-02',
+          date: '2026-09-09 • 05:30 AM',
+          field: 'Central Sector (Plot B)',
+          crop: 'Tomato NS-501',
+          method: 'Precision Solar Drip',
+          water_quantity: '7,000 L',
+          water_depth: 'N/A (Drip)',
+          person: 'Kumar Swamy',
+          status: 'Completed'
+        },
+        {
+          id: 'irr-03',
+          date: '2026-09-08 • 06:00 AM',
+          field: 'South Canal (Plot C)',
+          crop: 'Chilli Teja',
+          method: 'Sub-Surface Drip (SDI)',
+          water_quantity: '3,000 L',
+          water_depth: 'N/A (SDI)',
+          person: 'Suresh Varma',
+          status: 'Completed'
+        },
+        {
+          id: 'irr-04',
+          date: '2026-09-07 • 06:00 AM',
+          field: 'East River Terrace (Plot D)',
+          crop: 'Black Gram',
+          method: 'Micro-Sprinkler Overhead',
+          water_quantity: '3,750 L',
+          water_depth: 'N/A (Sprinkler)',
+          person: 'Ravi Kumar (Operator)',
+          status: 'Completed'
+        }
+      ];
+
+      tbody.innerHTML = records.map(r => `
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 0.75rem 1rem; font-weight: 600; color: var(--color-text-primary);">${r.date}</td>
+          <td style="padding: 0.75rem 1rem;">
+            <strong>${r.field}</strong>
+            <div style="font-size: 0.7rem; color: #64748B;">${r.crop}</div>
+          </td>
+          <td style="padding: 0.75rem 1rem; color: #0284C7; font-weight: 700;">${r.method}</td>
+          <td style="padding: 0.75rem 1rem; font-family: monospace; font-weight: 800; color: #059669;">${r.water_quantity}</td>
+          <td style="padding: 0.75rem 1rem; color: #64748B;">${r.water_depth || 'N/A'}</td>
+          <td style="padding: 0.75rem 1rem; color: #334155;">${r.person || 'Rajesh Patel'}</td>
+          <td style="padding: 0.75rem 1rem;">
+            <span class="badge badge-success" style="font-size: 0.6875rem;">${r.status || 'Verified'}</span>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    window.filterLogTable = function() {
+      const q = document.getElementById('log-search-input').value.toLowerCase();
+      const rows = document.querySelectorAll('#irrigation-logs-body tr');
+      rows.forEach(r => {
+        const text = r.textContent.toLowerCase();
+        r.style.display = text.includes(q) ? '' : 'none';
+      });
+    };
+
+    // Modal Control
+    window.openLogIrrigationModal = function() {
+      const m = document.getElementById('log-irrigation-modal');
+      if (m) m.style.display = 'flex';
+    };
+
+    window.closeLogIrrigationModal = function() {
+      const m = document.getElementById('log-irrigation-modal');
+      if (m) m.style.display = 'none';
+    };
+
+    window.handleLogIrrigationSubmit = async function(e) {
+      e.preventDefault();
+      const field = document.getElementById('modal-field').value;
+      const method = document.getElementById('modal-method').value;
+      const volume = document.getElementById('modal-volume').value;
+      const duration = document.getElementById('modal-duration').value;
+      const depth = document.getElementById('modal-depth').value || 'N/A';
+      const notes = document.getElementById('modal-notes').value;
+      const user = window.FarmPilotAuth ? window.FarmPilotAuth.getUser() : null;
+
+      const newRecord = {
+        id: `irr-${Date.now()}`,
+        date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ' • ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        field: field,
+        crop: field.includes('North') ? 'Paddy BPT-5204' : field.includes('Central') ? 'Tomato NS-501' : field.includes('South') ? 'Chilli Teja' : 'Black Gram',
+        method: method,
+        water_quantity: `${Number(volume).toLocaleString()} L`,
+        water_depth: depth,
+        person: user?.full_name ? `${user.full_name} (${user.role})` : 'Farm Executive',
+        status: 'Completed'
+      };
+
+      if (window.FarmPilotIrrigation) {
+        const data = window.FarmPilotIrrigation.getData();
+        data.records.unshift(newRecord);
+        window.FarmPilotIrrigation.saveData(data);
+      }
+
+      // Sync to Supabase irrigation_logs if client available
+      if (window.supabaseClient) {
+        try {
+          await window.supabaseClient.from('irrigation_logs').insert({
+            water_source: 'Canal & Borewell',
+            duration_minutes: parseInt(duration, 10),
+            water_quantity: parseFloat(volume),
+            water_unit: 'Liters',
+            method: method
+          });
+        } catch (err) {}
+      }
+
+      renderIrrigationLogs();
+      closeLogIrrigationModal();
+
+      if (window.FarmPilotApp && window.FarmPilotApp.showToast) {
+        window.FarmPilotApp.showToast(`✓ Logged ${volume} L irrigation run on ${field}!`, 'success');
+      }
+    };
+  </script>
+</body>
+</html>
