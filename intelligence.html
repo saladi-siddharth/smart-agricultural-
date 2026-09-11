@@ -290,6 +290,12 @@
             </div>
           </div>
 
+          <!-- 🌿 AI Crop Pathology & Pest Diagnostic Leaf Scanner (Adv. Eng. #9 & #10) -->
+          <div id="ai-vision-scanner-container"></div>
+
+          <!-- 🧪 Enterprise Resilience & 8-Scenario Failure Simulator (Page 2 Hackathon Rubric) -->
+          <div id="resilience-simulator-container"></div>
+
           <!-- ========================================================================= -->
           <!-- FLAGSHIP: DYNAMIC FARM STATUS INPUT & REAL-TIME AGRONOMIC ANALYSIS STUDIO  -->
           <!-- ========================================================================= -->
@@ -1127,6 +1133,9 @@
   <script src="js/weather.js"></script>
   <script src="js/offline-sync.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/hackathon-tour.js"></script>
+  <script src="js/intelligence/resilience-simulator.js"></script>
+  <script src="js/intelligence/vision-scanner.js"></script>
 
   <script>
     let currentSnapshot = null;
@@ -1135,6 +1144,15 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
       window.FarmPilotApp.init('intelligence');
+
+      // Initialize AI Pathology Leaf Scanner & Resilience Failure Simulator
+      if (window.FarmPilotVision) {
+        window.FarmPilotVision.render('ai-vision-scanner-container');
+      }
+      if (window.FarmPilotResilience) {
+        window.FarmPilotResilience.renderCard('resilience-simulator-container');
+      }
+
       triggerFarmAnalysis();
       await refreshAllIntelligence();
 

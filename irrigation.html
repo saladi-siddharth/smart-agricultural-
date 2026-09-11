@@ -360,7 +360,8 @@
                 </div>
               </div>
             </div>
-          </div>
+          <!-- Section 1.5: Real-Time IoT Telemetry Stream & Device Health Simulator (Adv. Eng. #3) -->
+          <div id="iot-simulator-container"></div>
 
           <!-- Section 2: Full-Field Drip & Sluice Management Matrix -->
           <div style="margin: 2rem 0;">
@@ -786,6 +787,8 @@
   <script src="js/weather.js"></script>
   <script src="js/irrigation.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/hackathon-tour.js"></script>
+  <script src="js/iot-simulator.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
@@ -797,7 +800,10 @@
       FarmPilotApp.activePage = 'irrigation';
       await FarmPilotApp.init();
 
-      // 3. Render Initial Irrigation State
+      // 3. Render IoT Simulator & Irrigation State
+      if (window.FarmPilotIoT) {
+        window.FarmPilotIoT.render('iot-simulator-container');
+      }
       renderIrrigationLogs();
     });
 
