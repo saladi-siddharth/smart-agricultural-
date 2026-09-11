@@ -1151,19 +1151,20 @@ const server = http.createServer(async (req, res) => {
     // Dual-sync to PostgreSQL profiles table if active
     if (dbPool) {
       try {
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userRecord.id);
         await dbQuery(`
-          INSERT INTO public.profiles (id, username, email, full_name, role, role_label, farm_name, assigned_field, password, password_plain, pin, status, credentials)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, $10, 'ACTIVE', $11)
+          INSERT INTO public.profiles (id, username, email, full_name, role, role_label, farm_name, assigned_parcel, password, password_plain, pin, status, credentials)
+          VALUES (COALESCE($1::uuid, gen_random_uuid()), $2, $3, $4, $5, $6, $7, $8, $9, $9, $10, 'ACTIVE', $11)
           ON CONFLICT (username) DO UPDATE SET
             full_name = EXCLUDED.full_name,
             role = EXCLUDED.role,
             password = EXCLUDED.password,
             password_plain = EXCLUDED.password_plain,
             pin = EXCLUDED.pin,
-            assigned_field = EXCLUDED.assigned_field,
+            assigned_parcel = EXCLUDED.assigned_parcel,
             credentials = EXCLUDED.credentials;
         `, [
-          userRecord.id,
+          isUuid ? userRecord.id : null,
           cleanUsername,
           userRecord.email,
           fullName,
@@ -1173,7 +1174,7 @@ const server = http.createServer(async (req, res) => {
           assignedField,
           password,
           pin,
-          JSON.stringify({ password, pin, role, full_name: fullName, assigned_field: assignedField })
+          JSON.stringify({ password, pin, role, full_name: fullName, assigned_parcel: assignedField })
         ]);
       } catch (dbErr) {
         console.warn('Postgres profile insert notice:', dbErr.message);
