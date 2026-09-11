@@ -352,7 +352,51 @@ assert(commHtml.includes('messaging-modal'), 'community.html missing messaging-m
 assert(commHtml.includes('Alt+M') || commHtml.includes('altKey'), 'community.html missing Alt+M keyboard shortcut for messages port');
 console.log('✓ Community Page Left-Side Message Icon & Messaging Port verification PASSED');
 
-console.log('\n🎉 ALL 12 AUTOMATED VERIFICATION SUITES PASSED (100% OPERATIONAL EXCELLENCE)!');
+// 13. Full-Control Role Provisioning, Dynamic Staff Credentials & RBAC Isolation
+assert(fs.existsSync('roles.html'), 'roles.html missing');
+const rolesHtmlPost = fs.readFileSync('roles.html', 'utf8');
+assert(rolesHtmlPost.includes('Provision Staff Member & Role Credentials'), 'roles.html missing upgraded provisioning modal');
+assert(rolesHtmlPost.includes('worker-role-select'), 'roles.html missing worker-role-select dropdown');
+assert(rolesHtmlPost.includes('generateStaffPassword'), 'roles.html missing generateStaffPassword function');
+assert(rolesHtmlPost.includes('togglePasswordVisibility'), 'roles.html missing togglePasswordVisibility function');
+assert(rolesHtmlPost.includes('provisionStaffUser'), 'roles.html missing provisionStaffUser call');
+assert(rolesHtmlPost.includes('loginAsStaffUser'), 'roles.html missing loginAsStaffUser function');
+assert(rolesHtmlPost.includes('workers-roster-table'), 'roles.html missing workers-roster-table');
+
+// Verify Server endpoints for provisioning
+const serverContentLatest = fs.readFileSync('server.js', 'utf8');
+assert(serverContentLatest.includes('/api/auth/provision-user'), 'server.js missing /api/auth/provision-user');
+assert(serverContentLatest.includes('/api/workers'), 'server.js missing /api/workers');
+
+// Verify Supabase client functions
+const supabaseJs = fs.readFileSync('js/supabase.js', 'utf8');
+assert(supabaseJs.includes('provisionStaffUser'), 'js/supabase.js missing provisionStaffUser');
+assert(supabaseJs.includes('getWorkers'), 'js/supabase.js missing getWorkers');
+
+// Verify Activities role-aware task isolation & worker shift controls
+const activitiesHtml = fs.readFileSync('activities.html', 'utf8');
+assert(activitiesHtml.includes('worker-shift-banner-container'), 'activities.html missing worker-shift-banner-container');
+assert(activitiesHtml.includes('isAssignedToUser'), 'activities.html missing isAssignedToUser isolation check');
+assert(activitiesHtml.includes('btn-start-task'), 'activities.html missing btn-start-task');
+
+// Verify Auth route enforcement & worker isolation
+const authJsContent = fs.readFileSync('js/auth.js', 'utf8');
+assert(authJsContent.includes('enforceRouteAccess'), 'js/auth.js missing enforceRouteAccess');
+assert(authJsContent.includes('workerRestricted'), 'js/auth.js missing workerRestricted routes');
+
+// Verify Docker multi-stage hardening
+const dockerfileContent = fs.readFileSync('Dockerfile', 'utf8');
+assert(dockerfileContent.includes('AS builder'), 'Dockerfile missing multi-stage builder');
+assert(dockerfileContent.includes('AS runner'), 'Dockerfile missing multi-stage runner');
+assert(dockerfileContent.includes('USER node'), 'Dockerfile must execute as non-root user node');
+
+const dockerComposeContent = fs.readFileSync('docker-compose.yml', 'utf8');
+assert(dockerComposeContent.includes('farmpilot-logs'), 'docker-compose.yml missing log persistence volume');
+
+console.log('✓ Full-Control Role Provisioning, Dynamic Staff Credentials & RBAC Isolation PASSED');
+
+console.log('\n🎉 ALL 13 AUTOMATED VERIFICATION SUITES PASSED (100% OPERATIONAL EXCELLENCE)!');
+
 
 
 

@@ -1247,6 +1247,12 @@
 
         <script>
           document.addEventListener('DOMContentLoaded', () => {
+            // Role Isolation: Field Workers are redirected to their dedicated mobile shift hub
+            if (window.FarmPilotAuth && window.FarmPilotAuth.getEffectiveRole() === 'WORKER') {
+              window.location.href = 'worker.html';
+              return;
+            }
+
             // Initialize Shell
             window.FarmPilotApp.init('dashboard');
 

@@ -957,19 +957,13 @@ const server = http.createServer(async (req, res) => {
     }
 
     // Fallback known accounts if offline / initial setup
+    // Fallback known accounts & dynamic provisioned user store
     if (!user) {
-      const knownAccounts = [
-        { id: '33dd8f01-e3c5-42a8-9194-a92504a75246', username: 'siddharth', email: 'farmer@greenvalley.in', password: 'Farmer@2026!', pin: '1234', role: 'OWNER', role_label: 'Farm Owner & Executive', full_name: 'Siddharth Saladi', farm_name: 'Green Valley Farm', permissions: ['financials', 'org_settings', 'all_farms', 'reports', 'approvals'] },
-        { id: '9f3b58a6-2daa-482d-84db-8f768e886c9b', username: 'siddharth_personal', email: 'saladisiddharath@gmail.com', password: 'Farmer@2026!', pin: '1234', role: 'OWNER', role_label: 'Farm Owner & Executive', full_name: 'Siddharth Saladi (Google)', farm_name: 'Green Valley Farm', permissions: ['financials', 'org_settings', 'all_farms', 'reports'] },
-        { id: '5859e5e0-f981-43bb-9585-c33b7a72d03c', username: 'rajesh', email: 'manager@greenvalley.in', password: 'Manager@2026!', pin: '1234', role: 'MANAGER', role_label: 'Estate Operations Manager', full_name: 'Rajesh Patel', farm_name: 'Green Valley Farm', permissions: ['operations', 'task_assignment', 'fields', 'inventory'] },
-        { id: '12f2a103-05d5-498f-b187-406bf7f634cd', username: 'ramu', email: 'worker@greenvalley.in', password: 'Worker@2026!', pin: '1234', role: 'WORKER', role_label: 'Field Operations Operator', full_name: 'Ravi Kumar', farm_name: 'Green Valley Farm', permissions: ['today_tasks', 'start_task', 'complete_task'] },
-        { id: 'fb19599e-564f-494e-88fe-261bd994bca9', username: 'anita', email: 'consultant@greenvalley.in', password: 'Consultant@2026!', pin: '1234', role: 'CONSULTANT', role_label: 'Principal Agronomist & Advisor', full_name: 'Dr. Anita Rao', farm_name: 'Delta Agronomy Advisory', permissions: ['farm_health', 'crop_analytics', 'advisory'] },
-        { id: 'c1111111-2222-3333-4444-555555555551', username: 'venkat', email: 'venkat@krishnadelta.in', password: 'Venkat@2026!', pin: '1234', role: 'OWNER', role_label: 'Commercial Paddy Producer', full_name: 'Venkat Rao', farm_name: 'Krishna Delta Organic Farms', permissions: ['financials', 'operations'] },
-        { id: 'c1111111-2222-3333-4444-555555555552', username: 'laxmi', email: 'laxmi@godavariagri.in', password: 'Laxmi@2026!', pin: '1234', role: 'OWNER', role_label: 'Organic Horticulture Farmer', full_name: 'Laxmi Devi', farm_name: 'Godavari Natural Agri', permissions: ['financials', 'operations'] },
-        { id: 'c1111111-2222-3333-4444-555555555553', username: 'kiran', email: 'kiran@rayalaseema.in', password: 'Kiran@2026!', pin: '1234', role: 'OWNER', role_label: 'Dryland Pulses Specialist', full_name: 'Kiran Kumar', farm_name: 'Rayalaseema Dryland Estate', permissions: ['financials', 'operations'] },
-        { id: 'c1111111-2222-3333-4444-555555555554', username: 'subba', email: 'subba@andhrafarms.in', password: 'Subba@2026!', pin: '1234', role: 'MANAGER', role_label: 'Harvest Machinery Specialist', full_name: 'Subba Rao', farm_name: 'Andhra Agri Tech Farms', permissions: ['today_tasks', 'start_task', 'complete_task'] }
-      ];
-      user = knownAccounts.find(u => u.username === identifier || u.email.toLowerCase() === identifier);
+      const cleanId = identifier.toLowerCase().replace(/^@/, '');
+      user = userCredentialsStore.find(u => 
+        (u.username && u.username.toLowerCase() === cleanId) || 
+        (u.email && u.email.toLowerCase() === identifier.toLowerCase())
+      );
     }
 
     if (!user) {
@@ -1004,10 +998,11 @@ const server = http.createServer(async (req, res) => {
 
     // Record Security Audit Log
     if (dbPool) {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(user.id);
       dbQuery(`
-        INSERT INTO public.security_audit_logs (event_type, user_id, username, ip_address, status, details)
-        VALUES ('LOGIN_SUCCESS', $1, $2, $3, 'SUCCESS', $4);
-      `, [user.id, user.username, clientIp, JSON.stringify({ role: user.role, farm: user.farm_name })]).catch(() => {});
+        INSERT INTO public.security_audit_logs (event_type, actor_id, actor_username, actor_role, ip_address, status, details)
+        VALUES ('LOGIN_SUCCESS', $1, $2, $3, $4, 'SUCCESS', $5);
+      `, [isUuid ? user.id : null, user.username, user.role, clientIp, JSON.stringify({ role: user.role, farm: user.farm_name })]).catch(() => {});
     }
 
     const authResponse = {
@@ -1073,6 +1068,230 @@ const server = http.createServer(async (req, res) => {
     }
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: true, message: 'Session logged out and cryptographic token revoked' }));
+    return;
+  }
+
+  // 0F2. Owner Staff & Role Provisioning API (POST /api/auth/provision-user)
+  if (pathname === '/api/auth/provision-user' && req.method === 'POST') {
+    const payload = await parseJsonBody(req);
+    const fullName = (payload.full_name || payload.name || '').trim();
+    const rawUsername = (payload.username || payload.id || '').trim();
+    const cleanUsername = rawUsername.replace(/^@/, '').toLowerCase().trim();
+    const role = (payload.role || 'WORKER').toUpperCase();
+    const password = payload.password || payload.password_plain || 'Worker@2026!';
+    const pin = payload.pin || '1234';
+    const assignedField = payload.assigned_field || payload.assigned_parcel || 'North Block (Plot A)';
+    const farmName = payload.farm_name || 'Green Valley Farm';
+    const email = payload.email || `${cleanUsername}@greenvalley.in`;
+
+    if (!cleanUsername || !fullName) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: 'Full name and username/ID are required' }));
+      return;
+    }
+
+    const roleLabels = {
+      OWNER: 'Farm Owner & Executive',
+      MANAGER: 'Estate Operations Manager',
+      WORKER: 'Field Operations Operator',
+      CONSULTANT: 'Principal Agronomist & Advisor'
+    };
+    const rolePermissions = {
+      OWNER: ['financials', 'org_settings', 'all_farms', 'reports', 'alerts', 'manage_members', 'operations', 'labour', 'irrigation', 'audit'],
+      MANAGER: ['operations', 'task_assignment', 'fields', 'crops', 'inputs', 'expenses', 'irrigation', 'alerts'],
+      WORKER: ['today_tasks', 'start_task', 'complete_task', 'view_field', 'log_awd'],
+      CONSULTANT: ['farm_health', 'crop_analytics', 'advisory', 'recommendations', 'read_reports']
+    };
+
+    const newUserId = payload.id || `usr-${role.toLowerCase()}-${Date.now()}`;
+    const userRecord = {
+      id: newUserId,
+      username: cleanUsername,
+      email: email.toLowerCase(),
+      password_plain: password,
+      password: password,
+      password_hash: `$2a$12$prov${Date.now()}${cleanUsername}`,
+      pin: pin,
+      full_name: fullName,
+      role: role,
+      role_label: roleLabels[role] || `${role} Specialist`,
+      phone: payload.phone || '+91 91772 88990',
+      farm_name: farmName,
+      assigned_parcel: assignedField,
+      assigned_field: assignedField,
+      status: 'ACTIVE',
+      avatar_letter: fullName.charAt(0).toUpperCase(),
+      avatar_bg: role === 'OWNER' ? '#059669' : role === 'MANAGER' ? '#2563EB' : role === 'CONSULTANT' ? '#7E22CE' : '#D97706',
+      permissions: rolePermissions[role] || ['today_tasks', 'start_task', 'complete_task']
+    };
+
+    // Upsert into in-memory user credentials store
+    const existingIdx = userCredentialsStore.findIndex(u => u.username.toLowerCase() === cleanUsername);
+    if (existingIdx >= 0) {
+      userCredentialsStore[existingIdx] = { ...userCredentialsStore[existingIdx], ...userRecord };
+    } else {
+      userCredentialsStore.push(userRecord);
+    }
+
+    // Add to community directory if not exists
+    if (!communityUsersDirectory.find(u => u.username.toLowerCase() === cleanUsername)) {
+      communityUsersDirectory.push({
+        id: userRecord.id,
+        username: cleanUsername,
+        full_name: fullName,
+        role: role,
+        farm_name: farmName,
+        location: 'Machilipatnam, AP',
+        crop: 'Paddy BPT-5204',
+        avatar: userRecord.avatar_letter,
+        avatar_bg: userRecord.avatar_bg
+      });
+    }
+
+    // Dual-sync to PostgreSQL profiles table if active
+    if (dbPool) {
+      try {
+        await dbQuery(`
+          INSERT INTO public.profiles (id, username, email, full_name, role, role_label, farm_name, assigned_field, password, password_plain, pin, status, credentials)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, $10, 'ACTIVE', $11)
+          ON CONFLICT (username) DO UPDATE SET
+            full_name = EXCLUDED.full_name,
+            role = EXCLUDED.role,
+            password = EXCLUDED.password,
+            password_plain = EXCLUDED.password_plain,
+            pin = EXCLUDED.pin,
+            assigned_field = EXCLUDED.assigned_field,
+            credentials = EXCLUDED.credentials;
+        `, [
+          userRecord.id,
+          cleanUsername,
+          userRecord.email,
+          fullName,
+          role,
+          userRecord.role_label,
+          farmName,
+          assignedField,
+          password,
+          pin,
+          JSON.stringify({ password, pin, role, full_name: fullName, assigned_field: assignedField })
+        ]);
+      } catch (dbErr) {
+        console.warn('Postgres profile insert notice:', dbErr.message);
+      }
+    }
+
+    // Schedule initial work order if requested
+    let initialTask = null;
+    if (payload.schedule_task || payload.task_title) {
+      initialTask = {
+        id: `act-prov-${Date.now()}`,
+        title: payload.task_title || `Field Operations — ${assignedField}`,
+        field_name: assignedField,
+        category: payload.task_category || 'FERTILIZATION',
+        due_date: payload.due_date || new Date().toISOString().split('T')[0],
+        status: 'PENDING',
+        priority: payload.task_priority || 'HIGH',
+        cost: payload.task_cost || 1500,
+        target_quantity: payload.target_quantity || '45 kg Urea',
+        assigned_to: userRecord.id,
+        assigned_to_username: cleanUsername,
+        assigned_to_name: fullName,
+        notes: payload.task_notes || `Initial field assignment for ${fullName}. Verify AWD water tube before application.`
+      };
+    }
+
+    res.writeHead(201, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      success: true,
+      message: `Staff member @${cleanUsername} successfully provisioned with role ${role}.`,
+      user: {
+        id: userRecord.id,
+        username: cleanUsername,
+        full_name: fullName,
+        role: role,
+        email: userRecord.email,
+        pin: pin,
+        password_plain: password,
+        assigned_field: assignedField,
+        farm_name: farmName
+      },
+      initial_task: initialTask
+    }));
+    return;
+  }
+
+  // 0F3. Staff & Workers Query API (GET /api/workers)
+  if (pathname === '/api/workers' && req.method === 'GET') {
+    const all = parsedUrl.searchParams.get('all') === 'true';
+    const workers = userCredentialsStore
+      .filter(u => all || u.role === 'WORKER' || u.role === 'MANAGER' || u.role === 'CONSULTANT' || u.role === 'OWNER')
+      .map(u => ({
+        id: u.id,
+        username: u.username,
+        full_name: u.full_name,
+        role: u.role,
+        role_label: u.role_label,
+        email: u.email,
+        pin: u.pin,
+        password_plain: u.password_plain || u.password,
+        assigned_field: u.assigned_parcel || u.assigned_field,
+        farm_name: u.farm_name,
+        status: u.status || 'ACTIVE'
+      }));
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true, workers }));
+    return;
+  }
+
+  // 0F4. Worker / Staff Provisioning Alias (POST /api/workers)
+  if (pathname === '/api/workers' && req.method === 'POST') {
+    const payload = await parseJsonBody(req);
+    const fullName = (payload.full_name || payload.name || '').trim();
+    const rawUsername = (payload.username || payload.id || '').trim();
+    const cleanUsername = rawUsername.replace(/^@/, '').toLowerCase().trim();
+    const role = (payload.role || 'WORKER').toUpperCase();
+    const password = payload.password || payload.password_plain || 'Worker@2026!';
+    const pin = payload.pin || '1234';
+    const assignedField = payload.assigned_field || payload.assigned_parcel || 'North Block (Plot A)';
+    const farmName = payload.farm_name || 'Green Valley Farm';
+    const email = payload.email || `${cleanUsername}@greenvalley.in`;
+
+    if (!cleanUsername || !fullName) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: 'Full name and username are required' }));
+      return;
+    }
+
+    const newUserId = payload.id || `usr-${role.toLowerCase()}-${Date.now()}`;
+    const userRecord = {
+      id: newUserId,
+      username: cleanUsername,
+      email: email.toLowerCase(),
+      password_plain: password,
+      password: password,
+      password_hash: `$2a$12$prov${Date.now()}${cleanUsername}`,
+      pin: pin,
+      full_name: fullName,
+      role: role,
+      role_label: `${role} Specialist`,
+      farm_name: farmName,
+      assigned_parcel: assignedField,
+      assigned_field: assignedField,
+      status: 'ACTIVE',
+      avatar_letter: fullName.charAt(0).toUpperCase(),
+      avatar_bg: role === 'OWNER' ? '#059669' : role === 'MANAGER' ? '#2563EB' : role === 'CONSULTANT' ? '#7E22CE' : '#D97706',
+      permissions: ['today_tasks', 'start_task', 'complete_task', 'view_field']
+    };
+
+    const existingIdx = userCredentialsStore.findIndex(u => u.username.toLowerCase() === cleanUsername);
+    if (existingIdx >= 0) {
+      userCredentialsStore[existingIdx] = { ...userCredentialsStore[existingIdx], ...userRecord };
+    } else {
+      userCredentialsStore.push(userRecord);
+    }
+
+    res.writeHead(201, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true, worker: userRecord }));
     return;
   }
 
@@ -1506,18 +1725,59 @@ function buildOtpEmailHtml({ otp, email }) {
     return;
   }
 
-  // 5. Worker Credential Management API (POST /api/workers & GET /api/workers)
+  // 5. Worker Credential Management API (GET /api/workers & POST /api/workers)
+  if (pathname === '/api/workers' && req.method === 'GET') {
+    const workers = userCredentialsStore
+      .filter(u => u.role === 'WORKER')
+      .map(u => ({
+        id: u.id,
+        username: u.username,
+        full_name: u.full_name,
+        role: u.role,
+        pin: u.pin || '1234',
+        password_plain: u.password_plain || u.password,
+        farm_name: u.farm_name,
+        assigned_field: u.assigned_parcel || u.assigned_field || 'North Block (Plot A)',
+        status: u.status || 'ACTIVE'
+      }));
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true, count: workers.length, workers }));
+    return;
+  }
+
   if (pathname === '/api/workers' && req.method === 'POST') {
     const payload = await parseJsonBody(req);
+    const cleanUsername = (payload.username || 'worker').replace(/^@/, '').toLowerCase().trim();
+    const fullName = (payload.full_name || 'Field Operator').trim();
+    const pin = payload.pin || '1234';
+    const password = payload.password || payload.password_plain || 'Worker@2026!';
+    const assignedField = payload.assigned_field || payload.assigned_parcel || 'North Block (Plot A)';
+
     const workerRecord = {
-      id: 'usr-worker-' + Date.now(),
-      full_name: payload.full_name || 'Field Operator',
-      username: (payload.username || 'worker').replace(/^@/, '').toLowerCase(),
+      id: payload.id || 'usr-worker-' + Date.now(),
+      full_name: fullName,
+      username: cleanUsername,
       role: 'WORKER',
-      pin: payload.pin || payload.password || '1234',
-      assigned_field: payload.assigned_field || 'North Block (Plot A)',
-      created_at: new Date().toISOString()
+      role_label: 'Field Operations Operator',
+      pin: pin,
+      password_plain: password,
+      password: password,
+      assigned_field: assignedField,
+      assigned_parcel: assignedField,
+      farm_name: payload.farm_name || 'Green Valley Farm',
+      status: 'ACTIVE',
+      avatar_letter: fullName.charAt(0).toUpperCase(),
+      avatar_bg: '#D97706',
+      permissions: ['today_tasks', 'start_task', 'complete_task', 'view_field']
     };
+
+    const existingIdx = userCredentialsStore.findIndex(u => u.username.toLowerCase() === cleanUsername);
+    if (existingIdx >= 0) {
+      userCredentialsStore[existingIdx] = { ...userCredentialsStore[existingIdx], ...workerRecord };
+    } else {
+      userCredentialsStore.push(workerRecord);
+    }
+
     res.writeHead(201, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: true, worker: workerRecord }));
     return;

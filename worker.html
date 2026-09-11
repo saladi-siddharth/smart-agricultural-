@@ -155,35 +155,35 @@
       if (estateName && farm) estateName.textContent = farm.name;
 
       async function loadTasks() {
-        const activities = await window.FarmPilotDB.getActivities();
-        const pendingOrActive = activities.filter(a => a.status !== 'COMPLETED');
-        const overdue = pendingOrActive.filter(a => a.status === 'OVERDUE');
-
-        if (queueStat) {
-          queueStat.textContent = `${pendingOrActive.length} Assigned`;
-        }
-
-        if (overdueAlert) {
-          overdueAlert.style.display = overdue.length > 0 ? 'block' : 'none';
-        }
-
-        if (pendingOrActive.length === 0) {
-          container.innerHTML = `
-            <div class="card" style="text-align: center; padding: 3rem 1.5rem; background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%); border: 1.5px dashed var(--color-emerald-light);">
-              <span style="font-size: 2.5rem;">🎉</span>
-              <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--color-forest); margin-top: 0.5rem;">
-                All Field Tasks Completed!
-              </h3>
-              <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.25rem;">
-                Great work! No pending or overdue operations for your shift today. Farm health is optimal at peak capacity.
-              </p>
-            </div>
-          `;
-          return;
-        }
-
         const user = window.FarmPilotAuth.getUser() || window.FARMPILOT_CONFIG.PERSONAS.WORKER;
-        const workerHandle = user.username ? `@${user.username}` : '@ramu';
+        const cleanUsername = (user.username || 'ramu').toLowerCase().replace(/^@/, '');
+        const fullName = (user.full_name || 'Ravi Kumar').toLowerCase();
+        const assignedField = (user.assigned_field || '').toLowerCase();
+        const workerHandle = `@${cleanUsername}`;
+
+        // Update header operator info dynamically
+        const headerInfoEl = document.querySelector('.app-content-inner p');
+        if (headerInfoEl) {
+          headerInfoEl.innerHTML = `Operator: <strong>${user.full_name || 'Field Operator'}</strong> (<span class="font-mono" style="color: #A7F3D0;">${workerHandle}</span>) • Parcel: <strong>${user.assigned_field || 'North Block (Plot A)'}</strong>`;
+        }
+
+        const activities = await window.FarmPilotDB.getActivities();
+        const pendingOrActive = activities.filter(a => {
+          if (a.status === 'COMPLETED') return false;
+          const aUser = (a.assigned_to_username || '').toLowerCase().replace(/^@/, '');
+          const aId = String(a.assigned_to || '').toLowerCase();
+          const aName = (a.assigned_to_name || '').toLowerCase();
+          const aField = (a.field_name || '').toLowerCase();
+
+          return (
+            (cleanUsername && (aUser === cleanUsername || aId === cleanUsername || aId.includes(cleanUsername))) ||
+            (user.id && aId === String(user.id).toLowerCase()) ||
+            (fullName && aName.includes(fullName)) ||
+            (assignedField && aField.includes(assignedField)) ||
+            (cleanUsername === 'ramu' && (aId.includes('ramu') || aName.includes('ravi') || a.id === 'act-zinc-spray'))
+          );
+        });
+        const overdue = pendingOrActive.filter(a => a.status === 'OVERDUE');
 
         container.innerHTML = pendingOrActive.map(task => {
           const isOverdue = task.status === 'OVERDUE';

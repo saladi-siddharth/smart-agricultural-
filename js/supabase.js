@@ -1654,7 +1654,7 @@
       return noteRecord;
     },
 
-    // --- WORKER CREDENTIALS & ONBOARDING (Owner Staff Management) ---
+    // --- WORKER & STAFF CREDENTIALS ONBOARDING (Owner Role Management) ---
     async getWorkers() {
       const defaultWorker = {
         id: window.FARMPILOT_CONFIG.PERSONAS.WORKER.id,
@@ -1662,73 +1662,131 @@
         full_name: 'Ravi Kumar',
         role: 'WORKER',
         pin: '1234',
+        password: 'Worker@2026!',
+        password_plain: 'Worker@2026!',
         farm_name: 'Green Valley Farm',
         assigned_field: 'North Block (Plot A)',
         status: 'ACTIVE'
       };
 
-      const customWorkers = getLocal('farmpilot_custom_workers', []);
+      let customWorkers = getLocal('farmpilot_custom_workers', []);
+      
+      // Attempt to load from server /api/workers
+      try {
+        const res = await fetch('/api/workers');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.workers && Array.isArray(data.workers)) {
+            data.workers.forEach(w => {
+              if (!customWorkers.find(cw => cw.username.toLowerCase() === w.username.toLowerCase())) {
+                customWorkers.push(w);
+              }
+            });
+            setLocal('farmpilot_custom_workers', customWorkers);
+          }
+        }
+      } catch (e) {}
+
       const merged = [defaultWorker, ...customWorkers.filter(w => w.username !== 'ramu')];
       return merged;
     },
 
-    async addWorkerCredential(workerData) {
-      const cleanUsername = (workerData.username || 'worker').replace(/^@/, '').toLowerCase().trim();
-      const newWorker = {
-        id: 'usr-worker-' + Date.now(),
+    async provisionStaffUser(staffData) {
+      const cleanUsername = (staffData.username || staffData.id || 'worker').replace(/^@/, '').toLowerCase().trim();
+      const role = (staffData.role || 'WORKER').toUpperCase();
+      const password = staffData.password || staffData.password_plain || (role === 'OWNER' ? 'Owner@2026!' : role === 'MANAGER' ? 'Manager@2026!' : 'Worker@2026!');
+      const pin = staffData.pin || '1234';
+      const assignedField = staffData.assigned_field || staffData.assigned_parcel || 'North Block (Plot A)';
+      const farmName = staffData.farm_name || 'Green Valley Farm';
+
+      const newStaff = {
+        id: staffData.id || `usr-${role.toLowerCase()}-${Date.now()}`,
         username: cleanUsername,
-        full_name: workerData.full_name || 'Field Operator',
-        role: 'WORKER',
-        pin: workerData.pin || workerData.password || '1234',
-        farm_name: workerData.farm_name || 'Green Valley Farm',
-        assigned_field: workerData.assigned_field || 'North Block (Plot A)',
+        full_name: staffData.full_name || 'Field Operator',
+        role: role,
+        password: password,
+        password_plain: password,
+        pin: pin,
+        farm_name: farmName,
+        assigned_field: assignedField,
         status: 'ACTIVE',
         created_at: new Date().toISOString()
       };
 
+      // 1. Update local custom workers and registered accounts
       let customWorkers = getLocal('farmpilot_custom_workers', []);
-      customWorkers.unshift(newWorker);
+      customWorkers = customWorkers.filter(w => w.username.toLowerCase() !== cleanUsername);
+      customWorkers.unshift(newStaff);
       setLocal('farmpilot_custom_workers', customWorkers);
 
-      // Notify Server Delivery Messenger
+      let registeredUsers = getLocal('farmpilot_registered_users', []);
+      registeredUsers = registeredUsers.filter(u => u.username.toLowerCase() !== cleanUsername);
+      registeredUsers.unshift({
+        ...newStaff,
+        email: `${cleanUsername}@greenvalley.in`
+      });
+      setLocal('farmpilot_registered_users', registeredUsers);
+
+      // 2. Call backend provision API
       try {
-        fetch('/api/workers', {
+        await fetch('/api/auth/provision-user', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newWorker)
-        }).catch(() => {});
-      } catch (e) {}
+          body: JSON.stringify({
+            ...newStaff,
+            schedule_task: staffData.schedule_task,
+            task_title: staffData.task_title,
+            target_quantity: staffData.target_quantity,
+            task_notes: staffData.task_notes
+          })
+        });
+      } catch (e) {
+        console.warn('Backend user provisioning notice:', e);
+      }
 
-      // Dual-sync to Supabase
+      // 3. Dual-sync to remote Supabase profiles (Table 17488)
       const client = this.getClient();
       if (client) {
         try {
           await client.from('profiles').upsert({
-            id: newWorker.id,
+            id: newStaff.id,
             username: cleanUsername,
-            full_name: newWorker.full_name,
-            email: `${cleanUsername}@greenvalley.in`
+            full_name: newStaff.full_name,
+            role: role,
+            email: `${cleanUsername}@greenvalley.in`,
+            password: password,
+            password_plain: password,
+            pin: pin,
+            assigned_field: assignedField,
+            farm_name: farmName
           });
-        } catch (e) {}
+        } catch (e) {
+          console.warn('Remote Supabase profile upsert notice:', e);
+        }
       }
 
-      // If requested, auto-schedule task for worker
-      if (workerData.schedule_task) {
+      // 4. If requested, auto-schedule work order assigned strictly to this new staff member
+      if (staffData.schedule_task || staffData.task_title) {
         await this.createActivity({
-          title: workerData.task_title || 'Paddy Top-Dressing — North Block',
-          category: 'FERTILIZATION',
-          field_name: workerData.assigned_field || 'North Block (Plot A)',
-          due_date: new Date().toISOString().split('T')[0],
-          priority: 'HIGH',
+          title: staffData.task_title || `Paddy Top-Dressing — ${assignedField}`,
+          category: staffData.task_category || 'FERTILIZATION',
+          field_name: assignedField,
+          due_date: staffData.due_date || new Date().toISOString().split('T')[0],
+          priority: staffData.task_priority || 'HIGH',
           cost: 1800,
-          assigned_to: newWorker.id,
-          assigned_to_name: newWorker.full_name,
-          target_quantity: workerData.target_quantity || '45 kg Urea',
-          notes: workerData.task_notes || 'Apply 45 kg Urea as first top-dressing. Wear protective gloves.'
+          assigned_to: newStaff.id,
+          assigned_to_username: cleanUsername,
+          assigned_to_name: newStaff.full_name,
+          target_quantity: staffData.target_quantity || '45 kg Urea',
+          notes: staffData.task_notes || `Scheduled field assignment for ${newStaff.full_name}. Apply prescribed inputs with AWD tube verification.`
         });
       }
 
-      return newWorker;
+      return newStaff;
+    },
+
+    async addWorkerCredential(workerData) {
+      return this.provisionStaffUser(workerData);
     }
   };
 })();

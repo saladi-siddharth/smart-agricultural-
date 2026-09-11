@@ -99,7 +99,7 @@
 
           <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
             <button onclick="openAddWorkerModal()" class="btn btn-primary" style="font-size: 0.8125rem; background: #059669;">
-              <span>➕ Add Worker Credentials</span>
+              <span>➕ Provision Staff & Role Account</span>
             </button>
             <button onclick="FarmPilotApp.showToast('Permissions audited and synchronized across PostgreSQL & Supabase RLS policies.', 'success')" class="btn btn-outline" style="font-size: 0.8125rem;">
               <span>🛡️ Audit RLS Security</span>
@@ -114,15 +114,15 @@
               <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <span style="font-size: 1.25rem;">🚜</span>
                 <h3 style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); margin: 0;">
-                  Farm Workforce & Mobile Worker Credentials
+                  Estate Staff Directory & Provisioned Credentials
                 </h3>
               </div>
               <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin: 0.25rem 0 0;">
-                Workers log in using their <strong>@username</strong> and direct PIN. Financial dashboards remain hidden, directly displaying assigned field operations.
+                The Farm Owner provisions users with Role, ID, and Password/PIN. Staff log in with these credentials. Workers are strictly isolated from financial ledgers and only see their assigned tasks.
               </p>
             </div>
             <button onclick="openAddWorkerModal()" class="btn btn-secondary btn-sm" style="font-weight: 700; border-color: #10B981; color: #047857;">
-              <span>+ Onboard New Worker</span>
+              <span>+ Provision Staff Member</span>
             </button>
           </div>
 
@@ -130,13 +130,13 @@
             <table class="matrix-table" id="workers-roster-table">
               <thead>
                 <tr>
-                  <th>Worker Name & Handle</th>
-                  <th>Role & Access</th>
+                  <th>Staff Name & User ID</th>
+                  <th>Role & Access Tier</th>
                   <th>Assigned Parcel</th>
-                  <th>Direct Login PIN</th>
-                  <th>Active Assignment</th>
+                  <th>Password & Quick PIN</th>
+                  <th>Assigned Work Order</th>
                   <th>Status</th>
-                  <th>Action</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody id="workers-roster-tbody">
@@ -394,75 +394,121 @@
     </div>
   </div>
 
-  <!-- Modal: Add Worker Credentials -->
-  <div class="modal-overlay" id="add-worker-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; padding: 1rem;">
-    <div class="modal-content" style="background: #FFFFFF; border-radius: var(--radius-lg); max-width: 500px; width: 100%; padding: 1.75rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); border: 1px solid var(--color-border); animation: fadeIn 0.2s ease-out;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.75rem;">
+  <!-- Modal: Provision Staff & Role Account -->
+  <div class="modal-overlay" id="add-worker-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="modal-content" style="background: #FFFFFF; border-radius: var(--radius-lg); max-width: 540px; width: 100%; padding: 1.75rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid var(--color-border); animation: fadeIn 0.2s ease-out; max-height: 90vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.75rem;">
         <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <span style="font-size: 1.35rem;">🚜</span>
-          <h3 style="font-size: 1.125rem; font-weight: 800; margin: 0; color: var(--color-text-primary);">
-            Issue Worker Login Credentials
-          </h3>
+          <span style="font-size: 1.35rem;" id="modal-role-icon">🚜</span>
+          <div>
+            <h3 style="font-size: 1.125rem; font-weight: 800; margin: 0; color: var(--color-text-primary);">
+              Provision Staff Member & Role Credentials
+            </h3>
+            <span style="font-size: 0.75rem; color: #059669; font-weight: 700;">Executive Owner Provisioning Console</span>
+          </div>
         </div>
         <button type="button" onclick="closeAddWorkerModal()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: #64748B;">✕</button>
       </div>
 
-      <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-bottom: 1.25rem; line-height: 1.5;">
-        Configure mobile login access for your estate laborer. Workers log in with their handle and PIN directly into their field task checklist without seeing financial reports.
+      <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-bottom: 1.25rem; line-height: 1.5;" id="modal-role-description">
+        Create credentials for farm personnel. Once provisioned, the user can log in with their <strong>User ID</strong> and <strong>Password</strong> or <strong>Direct PIN</strong>.
       </p>
 
       <form id="add-worker-form" onsubmit="handleSaveWorker(event)">
-        <div class="form-group" style="margin-bottom: 0.875rem;">
-          <label class="form-label" for="worker-fullname">Worker Full Name</label>
-          <input type="text" id="worker-fullname" class="form-input" required placeholder="e.g. Ravi Kumar" value="Ravi Kumar">
-        </div>
-
-        <div class="form-group" style="margin-bottom: 0.875rem;">
-          <label class="form-label" for="worker-username">Choose Worker Username</label>
-          <div style="position: relative; display: flex; align-items: center;">
-            <span style="position: absolute; left: 0.85rem; font-weight: 800; color: #D97706; font-size: 0.9rem;">@</span>
-            <input type="text" id="worker-username" class="form-input font-mono" required placeholder="ramu" value="ramu" style="padding-left: 2rem;">
-          </div>
+        <!-- Role Selector -->
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" for="worker-role-select" style="font-weight: 800;">Assign System Role</label>
+          <select id="worker-role-select" class="form-select" onchange="handleRoleSelectionChange(this.value)" style="font-weight: 700; background: #F8FAFC; border-color: #CBD5E1;">
+            <option value="WORKER" selected>🚜 WORKER — Field Operations (Assigned Tasks & Mobile AWD Checklists)</option>
+            <option value="MANAGER">👔 MANAGER — Operations Lead (Schedules, Labour, Irrigation, Inputs)</option>
+            <option value="CONSULTANT">🔬 CONSULTANT — Agronomist (Advisory, Crop Health, Diagnostics)</option>
+            <option value="OWNER">👑 OWNER — Executive Admin (Financials, Ledgers, Role Governance)</option>
+          </select>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.875rem;">
           <div class="form-group">
-            <label class="form-label" for="worker-role">System Role</label>
-            <input type="text" id="worker-role" class="form-input" readonly value="WORKER (Field Only)" style="background: #F8FAFC; color: #78350F; font-weight: 800;">
+            <label class="form-label" for="worker-fullname">Full Name</label>
+            <input type="text" id="worker-fullname" class="form-input" required placeholder="e.g. Kavitha Devi" value="Kavitha Devi">
           </div>
           <div class="form-group">
-            <label class="form-label" for="worker-pin">Direct Login PIN</label>
-            <input type="text" id="worker-pin" class="form-input font-mono" required placeholder="1234" value="1234" maxlength="6" style="letter-spacing: 0.15rem; font-weight: 800; text-align: center;">
+            <label class="form-label" for="worker-username">User ID / Handle</label>
+            <div style="position: relative; display: flex; align-items: center;">
+              <span style="position: absolute; left: 0.75rem; font-weight: 800; color: #D97706; font-size: 0.9rem;">@</span>
+              <input type="text" id="worker-username" class="form-input font-mono" required placeholder="kavitha" value="kavitha" style="padding-left: 1.85rem;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Password & PIN -->
+        <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 0.75rem; margin-bottom: 0.875rem;">
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+              <label class="form-label" for="worker-password" style="margin: 0;">Account Password</label>
+              <button type="button" onclick="generateStaffPassword()" class="btn btn-sm" style="background: none; border: none; color: #059669; font-size: 0.725rem; cursor: pointer; padding: 0; font-weight: 700;">🎲 Generate</button>
+            </div>
+            <div style="position: relative; display: flex; align-items: center;">
+              <input type="password" id="worker-password" class="form-input font-mono" required value="Worker@2026!" style="padding-right: 2.25rem;">
+              <button type="button" onclick="togglePasswordVisibility('worker-password', 'pw-toggle-btn')" id="pw-toggle-btn" style="position: absolute; right: 0.6rem; background: none; border: none; cursor: pointer; font-size: 0.9rem; color: #64748B;" title="Show/Hide Password">👁️</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="worker-pin">Direct Quick PIN</label>
+            <input type="text" id="worker-pin" class="form-input font-mono" required placeholder="1234" value="5678" maxlength="6" style="letter-spacing: 0.15rem; font-weight: 800; text-align: center;">
           </div>
         </div>
 
         <div class="form-group" style="margin-bottom: 1rem;">
-          <label class="form-label" for="worker-parcel">Assigned Parcel / Field</label>
+          <label class="form-label" for="worker-parcel">Assigned Farm Parcel / Scope</label>
           <select id="worker-parcel" class="form-select" style="font-weight: 700;">
             <option value="North Block (Plot A)" selected>🌾 North Block (Plot A - Paddy BPT-5204)</option>
             <option value="South Canal Block">💧 South Canal Block (Plot B - AWD Focus)</option>
             <option value="East River Terrace">🌿 East River Terrace (Plot C - Sluice 2)</option>
+            <option value="Estate Portfolio (All Parcels)">🏛️ Whole Estate Portfolio (All Parcels)</option>
           </select>
         </div>
 
-        <div style="background: #F0FDF4; border: 1.5px dashed #86EFAC; border-radius: var(--radius-md); padding: 0.875rem; margin-bottom: 1.25rem;">
-          <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;">
-            <input type="checkbox" id="worker-auto-task" checked style="margin-top: 0.2rem;">
+        <!-- Initial Task Assignment -->
+        <div id="initial-task-container" style="background: #F0FDF4; border: 1.5px dashed #86EFAC; border-radius: var(--radius-md); padding: 0.875rem; margin-bottom: 1.25rem;">
+          <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer; margin-bottom: 0.5rem;">
+            <input type="checkbox" id="worker-auto-task" checked style="margin-top: 0.2rem;" onchange="document.getElementById('task-fields').style.display = this.checked ? 'block' : 'none';">
             <div>
               <span style="font-size: 0.8125rem; font-weight: 800; color: #14532D; display: block;">
-                Auto-Schedule Work Order for Today (Judge Demo Moment)
+                Auto-Schedule Initial Work Order (Assigned Exclusively to this User)
               </span>
-              <span style="font-size: 0.75rem; color: #166534; line-height: 1.4; display: block; margin-top: 0.2rem;">
-                Creates <strong>"Paddy Top-Dressing — North Block"</strong> with target <strong>45 kg Urea</strong> assigned directly to @ramu.
+              <span style="font-size: 0.75rem; color: #166534; line-height: 1.4; display: block;">
+                The task will be automatically dispatched to this staff member's shift queue upon login.
               </span>
             </div>
           </label>
+
+          <div id="task-fields" style="margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid #DCFCE7;">
+            <div style="margin-bottom: 0.5rem;">
+              <label style="font-size: 0.75rem; font-weight: 700; color: #166534; display: block; margin-bottom: 0.2rem;">Task Title</label>
+              <input type="text" id="task-title" class="form-input" value="Paddy Top-Dressing — North Block" style="font-size: 0.8125rem; padding: 0.4rem 0.6rem;">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+              <div>
+                <label style="font-size: 0.75rem; font-weight: 700; color: #166534; display: block; margin-bottom: 0.2rem;">Prescribed Input / Target</label>
+                <input type="text" id="task-quantity" class="form-input" value="45 kg Urea" style="font-size: 0.8125rem; padding: 0.4rem 0.6rem;">
+              </div>
+              <div>
+                <label style="font-size: 0.75rem; font-weight: 700; color: #166534; display: block; margin-bottom: 0.2rem;">Activity Category</label>
+                <select id="task-category" class="form-select" style="font-size: 0.8125rem; padding: 0.4rem 0.6rem;">
+                  <option value="FERTILIZATION">FERTILIZATION</option>
+                  <option value="IRRIGATION">IRRIGATION (AWD)</option>
+                  <option value="PEST_CONTROL">PEST CONTROL</option>
+                  <option value="HARVEST">HARVEST</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
           <button type="button" onclick="closeAddWorkerModal()" class="btn btn-secondary">Cancel</button>
           <button type="submit" class="btn btn-primary" style="background: #059669;">
-            <span>Save Credentials & Assign Work</span>
+            <span>Provision Account & Issue Credentials</span>
             <span>✓</span>
           </button>
         </div>
@@ -485,6 +531,59 @@
       await renderWorkersRoster();
     });
 
+    function handleRoleSelectionChange(role) {
+      const icon = document.getElementById('modal-role-icon');
+      const desc = document.getElementById('modal-role-description');
+      const taskContainer = document.getElementById('initial-task-container');
+      const taskTitle = document.getElementById('task-title');
+      const taskQty = document.getElementById('task-quantity');
+
+      if (role === 'WORKER') {
+        icon.textContent = '🚜';
+        desc.innerHTML = 'Worker will log in via <strong>@handle</strong> and direct password/PIN into their mobile task checklist. <strong>Financial ledgers and executive reports are hidden</strong>.';
+        taskContainer.style.display = 'block';
+        taskTitle.value = 'Paddy Top-Dressing — North Block';
+        taskQty.value = '45 kg Urea';
+      } else if (role === 'MANAGER') {
+        icon.textContent = '👔';
+        desc.innerHTML = 'Estate Operations Manager will oversee parcel schedules, labour dispatch, and AWD irrigation thresholds.';
+        taskContainer.style.display = 'block';
+        taskTitle.value = 'AWD Sluice 2 Flow Verification';
+        taskQty.value = 'Water Depth: -5cm';
+      } else if (role === 'CONSULTANT') {
+        icon.textContent = '🔬';
+        desc.innerHTML = 'Agronomist will provide foliar disease prescriptions, crop phenology observations, and soil health advice.';
+        taskContainer.style.display = 'none';
+      } else if (role === 'OWNER') {
+        icon.textContent = '👑';
+        desc.innerHTML = 'Co-Owner will have executive administrative oversight, financial ledgers, role governance, and multi-farm access.';
+        taskContainer.style.display = 'none';
+      }
+    }
+
+    function generateStaffPassword() {
+      const role = document.getElementById('worker-role-select').value;
+      const num = Math.floor(1000 + Math.random() * 9000);
+      const pass = `${role.charAt(0) + role.slice(1).toLowerCase()}@${num}!`;
+      const input = document.getElementById('worker-password');
+      input.value = pass;
+      input.type = 'text';
+      document.getElementById('pw-toggle-btn').textContent = '🔒';
+      FarmPilotApp.showToast(`Generated strong credentials: ${pass}`);
+    }
+
+    function togglePasswordVisibility(inputId, btnId) {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        if (btn) btn.textContent = '🔒';
+      } else {
+        input.type = 'password';
+        if (btn) btn.textContent = '👁️';
+      }
+    }
+
     async function renderWorkersRoster() {
       const tbody = document.getElementById('workers-roster-tbody');
       if (!tbody) return;
@@ -492,17 +591,41 @@
       const workers = await window.FarmPilotDB.getWorkers();
       const activities = await window.FarmPilotDB.getActivities();
 
+      const roleBadges = {
+        OWNER: '<span class="perm-badge perm-full">👑 OWNER (Executive)</span>',
+        MANAGER: '<span class="perm-badge perm-assigned">👔 MANAGER (Operations)</span>',
+        WORKER: '<span class="perm-badge perm-limited">🚜 WORKER (Field Mobile)</span>',
+        CONSULTANT: '<span class="perm-badge" style="background: #F3E8FF; color: #6B21A8; border: 1px solid #D8B4FE;">🔬 CONSULTANT (Advisory)</span>'
+      };
+
+      const roleAvatars = {
+        OWNER: { bg: '#DCFCE7', border: '#86EFAC', color: '#166534' },
+        MANAGER: { bg: '#DBEAFE', border: '#93C5FD', color: '#1E40AF' },
+        WORKER: { bg: '#FEF3C7', border: '#FCD34D', color: '#92400E' },
+        CONSULTANT: { bg: '#F3E8FF', border: '#D8B4FE', color: '#6B21A8' }
+      };
+
       tbody.innerHTML = workers.map(w => {
+        const role = (w.role || 'WORKER').toUpperCase();
         const assignedTask = activities.find(a => 
-          a.status !== 'COMPLETED' && (a.assigned_to === w.id || a.assigned_to_name === w.full_name)
+          a.status !== 'COMPLETED' && (
+            a.assigned_to === w.id || 
+            a.assigned_to === w.username || 
+            a.assigned_to_name === w.full_name ||
+            (a.field_name && a.field_name === w.assigned_field)
+          )
         );
+
+        const av = roleAvatars[role] || roleAvatars.WORKER;
+        const plainPassword = w.password_plain || w.password || '••••••••';
+        const pin = w.pin || '1234';
 
         return `
           <tr>
             <td>
               <div style="display: flex; align-items: center; gap: 0.65rem;">
-                <div style="width: 32px; height: 32px; border-radius: 50%; background: #FEF3C7; border: 1.5px solid #FCD34D; color: #92400E; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8125rem;">
-                  ${(w.full_name || 'W').charAt(0).toUpperCase()}
+                <div style="width: 34px; height: 34px; border-radius: 50%; background: ${av.bg}; border: 1.5px solid ${av.border}; color: ${av.color}; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem;">
+                  ${(w.full_name || 'U').charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <strong style="color: var(--color-text-primary); font-size: 0.875rem;">${w.full_name}</strong>
@@ -511,38 +634,67 @@
               </div>
             </td>
             <td>
-              <span class="perm-badge perm-limited">🚜 ${w.role} (Field Mobile)</span>
+              ${roleBadges[role] || roleBadges.WORKER}
             </td>
             <td>
-              <strong style="color: var(--color-forest);">${w.assigned_field || 'North Block (Plot A)'}</strong>
+              <strong style="color: var(--color-forest); font-size: 0.8125rem;">${w.assigned_field || 'North Block (Plot A)'}</strong>
             </td>
             <td>
-              <span class="font-mono" style="background: #F1F5F9; border: 1px solid #CBD5E1; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 800; font-size: 0.8125rem;">
-                ${w.pin || '1234'}
-              </span>
+              <div style="font-size: 0.75rem; display: flex; flex-direction: column; gap: 0.2rem;">
+                <div style="display: flex; align-items: center; gap: 0.35rem;">
+                  <span style="color: var(--color-text-secondary);">Pass:</span>
+                  <span class="font-mono user-pw-text" id="pw-span-${w.username}" style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700; color: #0F172A;">••••••••</span>
+                  <button type="button" onclick="toggleCellPassword('${w.username}', '${plainPassword}')" style="background: none; border: none; cursor: pointer; font-size: 0.75rem; padding: 0; color: #64748B;" title="Reveal Plaintext Password">👁️</button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.35rem;">
+                  <span style="color: var(--color-text-secondary);">PIN:</span>
+                  <span class="font-mono" style="background: #F1F5F9; border: 1px solid #CBD5E1; padding: 0.05rem 0.35rem; border-radius: 4px; font-weight: 800; color: #047857; font-size: 0.75rem;">
+                    ${pin}
+                  </span>
+                </div>
+              </div>
             </td>
             <td>
               ${assignedTask ? `
                 <div style="font-size: 0.8125rem; font-weight: 700; color: #1E293B;">
                   ${assignedTask.title}
-                  <div style="font-size: 0.6875rem; color: #D97706; font-weight: 800;">Target: ${assignedTask.target_quantity || '45 kg Urea'}</div>
+                  <div style="font-size: 0.6875rem; color: #D97706; font-weight: 800;">Target: ${assignedTask.target_quantity || assignedTask.actual_quantity || '45 kg Urea'}</div>
                 </div>
               ` : `
-                <span style="font-size: 0.75rem; color: var(--color-text-tertiary);">No active work order</span>
+                <span style="font-size: 0.75rem; color: var(--color-text-tertiary);">No pending tasks</span>
               `}
             </td>
             <td>
-              <span class="badge badge-success" style="font-size: 0.6875rem;">Active • Shift Ready</span>
+              <span class="badge badge-success" style="font-size: 0.6875rem;">Active • Verified</span>
             </td>
             <td>
-              <button onclick="copyWorkerCredentials('${w.username}', '${w.pin || '1234'}')" class="btn btn-secondary btn-sm" style="font-size: 0.6875rem; padding: 0.2rem 0.5rem;" title="Copy login credentials for worker">
-                📋 Copy Login
-              </button>
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                <button onclick="copyStaffCredentials('${w.username}', '${plainPassword}', '${pin}', '${role}')" class="btn btn-secondary btn-sm" style="font-size: 0.6875rem; padding: 0.25rem 0.5rem;" title="Copy login credentials for this user">
+                  📋 Copy
+                </button>
+                <button onclick="loginAsStaffUser('${w.username}', '${role}')" class="btn btn-primary btn-sm" style="font-size: 0.6875rem; padding: 0.25rem 0.5rem; background: ${role === 'WORKER' ? '#D97706' : role === 'MANAGER' ? '#2563EB' : role === 'CONSULTANT' ? '#7E22CE' : '#059669'};" title="Log into system directly as this persona">
+                  🚀 Login
+                </button>
+              </div>
             </td>
           </tr>
         `;
       }).join('');
     }
+
+    window.toggleCellPassword = function(username, realPassword) {
+      const el = document.getElementById(`pw-span-${username}`);
+      if (!el) return;
+      if (el.textContent === '••••••••') {
+        el.textContent = realPassword;
+        el.style.background = '#FEF3C7';
+        el.style.color = '#92400E';
+      } else {
+        el.textContent = '••••••••';
+        el.style.background = '#F8FAFC';
+        el.style.color = '#0F172A';
+      }
+    };
 
     window.openAddWorkerModal = function() {
       const modal = document.getElementById('add-worker-modal');
@@ -557,34 +709,81 @@
     window.handleSaveWorker = async function(e) {
       e.preventDefault();
       const fullName = document.getElementById('worker-fullname').value.trim();
-      const username = document.getElementById('worker-username').value.trim();
+      const rawUsername = document.getElementById('worker-username').value.trim();
+      const cleanUsername = rawUsername.replace(/^@/, '').toLowerCase().trim();
+      const role = document.getElementById('worker-role-select').value;
+      const password = document.getElementById('worker-password').value.trim();
       const pin = document.getElementById('worker-pin').value.trim();
       const parcel = document.getElementById('worker-parcel').value;
       const autoTask = document.getElementById('worker-auto-task').checked;
+      const taskTitle = document.getElementById('task-title').value.trim();
+      const taskQty = document.getElementById('task-quantity').value.trim();
+      const taskCategory = document.getElementById('task-category').value;
 
-      const newWorker = await window.FarmPilotDB.addWorkerCredential({
-        full_name: fullName,
-        username: username,
-        pin: pin,
-        assigned_field: parcel,
-        schedule_task: autoTask,
-        task_title: 'Paddy Top-Dressing — North Block',
-        target_quantity: '45 kg Urea',
-        task_notes: 'Apply 45 kg Urea top-dressing at active tillering. Record actual dosage used.'
-      });
+      try {
+        const newStaff = await window.FarmPilotDB.provisionStaffUser({
+          full_name: fullName,
+          username: cleanUsername,
+          role: role,
+          password: password,
+          password_plain: password,
+          pin: pin,
+          assigned_field: parcel,
+          schedule_task: autoTask,
+          task_title: taskTitle || `Field Task — ${parcel}`,
+          target_quantity: taskQty || '45 kg Urea',
+          task_category: taskCategory,
+          task_notes: `Scheduled field assignment for ${fullName}. Verify field conditions before application.`
+        });
 
-      closeAddWorkerModal();
-      window.FarmPilotApp.showToast(`Worker @${newWorker.username} onboarded with PIN ${newWorker.pin}! Work order assigned.`);
-      await renderWorkersRoster();
+        closeAddWorkerModal();
+        window.FarmPilotApp.showToast(`Staff member @${newStaff.username} (${newStaff.role}) provisioned successfully! Credentials saved.`, 'success');
+        await renderWorkersRoster();
+      } catch (err) {
+        window.FarmPilotApp.showToast('Provisioning failed: ' + err.message, 'error');
+      }
     };
 
-    window.copyWorkerCredentials = function(username, pin) {
-      const text = `FarmPilot Worker Login:\nUsername: ${username}\nPIN: ${pin}\nLogin URL: http://localhost:5173/login.html`;
+    window.copyStaffCredentials = function(username, password, pin, role) {
+      const text = `FarmPilot Login Credentials:\nRole: ${role}\nUser ID: @${username}\nPassword: ${password}\nQuick PIN: ${pin}\nLogin URL: ${window.location.origin}/login.html`;
       navigator.clipboard.writeText(text).then(() => {
-        window.FarmPilotApp.showToast(`Copied login for @${username} (PIN: ${pin}) to clipboard!`);
+        window.FarmPilotApp.showToast(`Copied credentials for @${username} (Role: ${role}) to clipboard!`, 'success');
       }).catch(() => {
         alert(text);
       });
+    };
+
+    window.loginAsStaffUser = async function(username, role) {
+      // Find staff in workers roster
+      const workers = await window.FarmPilotDB.getWorkers();
+      const user = workers.find(w => w.username.toLowerCase() === username.toLowerCase());
+      
+      if (user) {
+        const sessionUser = {
+          id: user.id,
+          username: user.username,
+          full_name: user.full_name,
+          role: role,
+          assigned_field: user.assigned_field,
+          pin: user.pin,
+          password_plain: user.password_plain
+        };
+        localStorage.setItem('farmpilot_user', JSON.stringify(sessionUser));
+        localStorage.setItem('farmpilot_role', role);
+        localStorage.setItem('farmpilot_active_persona', role);
+        
+        window.FarmPilotApp.showToast(`Switched active session to @${username} (${role}). Redirecting...`, 'success');
+        
+        setTimeout(() => {
+          if (role === 'WORKER') {
+            window.location.href = 'worker.html';
+          } else {
+            window.location.href = 'dashboard.html';
+          }
+        }, 600);
+      } else {
+        FarmPilotAuth.switchPersona(role);
+      }
     };
   </script>
 </body>

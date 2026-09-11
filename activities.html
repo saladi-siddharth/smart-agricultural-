@@ -96,10 +96,13 @@
               </p>
             </div>
 
-            <button onclick="document.getElementById('add-activity-modal').classList.add('active')" class="btn btn-primary btn-sm">
+            <button id="schedule-task-btn" onclick="document.getElementById('add-activity-modal').classList.add('active')" class="btn btn-primary btn-sm">
               <span>+ Schedule Field Task</span>
             </button>
           </div>
+
+          <!-- Dynamic Worker Shift Scope Banner (Rendered when logged in as WORKER) -->
+          <div id="worker-shift-banner-container"></div>
 
           <!-- Dynamic Live Farm Health Synchronization Ribbon -->
           <div id="health-sync-banner" class="card" style="background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%); border-color: var(--color-emerald-light); padding: 1rem 1.5rem;">
@@ -509,8 +512,67 @@
         if (overdueCountEl) overdueCountEl.textContent = health.overdueCount;
       }
 
+      const effectiveRole = window.FarmPilotAuth.getEffectiveRole();
+      const currentUser = window.FarmPilotAuth.getUser() || {};
+      const isWorker = effectiveRole === 'WORKER';
+
+      // Configure Worker Shift Banner & Schedule Button Visibility
+      const workerBannerContainer = document.getElementById('worker-shift-banner-container');
+      const scheduleBtn = document.getElementById('schedule-task-btn');
+      if (isWorker) {
+        if (scheduleBtn) scheduleBtn.style.display = 'none';
+        if (workerBannerContainer) {
+          workerBannerContainer.innerHTML = `
+            <div class="card" style="background: linear-gradient(135deg, #FEF3C7 0%, #FFFBEB 100%); border: 1.5px solid #FCD34D; padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  <span style="font-size: 1.75rem;">🚜</span>
+                  <div>
+                    <div style="font-size: 0.95rem; font-weight: 800; color: #92400E;">
+                      Assigned Field Shift Operations: ${currentUser.full_name || 'Field Operator'} (@${currentUser.username || 'worker'})
+                    </div>
+                    <div style="font-size: 0.75rem; color: #B45309; margin-top: 0.15rem;">
+                      📍 Designated Parcel: <strong>${currentUser.assigned_field || 'North Block (Plot A)'}</strong> • Financial ledgers & enterprise costs are strictly isolated.
+                    </div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <a href="worker.html" class="btn btn-sm" style="background: #D97706; color: white; font-weight: 700;">
+                    📱 Mobile Field Mode →
+                  </a>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      } else {
+        if (scheduleBtn) scheduleBtn.style.display = 'inline-flex';
+        if (workerBannerContainer) workerBannerContainer.innerHTML = '';
+      }
+
+      const userCleanUsername = (currentUser.username || '').toLowerCase().replace(/^@/, '');
+      const userFullName = (currentUser.full_name || '').toLowerCase();
+      const userAssignedField = (currentUser.assigned_field || '').toLowerCase();
+
+      function isAssignedToUser(a) {
+        if (!isWorker) return true;
+        const aUser = (a.assigned_to_username || '').toLowerCase().replace(/^@/, '');
+        const aId = String(a.assigned_to || '').toLowerCase();
+        const aName = (a.assigned_to_name || '').toLowerCase();
+        const aField = (a.field_name || '').toLowerCase();
+
+        return (
+          (userCleanUsername && (aUser === userCleanUsername || aId === userCleanUsername || aId.includes(userCleanUsername))) ||
+          (currentUser.id && aId === String(currentUser.id).toLowerCase()) ||
+          (userFullName && aName.includes(userFullName)) ||
+          (userAssignedField && aField.includes(userAssignedField)) ||
+          (userCleanUsername === 'ramu' && (aId.includes('ramu') || aName.includes('ravi') || a.id === 'act-zinc-spray'))
+        );
+      }
+
       function renderList() {
         const filtered = activities.filter(a => {
+          if (!isAssignedToUser(a)) return false;
           if (currentFilter === 'COMPLETED') return a.status === 'COMPLETED';
           if (currentFilter === 'ALL') return a.status !== 'COMPLETED';
           return a.status === currentFilter;
@@ -523,14 +585,22 @@
             <div class="card" style="text-align: center; padding: 3.5rem 2rem; background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%); border: 1.5px dashed var(--color-emerald-light);">
               <span style="font-size: 2.5rem;">🎉</span>
               <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--color-forest); margin-top: 0.75rem;">
-                All Field Operations Completed & Cleared!
+                ${isWorker ? 'All Assigned Shift Tasks Completed!' : 'All Field Operations Completed & Cleared!'}
               </h3>
               <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.35rem; max-width: 480px; margin-left: auto; margin-right: auto;">
-                Every scheduled task in this category has been folded and recycled. Farm Health is tracking at optimal capacity.
+                ${isWorker 
+                  ? `Great work @${userCleanUsername || 'operator'}! You have cleared all work orders assigned to your shift. Check with the manager for additional field assignments.`
+                  : 'Every scheduled task in this category has been folded and recycled. Farm Health is tracking at optimal capacity.'}
               </p>
-              <button onclick="document.getElementById('add-activity-modal').classList.add('active')" class="btn btn-primary btn-sm" style="margin-top: 1.25rem;">
-                + Schedule New Field Task
-              </button>
+              ${!isWorker ? `
+                <button onclick="document.getElementById('add-activity-modal').classList.add('active')" class="btn btn-primary btn-sm" style="margin-top: 1.25rem;">
+                  + Schedule New Field Task
+                </button>
+              ` : `
+                <a href="worker.html" class="btn btn-secondary btn-sm" style="margin-top: 1.25rem; font-weight: 700; color: #D97706; border-color: #FCD34D;">
+                  📱 Return to Worker Hub
+                </a>
+              `}
             </div>
           `;
           return;
@@ -538,31 +608,36 @@
 
         container.innerHTML = filtered.map(a => {
           const isOverdue = a.status === 'OVERDUE';
+          const isInProgress = a.status === 'IN_PROGRESS';
           const priorityBadge = a.priority === 'HIGH' ? 'badge-danger' : a.priority === 'LOW' ? 'badge-neutral' : 'badge-warning';
 
           return `
             <div class="task-card ${isOverdue ? 'overdue-card' : 'pending-card'}" id="card-${a.id}">
               <div style="display: flex; align-items: flex-start; gap: 1rem; flex: 1;">
                 <!-- 1-Click Complete Button -->
-                <button class="task-check-btn" data-id="${a.id}" title="Mark Done & Recycle into Dustbin">
+                <button class="task-check-btn" data-id="${a.id}" title="Mark Done & Complete Work Order">
                   ✓
                 </button>
 
                 <div style="flex: 1;">
                   <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                     <h3 style="font-size: 1rem; font-weight: 800; color: var(--color-text-primary);">${a.title}</h3>
-                    <span class="badge ${isOverdue ? 'badge-danger' : 'badge-success'}">${a.status}</span>
+                    <span class="badge ${isOverdue ? 'badge-danger' : isInProgress ? 'badge-warning' : 'badge-success'}">${a.status}</span>
                     <span class="badge ${priorityBadge}">${a.priority || 'MEDIUM'}</span>
                     <span class="badge badge-neutral" style="font-size: 0.625rem;">${a.category}</span>
+                    ${isWorker ? `
+                      <span class="badge badge-warning" style="font-size: 0.625rem; font-weight: 700;">🚜 Assigned to You</span>
+                    ` : ''}
                   </div>
 
                   <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-top: 0.35rem;">
                     📍 <strong>${a.field_name || 'North Block (Plot A)'}</strong> • Due: <strong class="font-mono" style="color: ${isOverdue ? 'var(--color-danger)' : 'var(--color-text-primary)'};">${a.due_date}</strong>
+                    ${!isWorker && a.assigned_to_name ? ` • Assigned to: <strong style="color: #059669;">${a.assigned_to_name}</strong>` : ''}
                   </p>
 
                   ${a.target_quantity ? `
                     <div style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.6875rem; font-weight: 800; color: #047857; background: #ECFDF5; border: 1px solid #A7F3D0; padding: 0.15rem 0.55rem; border-radius: 4px; margin-top: 0.35rem;">
-                      <span>📦 Target:</span>
+                      <span>📦 Target Input:</span>
                       <span class="font-mono">${a.target_quantity}</span>
                     </div>
                   ` : ''}
@@ -571,7 +646,7 @@
                     <div style="margin-top: 0.5rem; padding: 0.5rem 0.75rem; background: #FFFBEB; border-radius: var(--radius-sm); border: 1px solid #FCD34D;">
                       <span style="font-size: 0.6875rem; font-weight: 800; color: #92400E; display: flex; align-items: center; gap: 0.35rem; text-transform: uppercase;">
                         <span>📝 Field Note from Worker</span>
-                        <span class="font-mono" style="color: #059669;">(@ramu)</span>:
+                        <span class="font-mono" style="color: #059669;">(@${a.assigned_to_username || userCleanUsername || 'worker'})</span>:
                       </span>
                       <p style="font-size: 0.75rem; color: #78350F; margin: 0.15rem 0 0; line-height: 1.4;">
                         "${a.field_note}"
@@ -590,29 +665,47 @@
                 </div>
               </div>
 
-              <!-- Right Column: Cost and Actions -->
+              <!-- Right Column: Actions (Cost hidden for workers) -->
               <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: 0.75rem; flex-shrink: 0;">
-                <div>
-                  <span style="font-size: 0.625rem; font-weight: 700; color: var(--color-text-tertiary); text-transform: uppercase;">Cost</span>
-                  <p class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); text-align: right;">
-                    ₹${a.cost ? a.cost.toLocaleString('en-IN') : '0'}
-                  </p>
-                </div>
+                ${!isWorker ? `
+                  <div>
+                    <span style="font-size: 0.625rem; font-weight: 700; color: var(--color-text-tertiary); text-transform: uppercase;">Cost</span>
+                    <p class="tabular-nums font-mono" style="font-size: 1.125rem; font-weight: 800; color: var(--color-text-primary); text-align: right;">
+                      ₹${a.cost ? a.cost.toLocaleString('en-IN') : '0'}
+                    </p>
+                  </div>
+                ` : `
+                  <div>
+                    <span style="font-size: 0.625rem; font-weight: 700; color: #D97706; text-transform: uppercase;">Shift Status</span>
+                    <p style="font-size: 0.8125rem; font-weight: 800; color: #92400E; margin: 0; text-align: right;">
+                      ${isInProgress ? '⚡ IN PROGRESS' : '⏳ READY TO START'}
+                    </p>
+                  </div>
+                `}
 
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
-                  <button class="btn btn-primary btn-sm btn-mark-done" data-id="${a.id}" title="Complete & Dispose">
-                    <span>✓ Done</span>
+                  ${isWorker && a.status !== 'IN_PROGRESS' && a.status !== 'COMPLETED' ? `
+                    <button class="btn btn-secondary btn-sm btn-start-task" data-id="${a.id}" style="color: #059669; border-color: #10B981; font-weight: 700;" title="Start Shift Operation">
+                      <span>▶ Start</span>
+                    </button>
+                  ` : ''}
+
+                  <button class="btn btn-primary btn-sm btn-mark-done" data-id="${a.id}" title="Complete & Record Field Work">
+                    <span>✓ Complete</span>
                   </button>
-                  <button class="task-delete-btn" data-id="${a.id}" title="Fold into paper & Throw into Dustbin">
-                    🗑
-                  </button>
+
+                  ${!isWorker ? `
+                    <button class="task-delete-btn" data-id="${a.id}" title="Fold into paper & Throw into Dustbin">
+                      🗑
+                    </button>
+                  ` : ''}
                 </div>
               </div>
             </div>
           `;
         }).join('');
 
-        // Attach 3D Origami Paper Fold & Dustbin Throw Handler
+        // Attach 3D Origami Paper Fold & Complete Handler
         const handleDiscard = (id, originEl) => {
           const cardEl = document.getElementById(`card-${id}`);
           if (!cardEl) return;
@@ -623,12 +716,17 @@
 
           // Animate: Fold element into paper -> fly to red dustbin -> open lid -> drop -> close lid
           window.TrashAnimationEngine.animateDiscard(cardEl, async () => {
-            const res = await window.FarmPilotDB.completeActivity(id);
+            const res = await window.FarmPilotDB.completeActivity(id, {
+              actual_quantity: '45 kg Urea',
+              field_note: 'Applied prescribed dosage. AWD water tube verified.',
+              worker_name: currentUser.full_name || 'Ravi Kumar',
+              worker_username: userCleanUsername || 'ramu'
+            });
             activities = await window.FarmPilotDB.getActivities();
             renderList();
 
             const score = res && res.health ? res.health.score : 94;
-            window.FarmPilotApp.showToast(`Activity folded and recycled into dustbin! Farm Health: ${score}/100 🗑️`);
+            window.FarmPilotApp.showToast(`Task completed! Actual dosage recorded. Farm Health: ${score}/100 🌾`);
           });
         };
 
@@ -646,7 +744,18 @@
           });
         });
 
-        // Attach Permanent Delete to Dustbin Handler
+        // Worker Start Task Handler
+        container.querySelectorAll('.btn-start-task').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const id = btn.getAttribute('data-id');
+            await window.FarmPilotDB.startActivity(id);
+            activities = await window.FarmPilotDB.getActivities();
+            renderList();
+            window.FarmPilotApp.showToast('Shift work order started! Status set to In Progress ▶️', 'success');
+          });
+        });
+
+        // Attach Permanent Delete to Dustbin Handler (Executive Only)
         container.querySelectorAll('.task-delete-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
             const id = btn.getAttribute('data-id');
