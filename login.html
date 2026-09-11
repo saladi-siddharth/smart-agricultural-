@@ -493,7 +493,7 @@
       if (fillOwnerBtn) {
         fillOwnerBtn.addEventListener('click', () => {
           emailInput.value = 'siddharth';
-          passwordInput.value = 'farmer123';
+          passwordInput.value = 'Farmer@2026!';
           errorBox.style.display = 'none';
           emailInput.style.borderColor = '#059669';
           passwordInput.style.borderColor = '#059669';
@@ -503,7 +503,7 @@
       if (fillWorkerBtn) {
         fillWorkerBtn.addEventListener('click', () => {
           emailInput.value = 'ramu';
-          passwordInput.value = '1234';
+          passwordInput.value = 'Worker@2026!';
           errorBox.style.display = 'none';
           emailInput.style.borderColor = '#D97706';
           passwordInput.style.borderColor = '#D97706';
@@ -589,14 +589,14 @@
         const password = passwordInput.value;
 
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span>Verifying & Recording Live Login Timestamp...</span>';
+        submitBtn.innerHTML = '<span>Verifying credentials with Supabase Auth...</span>';
         errorBox.style.display = 'none';
 
         const result = await window.FarmPilotAuth.login(identifier, password);
 
         if (result.success) {
           submitBtn.style.background = '#059669';
-          submitBtn.innerHTML = '<span>✓ Logged In (Live Time Stored)!</span>';
+          submitBtn.innerHTML = '<span>✓ Authenticated with Supabase! Redirecting...</span>';
           setTimeout(() => {
             const role = window.FarmPilotAuth.getEffectiveRole();
             if (role === 'WORKER') {
@@ -606,7 +606,7 @@
             }
           }, 600);
         } else {
-          errorBox.textContent = result.error || 'Failed to authenticate.';
+          errorBox.textContent = result.error || 'Failed to authenticate. Please check your credentials.';
           errorBox.style.display = 'block';
           submitBtn.disabled = false;
           submitBtn.innerHTML = '<span>Sign In to System</span><span>→</span>';
@@ -629,13 +629,13 @@
           const role = document.getElementById('signup-role').value;
 
           if (password.length < 6) {
-            signupError.textContent = 'Password must be at least 6 characters for database encryption.';
+            signupError.textContent = 'Password must be at least 6 characters long.';
             signupError.style.display = 'block';
             return;
           }
 
           signupSubmit.disabled = true;
-          signupSubmit.innerHTML = '<span>Saving Live to Supabase Table 17488...</span>';
+          signupSubmit.innerHTML = '<span>Registering with Supabase Auth & PostgreSQL...</span>';
           signupError.style.display = 'none';
 
           const res = await window.FarmPilotAuth.signUp({
@@ -649,7 +649,7 @@
 
           if (res.success) {
             signupSubmit.style.background = '#059669';
-            signupSubmit.innerHTML = '<span>✓ Saved to Supabase Table 17488! Launching...</span>';
+            signupSubmit.innerHTML = '<span>✓ Account Created! Launching...</span>';
             setTimeout(() => {
               if (role === 'WORKER') {
                 window.location.href = 'worker.html';

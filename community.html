@@ -1676,7 +1676,19 @@
       }
     });
 
-    // Initialize badges on load
+    // Realtime and Messaging Events
+    window.addEventListener('farmpilot:message-received', (e) => {
+      updateMessageBadges();
+      renderConversationsList();
+      const newMsg = e.detail;
+      if (activeConversation && (activeConversation.id === newMsg.conversation_id || newMsg.sender_username === activeConversation.recipient_username || newMsg.sender_username === activeConversation.initiator_username)) {
+        renderChatMessages(activeConversation.id);
+        if (window.FarmPilotMessaging && window.FarmPilotMessaging.markAsRead) {
+          window.FarmPilotMessaging.markAsRead(activeConversation.id);
+        }
+      }
+    });
+
     window.addEventListener('farmpilot:message-sent', () => {
       updateMessageBadges();
       renderConversationsList();
