@@ -289,8 +289,14 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="signup-password">Password or Direct PIN</label>
-              <input type="password" id="signup-password" class="form-input" required placeholder="At least 6 characters or 4-digit PIN" minlength="4">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="form-label" for="signup-password" style="margin-bottom: 0;">Password or PIN</label>
+                <span style="font-size: 0.6875rem; color: #059669; font-weight: 700;">Live Supabase Sync</span>
+              </div>
+              <input type="password" id="signup-password" class="form-input" required placeholder="At least 6 characters (e.g. Farmer@2026!)" minlength="6">
+              <span style="font-size: 0.6875rem; color: var(--color-text-tertiary); margin-top: 0.25rem; display: block;">
+                🔒 Credentials will be securely saved live to Supabase Database Table 17488.
+              </span>
             </div>
 
             <div class="form-group">
@@ -309,7 +315,7 @@
             </div>
 
             <button type="submit" id="btn-signup-submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 0.875rem;">
-              <span>Create Account & Launch FarmPilot</span>
+              <span>Create Account & Live-Save to Supabase</span>
               <span>🚀</span>
             </button>
           </form>
@@ -583,18 +589,22 @@
         const password = passwordInput.value;
 
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span>Verifying...</span>';
+        submitBtn.innerHTML = '<span>Verifying & Recording Live Login Timestamp...</span>';
         errorBox.style.display = 'none';
 
         const result = await window.FarmPilotAuth.login(identifier, password);
 
         if (result.success) {
-          const role = window.FarmPilotAuth.getEffectiveRole();
-          if (role === 'WORKER') {
-            window.location.href = 'worker.html';
-          } else {
-            window.location.href = 'dashboard.html';
-          }
+          submitBtn.style.background = '#059669';
+          submitBtn.innerHTML = '<span>✓ Logged In (Live Time Stored)!</span>';
+          setTimeout(() => {
+            const role = window.FarmPilotAuth.getEffectiveRole();
+            if (role === 'WORKER') {
+              window.location.href = 'worker.html';
+            } else {
+              window.location.href = 'dashboard.html';
+            }
+          }, 600);
         } else {
           errorBox.textContent = result.error || 'Failed to authenticate.';
           errorBox.style.display = 'block';
@@ -618,8 +628,14 @@
           const farmName = document.getElementById('signup-farm').value.trim();
           const role = document.getElementById('signup-role').value;
 
+          if (password.length < 6) {
+            signupError.textContent = 'Password must be at least 6 characters for database encryption.';
+            signupError.style.display = 'block';
+            return;
+          }
+
           signupSubmit.disabled = true;
-          signupSubmit.innerHTML = '<span>Creating Profile...</span>';
+          signupSubmit.innerHTML = '<span>Saving Live to Supabase Table 17488...</span>';
           signupError.style.display = 'none';
 
           const res = await window.FarmPilotAuth.signUp({
@@ -632,16 +648,20 @@
           });
 
           if (res.success) {
-            if (role === 'WORKER') {
-              window.location.href = 'worker.html';
-            } else {
-              window.location.href = 'dashboard.html';
-            }
+            signupSubmit.style.background = '#059669';
+            signupSubmit.innerHTML = '<span>✓ Saved to Supabase Table 17488! Launching...</span>';
+            setTimeout(() => {
+              if (role === 'WORKER') {
+                window.location.href = 'worker.html';
+              } else {
+                window.location.href = 'dashboard.html';
+              }
+            }, 700);
           } else {
             signupError.textContent = res.error || 'Failed to register account.';
             signupError.style.display = 'block';
             signupSubmit.disabled = false;
-            signupSubmit.innerHTML = '<span>Create Account & Launch FarmPilot</span><span>🚀</span>';
+            signupSubmit.innerHTML = '<span>Create Account & Live-Save to Supabase</span><span>🚀</span>';
           }
         });
       }

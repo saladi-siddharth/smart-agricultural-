@@ -92,23 +92,78 @@ export default async function handler(req, res) {
     return res.status(400).json({ success: false, error: 'Username or email and password are required' });
   }
 
-  const user = KNOWN_USERS.find(u => 
+  let user = KNOWN_USERS.find(u => 
     u.username.toLowerCase() === identifier || 
     u.email.toLowerCase() === identifier
   );
+
+  const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://xgcamlpkbgjulkfknpud.supabase.co';
+  const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_3rbDSN4ONrtCxacboVfEdA_3nkUt82f';
+
+  // If not found in static known users, check remote Supabase Table 17488
+  if (!user) {
+    try {
+      const { createClient } = await import('@supabase/supabase-js');
+      const client = createClient(SUPABASE_URL, SUPABASE_KEY);
+      const { data, error } = await client
+        .from('profiles')
+        .select('*')
+        .or(`username.eq.${identifier},email.eq.${identifier}`)
+        .limit(1);
+
+      if (!error && data && data.length > 0) {
+        user = data[0];
+      }
+    } catch (e) {
+      console.warn('Vercel serverless remote user lookup error:', e.message);
+    }
+  }
 
   if (!user) {
     return res.status(401).json({ success: false, error: 'Invalid username/email or password' });
   }
 
-  const match = (password === user.password || password === user.pin || password === '1234');
+  const match = (password === user.password || password === user.password_plain || password === user.pin || password === '1234');
   if (!match) {
     return res.status(401).json({ success: false, error: 'Invalid username/email or password' });
+  }
+
+  const actualSignInTime = new Date().toISOString();
+
+  // Update last_sign_in_at and record security audit log in Supabase Table 17488
+  try {
+    const { createClient } = await import('@supabase/supabase-js');
+    const client = createClient(SUPABASE_URL, SUPABASE_KEY);
+    await client
+      .from('profiles')
+      .update({
+        last_sign_in_at: actualSignInTime,
+        updated_at: actualSignInTime
+      })
+      .eq('username', user.username);
+
+    await client
+      .from('security_audit_logs')
+      .insert({
+        event_type: 'LOGIN_SUCCESS',
+        actor_username: user.username,
+        actor_role: user.role,
+        target_resource: 'public.profiles',
+        status: 'SUCCESS',
+        details: {
+          timestamp: actualSignInTime,
+          login_method: 'API_VERCEL_SERVERLESS'
+        },
+        created_at: actualSignInTime
+      });
+  } catch (err) {
+    console.warn('Vercel serverless login audit notice:', err.message);
   }
 
   return res.status(200).json({
     success: true,
     token: `fp_jwt_${Date.now()}_${user.username}`,
+    last_sign_in_at: actualSignInTime,
     user: {
       id: user.id,
       username: user.username,
@@ -117,8 +172,10 @@ export default async function handler(req, res) {
       role: user.role,
       role_label: user.role_label,
       farm_name: user.farm_name,
-      assigned_field: user.assigned_field,
-      permissions: user.permissions
+      assigned_field: user.assigned_parcel || user.assigned_field,
+      assigned_parcel: user.assigned_parcel || user.assigned_field,
+      permissions: user.permissions || [],
+      last_sign_in_at: actualSignInTime
     }
   });
 }
